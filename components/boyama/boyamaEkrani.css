@@ -1,14 +1,42 @@
-/* Boyama ekraninin yerlesimi. */
-.boyamaEkrani { padding: 8px; }
+/* Boyama ekraninin yerlesimi.
+ *
+ * Kural: bu ekranda kaydirma yoktur. Cocuk boya veya firca secmek icin
+ * sayfayi asagi kaydirmak zorunda kalmamali; her sey tek ekranda durmali.
+ * Bu yuzden yukseklik ekrana sabitlenir ve tuval artan alani doldurur.
+ */
+.boyamaEkrani {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto 1fr;
+  grid-template-areas:
+    "baslik baslik"
+    "panel  tuval";
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+}
+
+/* Izgara ogeleri varsayilan olarak icerikleri kadar genis kalir ve
+   sutunu sisirir. Bu kural, dar ekranda tasmayi engeller. */
+.boyamaEkrani > * { min-width: 0; min-height: 0; }
 
 .boyamaBaslik {
+  grid-area: baslik;
   display: flex;
   align-items: center;
   gap: 16px;
-  padding: 8px;
+  overflow: hidden;
 }
 
-.boyamaBaslik h1 { font-size: 24px; margin: 0; }
+.boyamaBaslik h1 {
+  font-size: 22px;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
 .geriDugmesi {
   display: inline-flex;
@@ -22,4 +50,60 @@
   text-decoration: none;
   color: var(--metin);
   font-weight: 700;
+  white-space: nowrap;
+}
+
+/* Araclar ve renkler burada sabit durur. */
+.yanPanel {
+  grid-area: panel;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: center;
+  min-height: 0;
+}
+
+/* Tuval kalan alanin tamamini kullanir, karesel oranini koruyarak.
+   Olcu birimi olarak bu alanin kendisi kullanilir (container query),
+   boylece tuval hem genislige hem yukseklige ayni anda sigar. */
+.tuvalAlani {
+  grid-area: tuval;
+  display: grid;
+  place-items: center;
+  container-type: size;
+}
+
+/* Dikey ekranlarda panel alta gecer.
+ *
+ * Tuval kare oldugu icin dikey ekranda genislik sinirlayicidir: panel yanda
+ * kalirsa tuval kucuk kalir ve altta buyuk bos alan olusur. Panel alta
+ * alininca tuval ekran genisligini tam kullanir ve belirgin sekilde buyur. */
+@media (orientation: portrait), (max-width: 720px) {
+  .boyamaEkrani {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto 1fr auto;
+    grid-template-areas:
+      "baslik"
+      "tuval"
+      "panel";
+  }
+
+  .yanPanel {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+  }
+}
+
+/* Telefon: butonlar kuculur ve panel yeniden alt alta dizilir,
+   cunku araclar ve renkler yan yana sigmiyor. */
+@media (max-width: 720px) {
+  .yanPanel {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .boyamaBaslik h1 { font-size: 18px; }
 }

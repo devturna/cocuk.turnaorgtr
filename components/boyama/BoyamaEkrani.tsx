@@ -76,6 +76,8 @@ export default function BoyamaEkrani({
     setGecmis((onceki) => sil(onceki, { tur: "cizgi", indeks }));
   }
 
+  // Ekran uc bolgeye ayrilir: baslik, sabit yan panel ve tuval.
+  // Hicbiri kaymaz; cocuk boya secmek icin sayfayi kaydirmak zorunda kalmaz.
   return (
     <div className="boyamaEkrani">
       <div className="boyamaBaslik">
@@ -85,29 +87,32 @@ export default function BoyamaEkrani({
         <h1>{resimAdi}</h1>
       </div>
 
-      <Tuval
-        svgIcerigi={svgIcerigi}
-        viewBox={viewBox}
-        durum={durum}
-        arac={arac}
-        renk={renk}
-        kalinlik={kalinlik}
-        bolgeyeDokunuldu={bolgeyeDokunuldu}
-        cizgiTamamlandi={cizgiTamamlandi}
-        cizgiyeDokunuldu={cizgiyeDokunuldu}
-      />
+      <div className="yanPanel">
+        <AracCubugu
+          arac={arac}
+          kalinlik={kalinlik}
+          geriAlinabilir={geriAlinabilirMi(gecmis)}
+          aracSecildi={setArac}
+          kalinlikSecildi={setKalinlik}
+          geriAlIstendi={() => setGecmis((onceki) => geriAl(onceki))}
+          bastanBaslaIstendi={() => setGecmis((onceki) => bastanBasla(onceki))}
+        />
+        <RenkPaleti secili={renk} renkSecildi={setRenk} />
+      </div>
 
-      <AracCubugu
-        arac={arac}
-        kalinlik={kalinlik}
-        geriAlinabilir={geriAlinabilirMi(gecmis)}
-        aracSecildi={setArac}
-        kalinlikSecildi={setKalinlik}
-        geriAlIstendi={() => setGecmis((onceki) => geriAl(onceki))}
-        bastanBaslaIstendi={() => setGecmis((onceki) => bastanBasla(onceki))}
-      />
-
-      <RenkPaleti secili={renk} renkSecildi={setRenk} />
+      <div className="tuvalAlani">
+        <Tuval
+          svgIcerigi={svgIcerigi}
+          viewBox={viewBox}
+          durum={durum}
+          arac={arac}
+          renk={renk}
+          kalinlik={kalinlik}
+          bolgeyeDokunuldu={bolgeyeDokunuldu}
+          cizgiTamamlandi={cizgiTamamlandi}
+          cizgiyeDokunuldu={cizgiyeDokunuldu}
+        />
+      </div>
     </div>
   );
 }

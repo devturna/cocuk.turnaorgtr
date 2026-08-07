@@ -1,44 +1,15 @@
-/* Renk paleti ve arac cubugu. Tum dokunma hedefleri en az 56 piksel. */
-.renkPaleti {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  padding: 12px;
-}
+/* Renk paleti ve arac cubugu.
+ *
+ * Ikisi de boyama ekraninin sabit yan panelinde durur. Dokunma hedefleri
+ * en az 56 piksel; kucuk parmaklar icin daha kucugu isabet ettirilemiyor.
+ */
 
-.renkDugmesi {
-  width: 64px;
-  min-height: 64px;
-  padding: 4px;
-  border: 4px solid var(--kenar);
-  border-radius: 16px;
-  cursor: pointer;
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-}
-
-.renkDugmesi.secili {
-  outline: 4px solid var(--vurgu);
-  outline-offset: 3px;
-}
-
-.renkAdi {
-  font-size: 10px;
-  background: rgba(255, 255, 255, 0.85);
-  border-radius: 4px;
-  padding: 0 2px;
-  color: #000;
-}
+/* --- Araclar --- */
 
 .aracCubugu {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  justify-content: center;
-  align-items: center;
-  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px;
 }
 
 .aracDugmesi {
@@ -46,8 +17,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-width: 72px;
-  min-height: 72px;
+  min-width: 68px;
+  min-height: 68px;
   gap: 2px;
   border: 4px solid var(--kenar);
   border-radius: 16px;
@@ -59,10 +30,16 @@
 .aracDugmesi.secili { background: var(--vurgu); }
 .aracDugmesi:disabled { opacity: 0.4; cursor: default; }
 
-.aracIkon { font-size: 28px; }
-.aracAd { font-size: 13px; font-weight: 700; }
+.aracIkon { font-size: 26px; line-height: 1; }
+.aracAd { font-size: 12px; font-weight: 700; }
 
-.kalinlikSecimi { display: flex; gap: 8px; }
+/* Kalinlik secimi tek satirda, iki sutunu birden kaplar. */
+.kalinlikSecimi {
+  grid-column: 1 / -1;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
 
 .kalinlikDugmesi {
   display: flex;
@@ -77,17 +54,81 @@
 }
 
 .kalinlikDugmesi.secili { background: var(--vurgu); }
+.kalinlikDugmesi:disabled { opacity: 0.35; cursor: default; }
 .kalinlikNoktasi { background: var(--metin); border-radius: 50%; display: block; }
 
+/* Bastan basla onayi paneli buyutmesin diye tuvalin ustunde acilir. */
 .onayKutusu {
+  position: fixed;
+  inset: 0;
+  z-index: 10;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
-  padding: 12px;
-  border: 4px solid var(--kenar);
-  border-radius: 16px;
-  background: #fff;
+  justify-content: center;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(0, 0, 0, 0.45);
 }
 
-.onayKutusu p { margin: 0; font-weight: 700; }
+.onayKutusu p {
+  margin: 0;
+  padding: 16px 24px;
+  border-radius: 16px;
+  background: #fff;
+  font-size: 20px;
+  font-weight: 700;
+  text-align: center;
+}
+
+/* --- Renkler --- */
+
+.renkPaleti {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: center;
+}
+
+.seciliRenkAdi {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  text-align: center;
+  min-height: 20px;
+}
+
+.renkIzgara {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+.renkDugmesi {
+  width: 56px;
+  height: 56px;
+  border: 4px solid var(--kenar);
+  border-radius: 14px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.renkDugmesi.secili {
+  outline: 4px solid var(--vurgu);
+  outline-offset: 3px;
+}
+
+/* Dar ekranlarda dugmeler kuculur. Panelin kendi yerlesimi
+   boyamaEkrani.css icinde tanimlidir. */
+@media (max-width: 720px) {
+  /* Telefonda araclar tek sira olur, renkler alti sutuna yayilir.
+     Sekiz sutun 390 piksellik ekrana sigmiyor; alti sigiyor. */
+  .aracCubugu { grid-template-columns: repeat(5, 1fr); gap: 6px; }
+  .renkIzgara { grid-template-columns: repeat(6, 1fr); gap: 5px; }
+  .renkDugmesi { width: 48px; height: 48px; border-width: 3px; border-radius: 12px; }
+  .aracDugmesi { min-width: 58px; min-height: 58px; }
+  .aracIkon { font-size: 22px; }
+  .aracAd { font-size: 11px; }
+  .kalinlikDugmesi { width: 48px; height: 48px; }
+  .seciliRenkAdi { font-size: 13px; }
+}

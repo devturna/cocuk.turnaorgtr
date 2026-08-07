@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // e2e testleri sirasinda olusan gecici sunucu klasoru:
+    ".e2e-sunucu/**",
   ]),
 ]);
 

@@ -48,25 +48,26 @@ export default function AracCubugu({
         </button>
       ))}
 
-      {arac === "firca" && (
-        <div className="kalinlikSecimi" role="group" aria-label="Fırça kalınlığı">
-          {FIRCA_KALINLIKLARI.map((secenek) => (
-            <button
-              key={secenek}
-              type="button"
-              className={"kalinlikDugmesi" + (secenek === kalinlik ? " secili" : "")}
-              aria-label={`Kalınlık ${secenek}`}
-              aria-pressed={secenek === kalinlik}
-              onClick={() => kalinlikSecildi(secenek)}
-            >
-              <span
-                className="kalinlikNoktasi"
-                style={{ width: secenek, height: secenek }}
-              />
-            </button>
-          ))}
-        </div>
-      )}
+      {/* Kalinlik secimi her zaman ayni yerde durur; sadece firca secilince
+          etkinlesir. Boylece arac degistiginde dugmeler yer degistirmez. */}
+      <div className="kalinlikSecimi" role="group" aria-label="Fırça kalınlığı">
+        {FIRCA_KALINLIKLARI.map((secenek) => (
+          <button
+            key={secenek}
+            type="button"
+            className={"kalinlikDugmesi" + (secenek === kalinlik ? " secili" : "")}
+            aria-label={`Kalınlık ${secenek}`}
+            aria-pressed={secenek === kalinlik}
+            disabled={arac !== "firca"}
+            onClick={() => kalinlikSecildi(secenek)}
+          >
+            <span
+              className="kalinlikNoktasi"
+              style={{ width: secenek, height: secenek }}
+            />
+          </button>
+        ))}
+      </div>
 
       <button
         type="button"
