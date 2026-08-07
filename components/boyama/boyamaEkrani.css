@@ -1,0 +1,25 @@
+/* Boyama ekraninin yerlesimi. */
+.boyamaEkrani { padding: 8px; }
+
+.boyamaBaslik {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px;
+}
+
+.boyamaBaslik h1 { font-size: 24px; margin: 0; }
+
+.geriDugmesi {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 4px solid var(--kenar);
+  border-radius: 16px;
+  background: #fff;
+  text-decoration: none;
+  color: var(--metin);
+  font-weight: 700;
+}
