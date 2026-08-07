@@ -3,6 +3,7 @@
 // Boyama ekraninin butun parcalarini birlestirir ve durumu yonetir.
 // Cizim degistikce tarayiciya kaydedilir; hicbir veri cihazdan cikmaz.
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import {
   yeniGecmis,
   simdikiDurum,
@@ -42,9 +43,11 @@ export default function BoyamaEkrani({
   // Kayit yuklenmeden yazma yapmayalim; yoksa bos tuval kaydin uzerine biner.
   const [yuklendi, setYuklendi] = useState(false);
 
-  // Kayitli cizim sadece tarayicida bulunur, bu yuzden ilk cizimden sonra yuklenir.
+  // Kayitli cizim sadece tarayicida bulunur; sayfa sunucuda uretilirken localStorage yoktur.
+  // Bu yuzden okuma ancak ekran acildiktan sonra yapilabilir ve state'e burada yazilir.
   useEffect(() => {
     const kayitli = durumuYukle(resimId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (kayitli) setGecmis(yeniGecmis(kayitli));
     setYuklendi(true);
   }, [resimId]);
@@ -76,9 +79,9 @@ export default function BoyamaEkrani({
   return (
     <div className="boyamaEkrani">
       <div className="boyamaBaslik">
-        <a href="/boyama/" className="geriDugmesi">
+        <Link href="/boyama/" className="geriDugmesi">
           <span aria-hidden="true">←</span> Resimler
-        </a>
+        </Link>
         <h1>{resimAdi}</h1>
       </div>
 
