@@ -46,8 +46,8 @@ export default function BoyamaEkrani({
   // Bu ekran acikken sayfa kaydirilmaz ve ust bar gizlenir.
   // Sinif body uzerinde durur; ilgili kurallar app/globals.css icinde.
   useEffect(() => {
-    document.body.classList.add("boyamaAcik");
-    return () => document.body.classList.remove("boyamaAcik");
+    document.body.classList.add("tamEkran");
+    return () => document.body.classList.remove("tamEkran");
   }, []);
 
   // Kayitli cizim sadece tarayicida bulunur; sayfa sunucuda uretilirken localStorage yoktur.

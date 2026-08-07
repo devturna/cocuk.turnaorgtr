@@ -47,13 +47,13 @@ for (const ekran of [
 // tarayicida kaydirma geri geliyordu. Artik sinifi bilesen ekliyor.
 test("boyama ekrani acilinca body sinifi eklenir, cikinca kalkar", async ({ page }) => {
   await page.goto("/boyama/");
-  await expect(page.locator("body")).not.toHaveClass(/boyamaAcik/);
+  await expect(page.locator("body")).not.toHaveClass(/tamEkran/);
 
   await page.getByRole("link", { name: "Kedi" }).click();
-  await expect(page.locator("body")).toHaveClass(/boyamaAcik/);
+  await expect(page.locator("body")).toHaveClass(/tamEkran/);
   await expect(page.locator(".ustBar")).toBeHidden();
 
   await page.getByRole("link", { name: "Resimler" }).click();
-  await expect(page.locator("body")).not.toHaveClass(/boyamaAcik/);
+  await expect(page.locator("body")).not.toHaveClass(/tamEkran/);
   await expect(page.locator(".ustBar")).toBeVisible();
 });

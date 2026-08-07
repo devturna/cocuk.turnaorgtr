@@ -24,21 +24,39 @@ body {
 
 main { flex: 1; min-height: 0; }
 
-/* Boyama ekraninda kaydirma yoktur: cocuk boya secmek icin sayfayi
+/* Oyun ve boyama ekranlarinda kaydirma yoktur: cocuk boya secmek icin sayfayi
    asagi kaydirmak zorunda kalmamali. Ust bar ve alt bilgi gizlenir,
    boylece butun alan tuvale kalir.
 
-   Sinifi BoyamaEkrani bileseni ekler. Bunu CSS'in :has() secicisiyle de
+   Sinifi ilgili ekranin bileseni ekler (BoyamaEkrani, YazOyunu).
+   Bunu CSS'in :has() secicisiyle de
    yapabilirdik ama :has() yeni bir ozellik; desteklemeyen tarayicida
    kaydirma geri gelirdi. */
-body.boyamaAcik {
+body.tamEkran {
   height: 100%;
   overflow: hidden;
 }
 
-body.boyamaAcik .ustBar,
-body.boyamaAcik .altBilgi {
+body.tamEkran .ustBar,
+body.tamEkran .altBilgi {
   display: none;
+}
+
+/* Bolumler arasi ortak: bir ust ekrana donen dugme.
+   Hem boyama hem ogrenme ekranlari kullanir. */
+.geriDugmesi {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 56px;
+  padding: 0 16px;
+  border: 4px solid var(--kenar);
+  border-radius: 16px;
+  background: #fff;
+  text-decoration: none;
+  color: var(--metin);
+  font-weight: 700;
+  white-space: nowrap;
 }
 
 .ustBar { padding: 16px; }

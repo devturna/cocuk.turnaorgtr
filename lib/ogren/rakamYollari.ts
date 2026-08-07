@@ -14,7 +14,12 @@ export type Vurus = { noktalar: Nokta[] };
 
 export const TUVAL_BOYU = 400;
 
-/** Bir yayi noktalara boler. Acilar derece cinsindendir. */
+/**
+ * Bir yayi noktalara boler. Acilar derece cinsindendir.
+ *
+ * Bol nokta kullanmak cizimi yumusatir; kontrol noktalari zaten
+ * kontrolNoktalari() ile seyreltildigi icin oyunun zorlugu degismez.
+ */
 function yay(
   mx: number,
   my: number,
@@ -37,7 +42,7 @@ function yay(
 
 export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   // Sifir: tepeden baslayip saat yonunun tersine tam tur.
-  0: [{ noktalar: yay(200, 200, 90, 140, -90, 270, 16) }],
+  0: [{ noktalar: yay(200, 200, 90, 140, -90, 270, 32) }],
 
   // Bir: once kisa egik cizgi, sonra uzun dikey cizgi.
   1: [{ noktalar: [{ x: 150, y: 110 }, { x: 200, y: 65 }, { x: 200, y: 335 }] }],
@@ -46,7 +51,7 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   2: [
     {
       noktalar: [
-        ...yay(200, 130, 75, 65, 180, 20, 8),
+        ...yay(200, 130, 75, 65, 180, 20, 16),
         { x: 250, y: 190 },
         { x: 120, y: 335 },
         { x: 280, y: 335 },
@@ -58,9 +63,9 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   3: [
     {
       noktalar: [
-        ...yay(200, 130, 70, 65, 180, 90, 8),
+        ...yay(200, 130, 70, 65, 180, 90, 16),
         { x: 175, y: 200 },
-        ...yay(200, 265, 75, 70, -90, 160, 8),
+        ...yay(200, 265, 75, 70, -90, 160, 16),
       ],
     },
   ],
@@ -74,7 +79,7 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   // Bes: ust yatay cizgi ve dikey inis bir vurus, alt yay ikinci vurus.
   5: [
     { noktalar: [{ x: 275, y: 70 }, { x: 135, y: 70 }, { x: 130, y: 185 }] },
-    { noktalar: yay(200, 255, 80, 80, 200, 90, 10) },
+    { noktalar: yay(200, 255, 80, 80, 200, 90, 20) },
   ],
 
   // Alti: ustten inen egri, sonra alttaki halka.
@@ -84,7 +89,7 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
         { x: 265, y: 80 },
         { x: 155, y: 165 },
         { x: 128, y: 250 },
-        ...yay(200, 262, 72, 72, 180, 540, 12),
+        ...yay(200, 262, 72, 72, 180, 540, 24),
       ],
     },
   ],
@@ -96,8 +101,8 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   8: [
     {
       noktalar: [
-        ...yay(200, 135, 65, 65, -90, 270, 12),
-        ...yay(200, 268, 78, 68, -90, 270, 12),
+        ...yay(200, 135, 65, 65, -90, 270, 24),
+        ...yay(200, 268, 78, 68, -90, 270, 24),
       ],
     },
   ],
@@ -106,7 +111,7 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   9: [
     {
       noktalar: [
-        ...yay(200, 145, 72, 72, 0, 360, 12),
+        ...yay(200, 145, 72, 72, 0, 360, 24),
         { x: 272, y: 220 },
         { x: 245, y: 335 },
       ],

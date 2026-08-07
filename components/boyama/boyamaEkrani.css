@@ -37,22 +37,6 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
-.geriDugmesi {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 56px;
-  padding: 0 16px;
-  border: 4px solid var(--kenar);
-  border-radius: 16px;
-  background: #fff;
-  text-decoration: none;
-  color: var(--metin);
-  font-weight: 700;
-  white-space: nowrap;
-}
-
 /* Araclar ve renkler burada sabit durur. */
 .yanPanel {
   grid-area: panel;
