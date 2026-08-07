@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <path class="boyanabilir" id="merkez" fill="#ffffff" d="M200 200 m-95 0 a95 95 0 1 0 190 0 a95 95 0 1 0 -190 0 Z"/>
+    <path class="boyanabilir" id="isinUst" fill="#ffffff" d="M180 100 L200 20 L220 100 Z"/>
+    <path class="boyanabilir" id="isinAlt" fill="#ffffff" d="M180 300 L200 380 L220 300 Z"/>
+    <path class="boyanabilir" id="isinSol" fill="#ffffff" d="M100 180 L20 200 L100 220 Z"/>
+    <path class="boyanabilir" id="isinSag" fill="#ffffff" d="M300 180 L380 200 L300 220 Z"/>
+    <path class="boyanabilir" id="isinSolUst" fill="#ffffff" d="M118 146 L62 62 L146 118 Z"/>
+    <path class="boyanabilir" id="isinSagUst" fill="#ffffff" d="M282 146 L338 62 L254 118 Z"/>
+    <path class="boyanabilir" id="isinSolAlt" fill="#ffffff" d="M118 254 L62 338 L146 282 Z"/>
+    <path class="boyanabilir" id="isinSagAlt" fill="#ffffff" d="M282 254 L338 338 L254 282 Z"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <circle cx="200" cy="200" r="95"/>
+    <path d="M180 100 L200 20 L220 100"/>
+    <path d="M180 300 L200 380 L220 300"/>
+    <path d="M100 180 L20 200 L100 220"/>
+    <path d="M300 180 L380 200 L300 220"/>
+    <path d="M118 146 L62 62 L146 118"/>
+    <path d="M282 146 L338 62 L254 118"/>
+    <path d="M118 254 L62 338 L146 282"/>
+    <path d="M282 254 L338 338 L254 282"/>
+    <circle cx="172" cy="185" r="9" fill="#000000"/>
+    <circle cx="228" cy="185" r="9" fill="#000000"/>
+    <path d="M165 232 C180 250 220 250 235 232"/>
+  </g>
+</svg>

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <path class="boyanabilir" id="govde" fill="#ffffff" d="M50 270 L350 270 L305 340 L95 340 Z"/>
+    <path class="boyanabilir" id="buyukYelken" fill="#ffffff" d="M205 60 L310 250 L205 250 Z"/>
+    <path class="boyanabilir" id="kucukYelken" fill="#ffffff" d="M190 90 L190 250 L100 250 Z"/>
+    <path class="boyanabilir" id="deniz" fill="#ffffff" d="M0 340 L400 340 L400 400 L0 400 Z"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M50 270 L350 270 L305 340 L95 340 Z"/>
+    <path d="M205 60 L310 250 L205 250 Z"/>
+    <path d="M190 90 L190 250 L100 250 Z"/>
+    <path d="M197 55 L197 270"/>
+    <path d="M0 340 L400 340"/>
+    <path d="M20 365 C45 350 70 380 95 365 C120 350 145 380 170 365"/>
+    <path d="M210 380 C235 365 260 395 285 380 C310 365 335 395 360 380"/>
+  </g>
+</svg>

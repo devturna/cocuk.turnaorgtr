@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <path class="boyanabilir" id="solYarim" fill="#ffffff" d="M200 350 C120 285 40 235 40 160 C40 105 82 70 130 70 C160 70 183 85 200 110 Z"/>
+    <path class="boyanabilir" id="sagYarim" fill="#ffffff" d="M200 350 C280 285 360 235 360 160 C360 105 318 70 270 70 C240 70 217 85 200 110 Z"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M200 350 C120 285 40 235 40 160 C40 105 82 70 130 70 C160 70 183 85 200 110 C217 85 240 70 270 70 C318 70 360 105 360 160 C360 235 280 285 200 350 Z"/>
+    <path d="M200 110 L200 350"/>
+  </g>
+</svg>

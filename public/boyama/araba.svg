@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <path class="boyanabilir" id="govde" fill="#ffffff" d="M40 290 L40 230 C40 220 48 212 58 212 L340 212 C352 212 360 220 360 232 L360 290 Z"/>
+    <path class="boyanabilir" id="tavan" fill="#ffffff" d="M110 212 L145 140 C148 133 154 130 161 130 L265 130 C274 130 280 135 283 143 L305 212 Z"/>
+    <path class="boyanabilir" id="onCam" fill="#ffffff" d="M125 205 L155 145 L192 145 L192 205 Z"/>
+    <path class="boyanabilir" id="arkaCam" fill="#ffffff" d="M208 145 L262 145 L288 205 L208 205 Z"/>
+    <path class="boyanabilir" id="onTeker" fill="#ffffff" d="M110 290 m-42 0 a42 42 0 1 0 84 0 a42 42 0 1 0 -84 0 Z"/>
+    <path class="boyanabilir" id="arkaTeker" fill="#ffffff" d="M290 290 m-42 0 a42 42 0 1 0 84 0 a42 42 0 1 0 -84 0 Z"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M40 290 L40 230 C40 220 48 212 58 212 L340 212 C352 212 360 220 360 232 L360 290 Z"/>
+    <path d="M110 212 L145 140 C148 133 154 130 161 130 L265 130 C274 130 280 135 283 143 L305 212 Z"/>
+    <path d="M125 205 L155 145 L192 145 L192 205 Z"/>
+    <path d="M208 145 L262 145 L288 205 L208 205 Z"/>
+    <circle cx="110" cy="290" r="42"/>
+    <circle cx="290" cy="290" r="42"/>
+    <circle cx="110" cy="290" r="14"/>
+    <circle cx="290" cy="290" r="14"/>
+    <path d="M40 250 L360 250"/>
+  </g>
+</svg>

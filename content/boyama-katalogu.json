@@ -16,5 +16,104 @@
     "lisans": "CC0-1.0",
     "kaynak": "Turna ekibi tarafindan cizildi",
     "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "kelebek",
+    "ad": "Kelebek",
+    "kategori": "Hayvanlar",
+    "dosya": "kelebek.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "kus",
+    "ad": "Kuş",
+    "kategori": "Hayvanlar",
+    "dosya": "kus.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "araba",
+    "ad": "Araba",
+    "kategori": "Araçlar",
+    "dosya": "araba.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "ucak",
+    "ad": "Uçak",
+    "kategori": "Araçlar",
+    "dosya": "ucak.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "gemi",
+    "ad": "Gemi",
+    "kategori": "Araçlar",
+    "dosya": "gemi.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "agac",
+    "ad": "Ağaç",
+    "kategori": "Doğa",
+    "dosya": "agac.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "cicek",
+    "ad": "Çiçek",
+    "kategori": "Doğa",
+    "dosya": "cicek.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "gunes",
+    "ad": "Güneş",
+    "kategori": "Doğa",
+    "dosya": "gunes.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "yildiz",
+    "ad": "Yıldız",
+    "kategori": "Şekiller",
+    "dosya": "yildiz.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "kalp",
+    "ad": "Kalp",
+    "kategori": "Şekiller",
+    "dosya": "kalp.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "ev",
+    "ad": "Ev",
+    "kategori": "Şekiller",
+    "dosya": "ev.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
   }
 ]
