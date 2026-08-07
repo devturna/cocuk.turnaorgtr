@@ -16,14 +16,32 @@ bölüm teslim eder.
 
 Kapsam dışı bırakılanlar: indirme ve yazdırma, ses efektleri, çok dillilik.
 
-## Faz 2 — Oyunlar (planlanıyor)
+## Faz 2 — Harfler ve Sayılar (geliştiriliyor)
+
+Çocuğun harfleri ve sayıları oyun oynayarak öğrendiği bölüm. Dört oyundan
+oluşur ve parça parça açılır.
+
+| Oyun | Ne yapar | Durum |
+|---|---|---|
+| Yaz | Parmakla harfin veya rakamın üstünden geçme | Rakamlar (0-9) yayında |
+| Say | Ekrandaki nesneleri dokunarak sayma | Planlanıyor |
+| Eşleştir | Büyük ↔ küçük harf, rakam ↔ miktar | Planlanıyor |
+| Bul | Seçenekler arasından doğrusuna dokunma | Planlanıyor |
+
+Tamamlanan her harf ve rakam bir yıldız kazandırır; yıldızlar yalnızca
+cihazın tarayıcı hafızasında durur.
+
+Tasarım kararları ve gerekçeleri:
+[harfler-ve-sayilar.md](tasarim/harfler-ve-sayilar.md)
+
+## Faz 3 — Oyunlar (planlanıyor)
 
 Küçük yaş grubuna uygun, tek oturumda bitebilen basit oyunlar. Örneğin
-eşleştirme, hafıza kartları, şekil-gölge eşleme.
+hafıza kartları, şekil-gölge eşleme.
 
 Aynı ilkeler geçerli olacak: reklamsız, veri toplamayan, tamamen statik.
 
-## Faz 3 — Kodlama (planlanıyor)
+## Faz 4 — Kodlama (planlanıyor)
 
 code.org tarzı, ebeveynle birlikte yapılabilecek basit kodlama etkinlikleri.
 Blok tabanlı, okuma gerektirmeyen ilk adımlar hedefleniyor.

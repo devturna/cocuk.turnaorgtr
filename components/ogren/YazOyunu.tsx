@@ -4,11 +4,11 @@
 //
 // Yanlis yere cizmek cezalandirilmaz; o hareket sadece sayilmaz. Cocuk
 // istedigi kadar deneyebilir, sure yoktur.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { yazilabilirRakamlar } from "@/lib/ogren/sayilar";
 import { RAKAM_YOLLARI, kontrolNoktalari, type Nokta } from "@/lib/ogren/rakamYollari";
-import { yeniIzleme, parmakGecti, hepsiBittiMi } from "@/lib/ogren/izleme";
+import { yeniIzleme, parmakGecti, hepsiBittiMi, type IzlemeDurumu } from "@/lib/ogren/izleme";
 import { yildizEkle, ogeAnahtari } from "@/lib/ogren/yildiz";
 import YaziTuvali from "./YaziTuvali";
 import "./ogren.css";
@@ -18,19 +18,40 @@ const EN_AZ_ARALIK = 42;
 // Parmak bir kontrol noktasina bu kadar yaklasirsa nokta gecilmis sayilir.
 const TOLERANS = 34;
 
-export default function YazOyunu() {
-  const rakamlar = yazilabilirRakamlar();
-  const [sira, setSira] = useState(0);
-  const rakam = rakamlar[sira].rakam;
+const RAKAMLAR = yazilabilirRakamlar();
 
-  const vuruslar = useMemo(() => RAKAM_YOLLARI[rakam], [rakam]);
-  const kontroller = useMemo(
-    () => vuruslar.map((vurus) => kontrolNoktalari(vurus, EN_AZ_ARALIK)),
-    [vuruslar],
+/**
+ * Sira, kontrol noktalari ve izleme durumu TEK BIR NESNEDE tutulur.
+ *
+ * Bunlari ayri state'lerde tutmak gercek bir hataya yol acmisti: rakam
+ * degistiginde kontrol noktalari hemen yenilenirken izleme durumu bir
+ * render boyunca eski kaliyordu. Tek vuruslu bir rakamdan (3) iki vuruslu
+ * birine (4) gecerken durum.tamamlanan[1] tanimsiz oluyor ve uygulama
+ * cokuyordu. Ucu birlikte uretilince boyle bir ara durum olusamaz.
+ */
+type OyunDurumu = {
+  sira: number;
+  kontroller: Nokta[][];
+  izleme: IzlemeDurumu;
+};
+
+function oyunDurumuOlustur(sira: number): OyunDurumu {
+  const rakam = RAKAMLAR[sira].rakam;
+  const kontroller = RAKAM_YOLLARI[rakam].map((vurus) =>
+    kontrolNoktalari(vurus, EN_AZ_ARALIK),
   );
+  return { sira, kontroller, izleme: yeniIzleme(kontroller) };
+}
 
-  const [durum, setDurum] = useState(() => yeniIzleme(kontroller));
-  const bitti = hepsiBittiMi(durum);
+export default function YazOyunu() {
+  const [oyun, setOyun] = useState(() => oyunDurumuOlustur(0));
+  // Kutlama kapatilabilir olmali; yoksa butun ekrani orttugu icin cocuk
+  // bolume geri donemez, "Sonraki"ye basmak zorunda kalir.
+  const [kutlamaKapatildi, setKutlamaKapatildi] = useState(false);
+
+  const rakam = RAKAMLAR[oyun.sira].rakam;
+  const vuruslar = RAKAM_YOLLARI[rakam];
+  const bitti = hepsiBittiMi(oyun.izleme);
 
   // Bu ekran acikken sayfa kaydirilmaz ve ust bar gizlenir.
   // Sinif body uzerinde durur; ilgili kurallar app/globals.css icinde.
@@ -39,23 +60,26 @@ export default function YazOyunu() {
     return () => document.body.classList.remove("tamEkran");
   }, []);
 
-  // Rakam degisince izleme sifirlanir.
-  useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDurum(yeniIzleme(kontroller));
-  }, [kontroller]);
-
   // Rakam tamamlaninca yildiz kazanilir.
   useEffect(() => {
     if (bitti) yildizEkle(ogeAnahtari("sayi", String(rakam)), "yaz");
   }, [bitti, rakam]);
 
   function parmakHareketi(nokta: Nokta) {
-    setDurum((onceki) => parmakGecti(onceki, kontroller, nokta, TOLERANS));
+    setOyun((onceki) => ({
+      ...onceki,
+      izleme: parmakGecti(onceki.izleme, onceki.kontroller, nokta, TOLERANS),
+    }));
+  }
+
+  function bastanBasla() {
+    setOyun((onceki) => oyunDurumuOlustur(onceki.sira));
+    setKutlamaKapatildi(false);
   }
 
   function sonrakiRakam() {
-    setSira((onceki) => (onceki + 1) % rakamlar.length);
+    setOyun((onceki) => oyunDurumuOlustur((onceki.sira + 1) % RAKAMLAR.length));
+    setKutlamaKapatildi(false);
   }
 
   return (
@@ -64,13 +88,13 @@ export default function YazOyunu() {
         <Link href="/ogren/" className="geriDugmesi">
           <span aria-hidden="true">←</span> Oyunlar
         </Link>
-        <h1>{rakamlar[sira].ad}</h1>
+        <h1>{RAKAMLAR[oyun.sira].ad}</h1>
       </div>
 
       <YaziTuvali
         vuruslar={vuruslar}
-        kontroller={kontroller}
-        durum={durum}
+        kontroller={oyun.kontroller}
+        durum={oyun.izleme}
         parmakHareketi={parmakHareketi}
         bitti={bitti}
       />
@@ -79,7 +103,7 @@ export default function YazOyunu() {
         <button
           type="button"
           className="oyunDugmesi"
-          onClick={() => setDurum(yeniIzleme(kontroller))}
+          onClick={bastanBasla}
         >
           Baştan
         </button>
@@ -88,9 +112,14 @@ export default function YazOyunu() {
         </button>
       </div>
 
-      {bitti && (
-        <div className="kutlama" role="status">
-          <div className="kutlamaIcerik">
+      {bitti && !kutlamaKapatildi && (
+        // Kutlamanin disina dokununca kapanir; cizim tamamlanmis olarak kalir.
+        <div
+          className="kutlama"
+          role="status"
+          onPointerDown={() => setKutlamaKapatildi(true)}
+        >
+          <div className="kutlamaIcerik" onPointerDown={(olay) => olay.stopPropagation()}>
             <p>Aferin!</p>
             <span className="kutlamaYildiz" aria-hidden="true">⭐</span>
             <button type="button" className="oyunDugmesi vurgulu" onClick={sonrakiRakam}>

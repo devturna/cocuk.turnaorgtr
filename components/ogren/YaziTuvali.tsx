@@ -120,7 +120,9 @@ export default function YaziTuvali({
                 r={vi === durum.aktifVurus && ni === 0 ? 16 : 9}
                 className={
                   "kontrolNoktasi" +
-                  (durum.tamamlanan[vi][ni] ? " gecildi" : "") +
+                  // Guvenlik agi: kontroller ile durum bir sekilde uyusmazsa
+                  // ekrani cokertmek yerine nokta bos gorunur.
+                  (durum.tamamlanan[vi]?.[ni] ? " gecildi" : "") +
                   (vi === durum.aktifVurus && ni === 0 ? " baslangic" : "")
                 }
               />

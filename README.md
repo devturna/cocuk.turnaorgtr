@@ -24,8 +24,9 @@ Bunu bize güvenerek kabul etmeniz gerekmiyor — kendiniz doğrulayabilirsiniz:
 | Bölüm | Durum |
 |---|---|
 | Boyama | Yayında |
-| Oyunlar | Planlanıyor (Faz 2) |
-| Kodlama | Planlanıyor (Faz 3) |
+| Harfler ve Sayılar | Yaz oyunu yayında, diğer üç oyun geliştiriliyor |
+| Oyunlar | Planlanıyor (Faz 3) |
+| Kodlama | Planlanıyor (Faz 4) |
 
 Ayrıntılar: [yol haritası](docs/yol-haritasi.md)
 
@@ -58,8 +59,10 @@ app/                     Sayfalar (Next.js App Router)
   page.tsx                 ana sayfa
   boyama/page.tsx          resim galerisi
   boyama/[resimId]/        boyama ekranı
+  ogren/                   harf ve sayı oyunları
 components/boyama/       Arayüz bileşenleri
 lib/boyama/              Boyama mantığı (React'tan bağımsız, test edilir)
+lib/ogren/               Oyun mantığı ve içerik (React'tan bağımsız)
 content/                 Boyama sayfası kataloğu
 public/boyama/           Çizgi resimler (SVG)
 scripts/                 Denetim script'i

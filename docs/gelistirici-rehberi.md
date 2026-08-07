@@ -127,3 +127,46 @@ Ayrı belge: [boyama-sayfasi-hazirlama.md](boyama-sayfasi-hazirlama.md)
 - **Dokunma hedefleri en az 56 piksel.** Küçük parmaklar için.
 - **Metin asgari.** Hedef kitle henüz okumayı yeni öğreniyor; her eylemin
   ikonu olmalı.
+
+## Harfler ve Sayılar bölümü
+
+İkinci ana bölüm. Dört oyundan oluşur; şu an yalnızca "Yaz" oyunu yayında
+(rakamlarla). Tasarım kararları ve gerekçeleri:
+[tasarim/harfler-ve-sayilar.md](tasarim/harfler-ve-sayilar.md)
+
+### Dosyalar
+
+| Dosya | Sorumluluk |
+|---|---|
+| `lib/ogren/sayilar.ts` | 0-10 arası rakamlar ve Türkçe adları |
+| `lib/ogren/rakamYollari.ts` | Her rakamın çizim yolu |
+| `lib/ogren/izleme.ts` | Parmakla izleme mantığı |
+| `lib/ogren/yildiz.ts` | Kazanılan yıldızlar (localStorage) |
+
+Boyama bölümündeki ilke burada da geçerli: mantık `lib/ogren/` altında
+React'tan bağımsız yaşar, bileşenler yalnızca onu ekrana bağlar.
+
+### Rakamlar neden eğri değil, nokta listesi?
+
+Rakamlar bezier eğrileriyle değil, düz çizgi parçalarından oluşan nokta
+listeleriyle (polyline) tanımlanır. Üç nedeni var:
+
+1. Ekranda gösterilen yol ile çocuğun üstünden geçmesi gereken kontrol
+   noktaları **aynı listeden** üretilir; ikisi birbirinden kayamaz.
+2. Tarayıcıya bağlı `getPointAtLength` gerekmez, dolayısıyla mantık
+   tarayıcı açmadan test edilebilir ve eski tarayıcılarda da aynı çalışır.
+3. Yeterli nokta konduğunda (daire için 32) çizim göze yuvarlak görünür.
+
+Çizim için bol nokta kullanılır; kontrol noktaları `kontrolNoktalari()` ile
+seyreltilir. Böylece görsel yumuşaklık artarken oyunun zorluğu değişmez.
+
+### Oyun durumu neden tek nesnede tutuluyor?
+
+`YazOyunu.tsx` içinde sıra, kontrol noktaları ve izleme durumu tek bir
+nesnede tutulur. Bunları ayrı `useState`'lerde tutmak gerçek bir çökmeye yol
+açmıştı: rakam değiştiğinde kontrol noktaları hemen yenilenirken izleme
+durumu bir render boyunca eski kalıyordu. Tek vuruşlu bir rakamdan (3) iki
+vuruşlu birine (4) geçerken `durum.tamamlanan[1]` tanımsız oluyor ve sayfa
+çöküyordu.
+
+Kural: birlikte değişmesi gereken değerler tek bir state'te tutulmalı.
