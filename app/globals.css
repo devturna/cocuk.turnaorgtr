@@ -1,0 +1,47 @@
+/* Tum sitede gecerli temel stiller. Dokunma hedefleri en az 56 piksel. */
+:root {
+  --arkaplan: #fdf6e3;
+  --metin: #33312e;
+  --vurgu: #f5a623;
+  --kenar: #33312e;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  background: var(--arkaplan);
+  color: var(--metin);
+}
+
+.ustBar { padding: 16px; }
+.logo { font-size: 24px; font-weight: 700; text-decoration: none; color: var(--metin); }
+
+.anaSayfa { text-align: center; padding: 24px; }
+.anaSayfa h1 { font-size: 32px; }
+
+.bolumKartlari { display: flex; flex-wrap: wrap; gap: 24px; justify-content: center; }
+
+.bolumKarti {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 200px;
+  min-height: 200px;
+  padding: 16px;
+  border: 4px solid var(--kenar);
+  border-radius: 24px;
+  background: #fff;
+  text-decoration: none;
+  color: var(--metin);
+}
+
+.bolumIkon { font-size: 64px; }
+.bolumAd { font-size: 24px; font-weight: 700; }
+.bolumKarti.pasif { opacity: 0.5; }
+.yakinda { font-size: 16px; }
+
+.altBilgi { padding: 24px; text-align: center; font-size: 14px; }
