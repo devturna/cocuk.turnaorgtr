@@ -10,6 +10,10 @@ export default function AnaSayfa() {
           <span className="bolumIkon" aria-hidden="true">🎨</span>
           <span className="bolumAd">Boyama</span>
         </Link>
+        <Link href="/ogren/" className="bolumKarti">
+          <span className="bolumIkon" aria-hidden="true">🔤</span>
+          <span className="bolumAd">Harfler ve Sayılar</span>
+        </Link>
         <div className="bolumKarti pasif">
           <span className="bolumIkon" aria-hidden="true">🎮</span>
           <span className="bolumAd">Oyunlar</span>

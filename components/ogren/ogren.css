@@ -1,0 +1,45 @@
+/* Harfler ve Sayilar bolumunun stilleri.
+   Boyama bolumunun kurallari burada da gecerlidir: dokunma hedefleri en az
+   56 piksel, anlam ikonda tasinir, ekranda kaydirma yoktur. */
+
+.ogrenGirisi { padding: 16px; text-align: center; }
+.ogrenGirisi h1 { font-size: 28px; }
+
+.oyunKartlari {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+  padding: 16px;
+}
+
+.oyunKarti {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 190px;
+  min-height: 190px;
+  padding: 16px;
+  border: 4px solid var(--kenar);
+  border-radius: 24px;
+  background: #fff;
+  text-decoration: none;
+  color: var(--metin);
+}
+
+.oyunKarti.pasif { opacity: 0.5; }
+.oyunIkon { font-size: 52px; }
+.oyunAd { font-size: 22px; font-weight: 700; }
+.oyunAciklama { font-size: 14px; }
+
+.oyunIlerleme {
+  font-size: 16px;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 12px;
+  background: var(--vurgu);
+}
+
+.oyunYakinda { font-size: 14px; }
