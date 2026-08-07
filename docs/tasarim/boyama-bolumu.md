@@ -156,7 +156,7 @@ resimlerin küçük önizlemeleri. Yarım kalmış resimlerin köşesinde devam 
 | Fırça | Parmakla serbest çizgi, üç kalınlık seçeneği |
 | Silgi | Dokunulan fırça çizgisini tümüyle siler; dolguya dokunulursa bölge boyanmamış haline döner |
 | Geri Al | Son işlemi iptal eder |
-| Baştan Başla | Onay sorar, sonra tuvali temizler |
+| Temizle | Onay sorar, sonra tuvali temizler |
 
 Erişilebilirlik kuralları: tüm dokunma hedefleri en az 56 piksel; boyama sırasında
 sayfa kaydırması `touch-action: none` ile engellenir; renk butonlarında rengin adı

@@ -24,7 +24,7 @@ for (const ekran of EKRANLAR) {
     expect(tasma.yatay, "yatay tasma var").toBeLessThanOrEqual(1);
 
     // Butun araclar ve renkler kaydirmadan gorunur olmali.
-    for (const ad of ["Boya", "Fırça", "Silgi", "Geri Al", "Baştan Başla"]) {
+    for (const ad of ["Boya", "Fırça", "Silgi", "Geri Al", "Temizle"]) {
       await expect(page.getByRole("button", { name: ad }), `${ad} gorunmuyor`).toBeInViewport();
     }
     for (const renk of ["Kırmızı", "Mavi", "Sarı", "Siyah", "Beyaz"]) {
@@ -40,7 +40,9 @@ test("dokunma hedefleri en az 48 piksel", async ({ page }) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/boyama/kedi/");
 
-  const dugmeler = page.locator(".aracDugmesi, .renkDugmesi, .kalinlikDugmesi");
+  const dugmeler = page.locator(
+    ".aracDugmesi, .renkDugmesi, .kalinlikDugmesi, .yardimciDugme",
+  );
   const adet = await dugmeler.count();
 
   for (let i = 0; i < adet; i++) {
