@@ -9,6 +9,12 @@ dosyasında girdi bazında kayıtlıdır. Aşağıdaki tablo o dosyanın özetid
 | balik.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | kelebek.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | kus.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| inek.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| koyun.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| tavuk.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| at.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| ordek.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| domuz.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | araba.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | ucak.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | gemi.svg | CC0-1.0 | Turna ekibi tarafından çizildi |

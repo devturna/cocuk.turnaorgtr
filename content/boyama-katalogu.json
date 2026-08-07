@@ -36,6 +36,60 @@
     "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
   },
   {
+    "id": "inek",
+    "ad": "İnek",
+    "kategori": "Hayvanlar",
+    "dosya": "inek.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "koyun",
+    "ad": "Koyun",
+    "kategori": "Hayvanlar",
+    "dosya": "koyun.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "tavuk",
+    "ad": "Tavuk",
+    "kategori": "Hayvanlar",
+    "dosya": "tavuk.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "at",
+    "ad": "At",
+    "kategori": "Hayvanlar",
+    "dosya": "at.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "ordek",
+    "ad": "Ördek",
+    "kategori": "Hayvanlar",
+    "dosya": "ordek.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "domuz",
+    "ad": "Domuz",
+    "kategori": "Hayvanlar",
+    "dosya": "domuz.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
     "id": "araba",
     "ad": "Araba",
     "kategori": "Araçlar",

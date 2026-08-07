@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Onden gorunum: sekiller birbirine tegettir, ic ice gecmez. -->
+  <g class="bolgeler">
+    <rect class="boyanabilir" id="solOnBacak" fill="#ffffff" x="146" y="312" width="26" height="74" rx="8"/>
+    <rect class="boyanabilir" id="sagOnBacak" fill="#ffffff" x="228" y="312" width="26" height="74" rx="8"/>
+    <rect class="boyanabilir" id="solArkaBacak" fill="#ffffff" x="182" y="316" width="26" height="70" rx="8"/>
+    <rect class="boyanabilir" id="sagArkaBacak" fill="#ffffff" x="192" y="316" width="26" height="70" rx="8"/>
+    <ellipse class="boyanabilir" id="govde" fill="#ffffff" cx="200" cy="272" rx="72" ry="54"/>
+    <path class="boyanabilir" id="solKulak" fill="#ffffff" d="M148 62 C140 34 152 22 166 34 C176 43 180 62 178 82 Z"/>
+    <path class="boyanabilir" id="sagKulak" fill="#ffffff" d="M252 62 C260 34 248 22 234 34 C224 43 220 62 222 82 Z"/>
+    <path class="boyanabilir" id="yele" fill="#ffffff" d="M200 74 C168 74 146 92 142 118 C158 106 176 100 200 100 C224 100 242 106 258 118 C254 92 232 74 200 74 Z"/>
+    <ellipse class="boyanabilir" id="kafa" fill="#ffffff" cx="200" cy="150" rx="62" ry="72"/>
+    <ellipse class="boyanabilir" id="burun" fill="#ffffff" cx="200" cy="196" rx="42" ry="30"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M146 326 L146 380 Q146 386 152 386 L166 386 Q172 386 172 380 L172 326"/>
+    <path d="M228 326 L228 380 Q228 386 234 386 L248 386 Q254 386 254 380 L254 326"/>
+    <path d="M182 330 L182 380 Q182 386 188 386 L202 386 Q208 386 208 380 L208 330"/>
+    <path d="M192 330 L192 380 Q192 386 198 386 L212 386 Q218 386 218 380 L218 330"/>
+    <ellipse cx="200" cy="272" rx="72" ry="54"/>
+    <path d="M148 62 C140 34 152 22 166 34 C176 43 180 62 178 82 Z"/>
+    <path d="M252 62 C260 34 248 22 234 34 C224 43 220 62 222 82 Z"/>
+    <path d="M200 74 C168 74 146 92 142 118 C158 106 176 100 200 100 C224 100 242 106 258 118 C254 92 232 74 200 74 Z"/>
+    <ellipse cx="200" cy="150" rx="62" ry="72"/>
+    <ellipse cx="200" cy="196" rx="42" ry="30"/>
+    <circle cx="174" cy="140" r="8" fill="#000000"/>
+    <circle cx="226" cy="140" r="8" fill="#000000"/>
+    <ellipse cx="188" cy="194" rx="6" ry="9" fill="#000000"/>
+    <ellipse cx="212" cy="194" rx="6" ry="9" fill="#000000"/>
+  </g>
+</svg>

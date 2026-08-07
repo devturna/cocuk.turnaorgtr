@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Onden gorunum: sekiller birbirine tegettir, ic ice gecmez.
+       Boylece hicbir cizgi baska bir seklin ortasindan gecmez. -->
+  <g class="bolgeler">
+    <rect class="boyanabilir" id="solOnBacak" fill="#ffffff" x="140" y="315" width="28" height="70" rx="8"/>
+    <rect class="boyanabilir" id="sagOnBacak" fill="#ffffff" x="232" y="315" width="28" height="70" rx="8"/>
+    <rect class="boyanabilir" id="solArkaBacak" fill="#ffffff" x="182" y="320" width="28" height="65" rx="8"/>
+    <rect class="boyanabilir" id="sagArkaBacak" fill="#ffffff" x="190" y="320" width="28" height="65" rx="8"/>
+    <ellipse class="boyanabilir" id="govde" fill="#ffffff" cx="200" cy="285" rx="78" ry="58"/>
+    <ellipse class="boyanabilir" id="leke" fill="#ffffff" cx="168" cy="272" rx="26" ry="19"/>
+    <ellipse class="boyanabilir" id="solKulak" fill="#ffffff" cx="80" cy="150" rx="34" ry="18"/>
+    <ellipse class="boyanabilir" id="sagKulak" fill="#ffffff" cx="320" cy="150" rx="34" ry="18"/>
+    <path class="boyanabilir" id="solBoynuz" fill="#ffffff" d="M152 88 C138 62 144 42 160 46 C172 49 176 68 172 90 Z"/>
+    <path class="boyanabilir" id="sagBoynuz" fill="#ffffff" d="M248 88 C262 62 256 42 240 46 C228 49 224 68 228 90 Z"/>
+    <ellipse class="boyanabilir" id="kafa" fill="#ffffff" cx="200" cy="150" rx="88" ry="78"/>
+    <ellipse class="boyanabilir" id="burun" fill="#ffffff" cx="200" cy="192" rx="50" ry="34"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <!-- Bacak konturlari ustu aciktir; ust uclari govdenin altinda kalir. -->
+    <path d="M140 330 L140 379 Q140 385 146 385 L162 385 Q168 385 168 379 L168 330"/>
+    <path d="M232 330 L232 379 Q232 385 238 385 L254 385 Q260 385 260 379 L260 330"/>
+    <path d="M182 342 L182 379 Q182 385 188 385 L204 385 Q210 385 210 379 L210 342"/>
+    <path d="M190 342 L190 379 Q190 385 196 385 L212 385 Q218 385 218 379 L218 342"/>
+    <ellipse cx="200" cy="285" rx="78" ry="58"/>
+    <ellipse cx="168" cy="272" rx="26" ry="19"/>
+    <ellipse cx="80" cy="150" rx="34" ry="18"/>
+    <ellipse cx="320" cy="150" rx="34" ry="18"/>
+    <path d="M152 88 C138 62 144 42 160 46 C172 49 176 68 172 90 Z"/>
+    <path d="M248 88 C262 62 256 42 240 46 C228 49 224 68 228 90 Z"/>
+    <ellipse cx="200" cy="150" rx="88" ry="78"/>
+    <ellipse cx="200" cy="192" rx="50" ry="34"/>
+    <circle cx="168" cy="126" r="9" fill="#000000"/>
+    <circle cx="232" cy="126" r="9" fill="#000000"/>
+    <ellipse cx="184" cy="188" rx="7" ry="10" fill="#000000"/>
+    <ellipse cx="216" cy="188" rx="7" ry="10" fill="#000000"/>
+  </g>
+</svg>

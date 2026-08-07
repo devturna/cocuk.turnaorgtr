@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Onden gorunum: sekiller birbirine tegettir, ic ice gecmez. -->
+  <g class="bolgeler">
+    <rect class="boyanabilir" id="solOnBacak" fill="#ffffff" x="142" y="318" width="28" height="66" rx="8"/>
+    <rect class="boyanabilir" id="sagOnBacak" fill="#ffffff" x="230" y="318" width="28" height="66" rx="8"/>
+    <rect class="boyanabilir" id="solArkaBacak" fill="#ffffff" x="180" y="322" width="28" height="62" rx="8"/>
+    <rect class="boyanabilir" id="sagArkaBacak" fill="#ffffff" x="192" y="322" width="28" height="62" rx="8"/>
+    <ellipse class="boyanabilir" id="govde" fill="#ffffff" cx="200" cy="278" rx="80" ry="56"/>
+    <path class="boyanabilir" id="solKulak" fill="#ffffff" d="M130 92 C108 66 118 44 142 54 C158 61 168 82 168 104 Z"/>
+    <path class="boyanabilir" id="sagKulak" fill="#ffffff" d="M270 92 C292 66 282 44 258 54 C242 61 232 82 232 104 Z"/>
+    <ellipse class="boyanabilir" id="kafa" fill="#ffffff" cx="200" cy="150" rx="86" ry="72"/>
+    <ellipse class="boyanabilir" id="burun" fill="#ffffff" cx="200" cy="188" rx="46" ry="32"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M142 330 L142 378 Q142 384 148 384 L164 384 Q170 384 170 378 L170 330"/>
+    <path d="M230 330 L230 378 Q230 384 236 384 L252 384 Q258 384 258 378 L258 330"/>
+    <path d="M180 336 L180 378 Q180 384 186 384 L202 384 Q208 384 208 378 L208 336"/>
+    <path d="M192 336 L192 378 Q192 384 198 384 L214 384 Q220 384 220 378 L220 336"/>
+    <ellipse cx="200" cy="278" rx="80" ry="56"/>
+    <path d="M130 92 C108 66 118 44 142 54 C158 61 168 82 168 104 Z"/>
+    <path d="M270 92 C292 66 282 44 258 54 C242 61 232 82 232 104 Z"/>
+    <ellipse cx="200" cy="150" rx="86" ry="72"/>
+    <ellipse cx="200" cy="188" rx="46" ry="32"/>
+    <circle cx="168" cy="128" r="8" fill="#000000"/>
+    <circle cx="232" cy="128" r="8" fill="#000000"/>
+    <ellipse cx="186" cy="186" rx="7" ry="10" fill="#000000"/>
+    <ellipse cx="214" cy="186" rx="7" ry="10" fill="#000000"/>
+  </g>
+</svg>
