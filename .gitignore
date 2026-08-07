@@ -43,3 +43,6 @@ next-env.d.ts
 # testler
 /test-results/
 /playwright-report/
+
+# e2e testleri icin gecici sunucu klasoru
+/.e2e-sunucu/

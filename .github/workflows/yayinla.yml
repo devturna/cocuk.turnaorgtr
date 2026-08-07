@@ -1,10 +1,25 @@
 # main dalina her push'ta testleri calistirip siteyi GitHub Pages'e yayinlar.
+#
+# YAYIN ADRESI: https://devturna.github.io/cocuk.turnaorgtr/
+# Proje sayfasi oldugu icin site alt yolda duruyor ve butun baglantilarin bu
+# on eki tasimasi gerekiyor. Onek asagidaki NEXT_PUBLIC_TEMEL_YOL ile veriliyor;
+# next.config.ts, lib/yol.ts ve playwright.config.ts ayni degiskeni okuyor.
+#
+# KENDI ALAN ADINA GECERKEN (ornek: cocuk.turna.org.tr):
+#   1. Asagidaki NEXT_PUBLIC_TEMEL_YOL satirlarini sil, on ek bos kalsin.
+#   2. Icinde alan adi yazan public/CNAME dosyasini geri ekle.
+#   3. DNS'te alt alan adi icin devturna.github.io'ya CNAME kaydi olustur.
+#   4. Repo Settings > Pages > Custom domain alanina alan adini yaz.
+# Ikisi ayni anda calismaz: on ek varken alan adinda, yokken github.io'da kirilir.
 name: Yayinla
 
 on:
   push:
     branches: [main]
   workflow_dispatch:
+
+env:
+  NEXT_PUBLIC_TEMEL_YOL: /cocuk.turnaorgtr
 
 permissions:
   contents: read
