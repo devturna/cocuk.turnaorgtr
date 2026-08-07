@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <path class="boyanabilir" id="solKanat" fill="#ffffff" d="M156 236 L104 320 L156 320 Z"/>
+    <path class="boyanabilir" id="sagKanat" fill="#ffffff" d="M244 236 L296 320 L244 320 Z"/>
+    <path class="boyanabilir" id="alev" fill="#ffffff" d="M200 384 C176 356 168 342 172 324 L228 324 C232 342 224 356 200 384 Z"/>
+    <path class="boyanabilir" id="burun" fill="#ffffff" d="M200 24 C228 62 244 100 244 132 L156 132 C156 100 172 62 200 24 Z"/>
+    <rect class="boyanabilir" id="govde" fill="#ffffff" x="156" y="132" width="88" height="192"/>
+    <circle class="boyanabilir" id="pencere" fill="#ffffff" cx="200" cy="188" r="30"/>
+    <rect class="boyanabilir" id="motor" fill="#ffffff" x="164" y="292" width="72" height="32" rx="6"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M156 236 L104 320 L156 320 Z"/>
+    <path d="M244 236 L296 320 L244 320 Z"/>
+    <path d="M200 384 C176 356 168 342 172 324 L228 324 C232 342 224 356 200 384 Z"/>
+    <path d="M200 24 C228 62 244 100 244 132 L156 132 C156 100 172 62 200 24 Z"/>
+    <!-- Govdenin yan kenarlari; ust ve alt kenarlar burun ve motorla paylasilir. -->
+    <path d="M156 132 L156 324 L244 324 L244 132"/>
+    <circle cx="200" cy="188" r="30"/>
+    <rect x="164" y="292" width="72" height="32" rx="6"/>
+  </g>
+</svg>

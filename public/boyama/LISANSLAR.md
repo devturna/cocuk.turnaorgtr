@@ -24,6 +24,18 @@ dosyasında girdi bazında kayıtlıdır. Aşağıdaki tablo o dosyanın özetid
 | yildiz.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | kalp.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | ev.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| cadir.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| ates.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| canta.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| fener.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| dag.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| roket.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| uydu.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| uzayaraci.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| ekskavator.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| vinc.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| traktor.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| kamyon.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 
 Bu görsellerin tamamı proje için sıfırdan çizilmiştir ve CC0 ile kamuya
 bırakılmıştır; dilediğiniz gibi kullanabilirsiniz.

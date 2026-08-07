@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <path class="boyanabilir" id="solOdun" fill="#ffffff" d="M96 296 L288 330 L282 358 L90 324 Z"/>
+    <path class="boyanabilir" id="sagOdun" fill="#ffffff" d="M304 296 L112 330 L118 358 L310 324 Z"/>
+    <path class="boyanabilir" id="disAlev" fill="#ffffff" d="M200 60 C246 118 288 158 288 212 C288 264 248 296 200 296 C152 296 112 264 112 212 C112 158 154 118 200 60 Z"/>
+    <path class="boyanabilir" id="ortaAlev" fill="#ffffff" d="M200 140 C228 178 252 200 252 232 C252 264 228 284 200 284 C172 284 148 264 148 232 C148 200 172 178 200 140 Z"/>
+    <path class="boyanabilir" id="icAlev" fill="#ffffff" d="M200 202 C216 224 226 236 226 252 C226 270 214 280 200 280 C186 280 174 270 174 252 C174 236 184 224 200 202 Z"/>
+    <ellipse class="boyanabilir" id="solTas" fill="#ffffff" cx="72" cy="348" rx="38" ry="24"/>
+    <ellipse class="boyanabilir" id="sagTas" fill="#ffffff" cx="328" cy="348" rx="38" ry="24"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M96 296 L288 330 L282 358 L90 324 Z"/>
+    <path d="M304 296 L112 330 L118 358 L310 324 Z"/>
+    <path d="M200 60 C246 118 288 158 288 212 C288 264 248 296 200 296 C152 296 112 264 112 212 C112 158 154 118 200 60 Z"/>
+    <path d="M200 140 C228 178 252 200 252 232 C252 264 228 284 200 284 C172 284 148 264 148 232 C148 200 172 178 200 140 Z"/>
+    <path d="M200 202 C216 224 226 236 226 252 C226 270 214 280 200 280 C186 280 174 270 174 252 C174 236 184 224 200 202 Z"/>
+    <ellipse cx="72" cy="348" rx="38" ry="24"/>
+    <ellipse cx="328" cy="348" rx="38" ry="24"/>
+  </g>
+</svg>

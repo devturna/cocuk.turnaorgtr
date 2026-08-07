@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <rect class="boyanabilir" id="panel" fill="#ffffff" x="98" y="106" width="204" height="52" rx="8"/>
+    <rect class="boyanabilir" id="direk" fill="#ffffff" x="120" y="158" width="16" height="52"/>
+    <circle class="boyanabilir" id="kamera" fill="#ffffff" cx="128" cy="86" r="26"/>
+    <rect class="boyanabilir" id="govde" fill="#ffffff" x="86" y="210" width="228" height="86" rx="18"/>
+    <circle class="boyanabilir" id="solTeker" fill="#ffffff" cx="126" cy="316" r="42"/>
+    <circle class="boyanabilir" id="ortaTeker" fill="#ffffff" cx="200" cy="316" r="42"/>
+    <circle class="boyanabilir" id="sagTeker" fill="#ffffff" cx="274" cy="316" r="42"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <rect x="98" y="106" width="204" height="52" rx="8"/>
+    <path d="M166 106 L166 158 M234 106 L234 158"/>
+    <rect x="120" y="158" width="16" height="52"/>
+    <circle cx="128" cy="86" r="26"/>
+    <rect x="86" y="210" width="228" height="86" rx="18"/>
+    <circle cx="126" cy="316" r="42"/>
+    <circle cx="200" cy="316" r="42"/>
+    <circle cx="274" cy="316" r="42"/>
+    <circle cx="126" cy="316" r="14"/>
+    <circle cx="200" cy="316" r="14"/>
+    <circle cx="274" cy="316" r="14"/>
+  </g>
+</svg>

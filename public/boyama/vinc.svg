@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <rect class="boyanabilir" id="kule" fill="#ffffff" x="176" y="96" width="48" height="200"/>
+    <rect class="boyanabilir" id="bom" fill="#ffffff" x="60" y="60" width="290" height="36" rx="6"/>
+    <rect class="boyanabilir" id="karsiAgirlik" fill="#ffffff" x="60" y="96" width="52" height="44" rx="6"/>
+    <path class="boyanabilir" id="kanca" fill="#ffffff" d="M296 196 L326 196 L326 224 C326 244 296 244 296 224 Z"/>
+    <rect class="boyanabilir" id="govde" fill="#ffffff" x="130" y="252" width="150" height="60" rx="12"/>
+    <circle class="boyanabilir" id="solTeker" fill="#ffffff" cx="164" cy="326" r="36"/>
+    <circle class="boyanabilir" id="sagTeker" fill="#ffffff" cx="252" cy="326" r="36"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <rect x="176" y="96" width="48" height="200"/>
+    <path d="M176 140 L224 190 M224 140 L176 190 M176 190 L224 240 M224 190 L176 240"/>
+    <rect x="60" y="60" width="290" height="36" rx="6"/>
+    <path d="M120 60 L150 96 M180 60 L210 96 M250 60 L280 96"/>
+    <rect x="60" y="96" width="52" height="44" rx="6"/>
+    <path d="M311 96 L311 196"/>
+    <path d="M296 196 L326 196 L326 224 C326 244 296 244 296 224 Z"/>
+    <rect x="130" y="252" width="150" height="60" rx="12"/>
+    <circle cx="164" cy="326" r="36"/>
+    <circle cx="252" cy="326" r="36"/>
+    <circle cx="164" cy="326" r="13"/>
+    <circle cx="252" cy="326" r="13"/>
+  </g>
+</svg>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <g class="bolgeler">
+    <path class="boyanabilir" id="solAski" fill="#ffffff" d="M132 120 C104 130 92 170 96 230 L124 230 C120 176 128 148 148 140 Z"/>
+    <path class="boyanabilir" id="sagAski" fill="#ffffff" d="M268 120 C296 130 308 170 304 230 L276 230 C280 176 272 148 252 140 Z"/>
+    <rect class="boyanabilir" id="govde" fill="#ffffff" x="112" y="140" width="176" height="220" rx="34"/>
+    <path class="boyanabilir" id="kapak" fill="#ffffff" d="M112 174 C112 152 128 140 146 140 L254 140 C272 140 288 152 288 174 L288 212 L112 212 Z"/>
+    <rect class="boyanabilir" id="cep" fill="#ffffff" x="146" y="248" width="108" height="76" rx="16"/>
+    <path class="boyanabilir" id="tutamak" fill="#ffffff" d="M172 140 C172 112 228 112 228 140 L212 140 C212 128 188 128 188 140 Z"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M132 120 C104 130 92 170 96 230 L124 230 C120 176 128 148 148 140 Z"/>
+    <path d="M268 120 C296 130 308 170 304 230 L276 230 C280 176 272 148 252 140 Z"/>
+    <rect x="112" y="140" width="176" height="220" rx="34"/>
+    <path d="M112 174 C112 152 128 140 146 140 L254 140 C272 140 288 152 288 174 L288 212 L112 212 Z"/>
+    <rect x="146" y="248" width="108" height="76" rx="16"/>
+    <path d="M172 140 C172 112 228 112 228 140 L212 140 C212 128 188 128 188 140 Z"/>
+    <rect x="186" y="196" width="28" height="32" rx="6"/>
+  </g>
+</svg>
