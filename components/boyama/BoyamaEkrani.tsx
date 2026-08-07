@@ -43,6 +43,13 @@ export default function BoyamaEkrani({
   // Kayit yuklenmeden yazma yapmayalim; yoksa bos tuval kaydin uzerine biner.
   const [yuklendi, setYuklendi] = useState(false);
 
+  // Bu ekran acikken sayfa kaydirilmaz ve ust bar gizlenir.
+  // Sinif body uzerinde durur; ilgili kurallar app/globals.css icinde.
+  useEffect(() => {
+    document.body.classList.add("boyamaAcik");
+    return () => document.body.classList.remove("boyamaAcik");
+  }, []);
+
   // Kayitli cizim sadece tarayicida bulunur; sayfa sunucuda uretilirken localStorage yoktur.
   // Bu yuzden okuma ancak ekran acildiktan sonra yapilabilir ve state'e burada yazilir.
   useEffect(() => {
@@ -100,19 +107,17 @@ export default function BoyamaEkrani({
         <RenkPaleti secili={renk} renkSecildi={setRenk} />
       </div>
 
-      <div className="tuvalAlani">
-        <Tuval
-          svgIcerigi={svgIcerigi}
-          viewBox={viewBox}
-          durum={durum}
-          arac={arac}
-          renk={renk}
-          kalinlik={kalinlik}
-          bolgeyeDokunuldu={bolgeyeDokunuldu}
-          cizgiTamamlandi={cizgiTamamlandi}
-          cizgiyeDokunuldu={cizgiyeDokunuldu}
-        />
-      </div>
+      <Tuval
+        svgIcerigi={svgIcerigi}
+        viewBox={viewBox}
+        durum={durum}
+        arac={arac}
+        renk={renk}
+        kalinlik={kalinlik}
+        bolgeyeDokunuldu={bolgeyeDokunuldu}
+        cizgiTamamlandi={cizgiTamamlandi}
+        cizgiyeDokunuldu={cizgiyeDokunuldu}
+      />
     </div>
   );
 }

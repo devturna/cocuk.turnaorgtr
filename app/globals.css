@@ -12,6 +12,8 @@ html, body { height: 100%; }
 
 body {
   margin: 0;
+  /* dvh eski tarayicilarda yok; ustteki vh yedek olarak kalir. */
+  min-height: 100vh;
   min-height: 100dvh;
   display: flex;
   flex-direction: column;
@@ -24,14 +26,18 @@ main { flex: 1; min-height: 0; }
 
 /* Boyama ekraninda kaydirma yoktur: cocuk boya secmek icin sayfayi
    asagi kaydirmak zorunda kalmamali. Ust bar ve alt bilgi gizlenir,
-   boylece butun alan tuvale kalir. */
-body:has(.boyamaEkrani) {
-  height: 100dvh;
+   boylece butun alan tuvale kalir.
+
+   Sinifi BoyamaEkrani bileseni ekler. Bunu CSS'in :has() secicisiyle de
+   yapabilirdik ama :has() yeni bir ozellik; desteklemeyen tarayicida
+   kaydirma geri gelirdi. */
+body.boyamaAcik {
+  height: 100%;
   overflow: hidden;
 }
 
-body:has(.boyamaEkrani) .ustBar,
-body:has(.boyamaEkrani) .altBilgi {
+body.boyamaAcik .ustBar,
+body.boyamaAcik .altBilgi {
   display: none;
 }
 

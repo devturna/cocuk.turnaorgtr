@@ -7,7 +7,7 @@
 //   2. Ust katman: firca cizgileri, React tarafindan cizilir
 //
 // Ust katman pointer-events almaz; dokunmalar alttaki bolgelere gecer.
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { BoyamaDurumu, FircaCizgisi } from "@/lib/boyama/durum";
 import "./tuval.css";
 
@@ -36,10 +36,36 @@ export default function Tuval({
   cizgiTamamlandi,
   cizgiyeDokunuldu,
 }: TuvalOzellikleri) {
+  const alanRef = useRef<HTMLDivElement>(null);
   const cizgiKatmaniRef = useRef<HTMLDivElement>(null);
   const geciciCizgiRef = useRef<SVGPathElement>(null);
   // Cizim suruyorken biriken noktalar. Her karede React'i yenilemeyelim diye ref'te tutulur.
   const cizilenNoktalar = useRef<string[]>([]);
+  // Tuvalin kenar uzunlugu. Bos alani olcerek buluruz.
+  const [kenar, setKenar] = useState(0);
+
+  // Tuval kare olmali ve icinde bulundugu alana sigmali.
+  //
+  // Bunu CSS ile yapmanin yolu aspect-ratio veya container query birimleridir;
+  // ikisi de yeni ozelliklerdir ve desteklemeyen bir tarayicida tuvalin
+  // yuksekligi sifira duser (katmanlar position:absolute oldugu icin icerik
+  // yukseklik uretmez). O yuzden olcuyu burada kendimiz hesapliyoruz;
+  // bu her tarayicida ayni sekilde calisir.
+  useEffect(() => {
+    const alan = alanRef.current;
+    if (!alan) return;
+
+    const olc = () => setKenar(Math.min(alan.clientWidth, alan.clientHeight));
+    olc();
+
+    if (typeof ResizeObserver === "undefined") {
+      window.addEventListener("resize", olc);
+      return () => window.removeEventListener("resize", olc);
+    }
+    const gozlemci = new ResizeObserver(olc);
+    gozlemci.observe(alan);
+    return () => gozlemci.disconnect();
+  }, []);
 
   // Durum degistikce ham SVG'deki bolgelerin rengini guncelle.
   useEffect(() => {
@@ -102,45 +128,48 @@ export default function Tuval({
   }
 
   return (
-    <div
-      className="tuvalKapsayici"
-      onPointerDown={asagiBasildi}
-      onPointerMove={hareketEdildi}
-      onPointerUp={kaldirildi}
-      onPointerCancel={kaldirildi}
-    >
+    <div className="tuvalAlani" ref={alanRef}>
       <div
-        ref={cizgiKatmaniRef}
-        className="cizgiKatmani"
-        dangerouslySetInnerHTML={{ __html: svgIcerigi }}
-      />
-      <svg className="fircaKatmani" viewBox={viewBox} aria-hidden="true">
-        {durum.fircaCizgileri.map((cizgi, indeks) => (
+        className="tuvalKapsayici"
+        style={kenar > 0 ? { width: kenar, height: kenar } : undefined}
+        onPointerDown={asagiBasildi}
+        onPointerMove={hareketEdildi}
+        onPointerUp={kaldirildi}
+        onPointerCancel={kaldirildi}
+      >
+        <div
+          ref={cizgiKatmaniRef}
+          className="cizgiKatmani"
+          dangerouslySetInnerHTML={{ __html: svgIcerigi }}
+        />
+        <svg className="fircaKatmani" viewBox={viewBox} aria-hidden="true">
+          {durum.fircaCizgileri.map((cizgi, indeks) => (
+            <path
+              key={indeks}
+              d={cizgi.d}
+              stroke={cizgi.renk}
+              strokeWidth={cizgi.kalinlik}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+              className="fircaCizgisi"
+              // Sadece silgi modunda tek tek cizgilere dokunulabilir.
+              style={{ pointerEvents: arac === "silgi" ? "stroke" : "none" }}
+              onPointerDown={() => arac === "silgi" && cizgiyeDokunuldu(indeks)}
+            />
+          ))}
           <path
-            key={indeks}
-            d={cizgi.d}
-            stroke={cizgi.renk}
-            strokeWidth={cizgi.kalinlik}
+            ref={geciciCizgiRef}
+            className="geciciCizgi"
+            d=""
+            stroke={renk}
+            strokeWidth={kalinlik}
             strokeLinecap="round"
             strokeLinejoin="round"
             fill="none"
-            className="fircaCizgisi"
-            // Sadece silgi modunda tek tek cizgilere dokunulabilir.
-            style={{ pointerEvents: arac === "silgi" ? "stroke" : "none" }}
-            onPointerDown={() => arac === "silgi" && cizgiyeDokunuldu(indeks)}
           />
-        ))}
-        <path
-          ref={geciciCizgiRef}
-          className="geciciCizgi"
-          d=""
-          stroke={renk}
-          strokeWidth={kalinlik}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-      </svg>
+        </svg>
+      </div>
     </div>
   );
 }

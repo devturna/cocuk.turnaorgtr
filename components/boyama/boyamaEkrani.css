@@ -63,14 +63,16 @@
   min-height: 0;
 }
 
-/* Tuval kalan alanin tamamini kullanir, karesel oranini koruyarak.
-   Olcu birimi olarak bu alanin kendisi kullanilir (container query),
-   boylece tuval hem genislige hem yukseklige ayni anda sigar. */
+/* Tuvalin yerlesecegi bos alan. Tuval bu alani olcup kendi kenar uzunlugunu
+   hesaplar (Tuval.tsx); boylece hem genislige hem yukseklige ayni anda sigar
+   ve eski tarayicilarda da dogru boyutlanir. */
 .tuvalAlani {
   grid-area: tuval;
   display: grid;
   place-items: center;
-  container-type: size;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
 }
 
 /* Dikey ekranlarda panel alta gecer.
