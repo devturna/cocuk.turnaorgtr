@@ -15,6 +15,16 @@ dosyasında girdi bazında kayıtlıdır. Aşağıdaki tablo o dosyanın özetid
 | at.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | ordek.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | domuz.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| kangal.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| golden.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| labrador.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| almankurdu.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| husky.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| pug.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| bulldog.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| dalmacyali.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| kanis.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
+| chihuahua.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | araba.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | ucak.svg | CC0-1.0 | Turna ekibi tarafından çizildi |
 | gemi.svg | CC0-1.0 | Turna ekibi tarafından çizildi |

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Chihuahua: kocaman dik kulaklar, buyuk yuvarlak kafa ve
+       kucuk govde. Govde diger kopeklerden daha dardir. -->
+  <g class="bolgeler">
+    <rect class="boyanabilir" id="solOnBacak" fill="#ffffff" x="168" y="292" width="26" height="96" rx="10"/>
+    <rect class="boyanabilir" id="sagOnBacak" fill="#ffffff" x="206" y="292" width="26" height="96" rx="10"/>
+    <path class="boyanabilir" id="kuyruk" fill="#ffffff" d="M250 296 C282 292 298 270 294 246 C292 236 284 232 278 238 C286 246 284 266 272 276 C264 283 256 286 248 286 Z"/>
+    <path class="boyanabilir" id="govde" fill="#ffffff" d="M200 230 C166 230 156 258 148 296 C142 328 146 346 168 346 L232 346 C254 346 258 328 252 296 C244 258 234 230 200 230 Z"/>
+    <ellipse class="boyanabilir" id="gogus" fill="#ffffff" cx="200" cy="288" rx="28" ry="38"/>
+    <path class="boyanabilir" id="solKulak" fill="#ffffff" d="M142 92 L108 8 L188 66 Z"/>
+    <path class="boyanabilir" id="sagKulak" fill="#ffffff" d="M258 92 L292 8 L212 66 Z"/>
+    <path class="boyanabilir" id="solIcKulak" fill="#ffffff" d="M146 86 L124 32 L176 62 Z"/>
+    <path class="boyanabilir" id="sagIcKulak" fill="#ffffff" d="M254 86 L276 32 L224 62 Z"/>
+    <ellipse class="boyanabilir" id="kafa" fill="#ffffff" cx="200" cy="146" rx="78" ry="84"/>
+    <ellipse class="boyanabilir" id="burun" fill="#ffffff" cx="200" cy="192" rx="32" ry="26"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M168 346 L168 376 Q168 388 178 388 L184 388 Q194 388 194 376 L194 346"/>
+    <path d="M206 346 L206 376 Q206 388 216 388 L222 388 Q232 388 232 376 L232 346"/>
+    <path d="M250 296 C282 292 298 270 294 246 C292 236 284 232 278 238 C286 246 284 266 272 276 C264 283 256 286 248 286"/>
+    <path d="M200 230 C166 230 156 258 148 296 C142 328 146 346 168 346 L232 346 C254 346 258 328 252 296 C244 258 234 230 200 230 Z"/>
+    <ellipse cx="200" cy="288" rx="28" ry="38"/>
+    <path d="M142 92 L108 8 L188 66"/>
+    <path d="M258 92 L292 8 L212 66"/>
+    <path d="M146 86 L124 32 L176 62"/>
+    <path d="M254 86 L276 32 L224 62"/>
+    <ellipse cx="200" cy="146" rx="78" ry="84"/>
+    <ellipse cx="200" cy="192" rx="32" ry="26"/>
+    <circle cx="168" cy="134" r="12" fill="#000000"/>
+    <circle cx="232" cy="134" r="12" fill="#000000"/>
+    <path d="M188 172 Q200 165 212 172 Q212 184 200 188 Q188 184 188 172 Z" fill="#000000"/>
+    <path d="M200 188 L200 198"/>
+    <path d="M200 198 Q188 208 180 200"/>
+    <path d="M200 198 Q212 208 220 200"/>
+  </g>
+</svg>

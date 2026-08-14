@@ -90,6 +90,96 @@
     "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
   },
   {
+    "id": "kangal",
+    "ad": "Kangal",
+    "kategori": "Köpekler",
+    "dosya": "kangal.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "golden",
+    "ad": "Golden Retriever",
+    "kategori": "Köpekler",
+    "dosya": "golden.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "labrador",
+    "ad": "Labrador",
+    "kategori": "Köpekler",
+    "dosya": "labrador.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "almankurdu",
+    "ad": "Alman Kurdu",
+    "kategori": "Köpekler",
+    "dosya": "almankurdu.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "husky",
+    "ad": "Husky",
+    "kategori": "Köpekler",
+    "dosya": "husky.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "pug",
+    "ad": "Pug",
+    "kategori": "Köpekler",
+    "dosya": "pug.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "bulldog",
+    "ad": "Bulldog",
+    "kategori": "Köpekler",
+    "dosya": "bulldog.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "dalmacyali",
+    "ad": "Dalmaçyalı",
+    "kategori": "Köpekler",
+    "dosya": "dalmacyali.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "kanis",
+    "ad": "Kaniş",
+    "kategori": "Köpekler",
+    "dosya": "kanis.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
+    "id": "chihuahua",
+    "ad": "Chihuahua",
+    "kategori": "Köpekler",
+    "dosya": "chihuahua.svg",
+    "lisans": "CC0-1.0",
+    "kaynak": "Turna ekibi tarafindan cizildi",
+    "kaynakUrl": "https://github.com/devturna/cocuk.turnaorgtr"
+  },
+  {
     "id": "araba",
     "ad": "Araba",
     "kategori": "Araçlar",

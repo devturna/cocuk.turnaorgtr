@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("her kategoride onizlemeler gercekten yukleniyor", async ({ page }) => {
   await page.goto("/boyama/");
 
-  for (const kategori of ["Hayvanlar", "Araçlar", "Doğa", "Şekiller"]) {
+  for (const kategori of ["Hayvanlar", "Köpekler", "Araçlar", "Doğa", "Şekiller"]) {
     await page.getByRole("button", { name: kategori }).click();
 
     const resimler = page.locator(".galeriOnizleme");

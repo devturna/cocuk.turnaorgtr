@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <!-- Dalmacyali: benekleri ayri birer boyanabilir bolgedir; cocuk her
+       benegi tek tek boyayabilir. Benekler en uste konur ki tiklama
+       once onlara gitsin. -->
+  <g class="bolgeler">
+    <rect class="boyanabilir" id="solOnBacak" fill="#ffffff" x="156" y="290" width="34" height="98" rx="12"/>
+    <rect class="boyanabilir" id="sagOnBacak" fill="#ffffff" x="210" y="290" width="34" height="98" rx="12"/>
+    <path class="boyanabilir" id="kuyruk" fill="#ffffff" d="M262 300 C292 296 312 274 314 248 C314 240 306 236 302 242 C306 258 296 274 280 282 C272 286 264 288 256 288 Z"/>
+    <path class="boyanabilir" id="govde" fill="#ffffff" d="M200 230 C156 230 144 262 134 296 C126 328 128 344 156 344 L244 344 C272 344 274 328 266 296 C256 262 244 230 200 230 Z"/>
+    <path class="boyanabilir" id="solKulak" fill="#ffffff" d="M148 102 C132 130 130 162 134 188 C112 196 100 176 100 148 C100 118 122 96 148 102 Z"/>
+    <path class="boyanabilir" id="sagKulak" fill="#ffffff" d="M252 102 C268 130 270 162 266 188 C288 196 300 176 300 148 C300 118 278 96 252 102 Z"/>
+    <ellipse class="boyanabilir" id="kafa" fill="#ffffff" cx="200" cy="152" rx="74" ry="78"/>
+    <ellipse class="boyanabilir" id="burun" fill="#ffffff" cx="200" cy="194" rx="40" ry="30"/>
+    <circle class="boyanabilir" id="benek1" fill="#ffffff" cx="170" cy="268" r="15"/>
+    <circle class="boyanabilir" id="benek2" fill="#ffffff" cx="232" cy="290" r="13"/>
+    <circle class="boyanabilir" id="benek3" fill="#ffffff" cx="196" cy="320" r="11"/>
+    <circle class="boyanabilir" id="benek4" fill="#ffffff" cx="150" cy="304" r="10"/>
+    <circle class="boyanabilir" id="benek5" fill="#ffffff" cx="248" cy="318" r="9"/>
+    <circle class="boyanabilir" id="benek6" fill="#ffffff" cx="172" cy="100" r="10"/>
+    <circle class="boyanabilir" id="benek7" fill="#ffffff" cx="246" cy="162" r="12"/>
+    <circle class="boyanabilir" id="benek8" fill="#ffffff" cx="172" cy="364" r="8"/>
+    <circle class="boyanabilir" id="benek9" fill="#ffffff" cx="226" cy="368" r="7"/>
+  </g>
+  <g class="cizgiler" fill="none" stroke="#000000" stroke-width="6" stroke-linejoin="round" stroke-linecap="round" pointer-events="none">
+    <path d="M156 344 L156 376 Q156 388 168 388 L178 388 Q190 388 190 376 L190 344"/>
+    <path d="M210 344 L210 376 Q210 388 222 388 L232 388 Q244 388 244 376 L244 344"/>
+    <path d="M262 300 C292 296 312 274 314 248 C314 240 306 236 302 242 C306 258 296 274 280 282 C272 286 264 288 256 288"/>
+    <path d="M200 230 C156 230 144 262 134 296 C126 328 128 344 156 344 L244 344 C272 344 274 328 266 296 C256 262 244 230 200 230 Z"/>
+    <path d="M134 188 C112 196 100 176 100 148 C100 118 122 96 148 102"/>
+    <path d="M266 188 C288 196 300 176 300 148 C300 118 278 96 252 102"/>
+    <ellipse cx="200" cy="152" rx="74" ry="78"/>
+    <ellipse cx="200" cy="194" rx="40" ry="30"/>
+    <circle cx="166" cy="124" r="9" fill="#000000"/>
+    <circle cx="234" cy="124" r="9" fill="#000000"/>
+    <path d="M186 174 Q200 166 214 174 Q214 188 200 192 Q186 188 186 174 Z" fill="#000000"/>
+    <path d="M200 192 L200 202"/>
+    <path d="M200 202 Q186 214 176 204"/>
+    <path d="M200 202 Q214 214 224 204"/>
+    <circle cx="170" cy="268" r="15" stroke-width="4"/>
+    <circle cx="232" cy="290" r="13" stroke-width="4"/>
+    <circle cx="196" cy="320" r="11" stroke-width="4"/>
+    <circle cx="150" cy="304" r="10" stroke-width="4"/>
+    <circle cx="248" cy="318" r="9" stroke-width="4"/>
+    <circle cx="172" cy="100" r="10" stroke-width="4"/>
+    <circle cx="246" cy="162" r="12" stroke-width="4"/>
+    <circle cx="172" cy="364" r="8" stroke-width="4"/>
+    <circle cx="226" cy="368" r="7" stroke-width="4"/>
+  </g>
+</svg>

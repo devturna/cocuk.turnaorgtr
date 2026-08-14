@@ -144,7 +144,8 @@ localStorage anahtarı: `boyama:<resimId>`.
 **Ana sayfa.** Üç büyük kart: Boyama (aktif), Oyunlar (yakında), Kodlama (yakında).
 Okuma bilmeyen çocuk için her kartta büyük ikon ve tek kelime.
 
-**Galeri (`/boyama`).** Kategori sekmeleri (Hayvanlar, Araçlar, Doğa, Şekiller) ve
+**Galeri (`/boyama`).** Kategori sekmeleri (Hayvanlar, Köpekler, Araçlar, Doğa,
+Şekiller; liste katalogdan üretilir) ve
 resimlerin küçük önizlemeleri. Yarım kalmış resimlerin köşesinde devam ediyor işareti.
 
 **Boyama ekranı (`/boyama/[resimId]`).** Ekranın çoğunu SVG tuval kaplar. Altta

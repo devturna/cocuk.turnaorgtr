@@ -12,7 +12,8 @@ bölüm teslim eder.
 - Parmakla serbest fırça çizimi, üç kalınlık
 - Silgi, geri al, baştan başla
 - Yarım kalan çizimin tarayıcıda saklanması
-- Dört kategoride on üç boyama sayfası
+- Beş kategoride kırk bir boyama sayfası (Hayvanlar, Köpekler, Araçlar, Doğa,
+  Şekiller)
 
 Kapsam dışı bırakılanlar: indirme ve yazdırma, ses efektleri, çok dillilik.
 

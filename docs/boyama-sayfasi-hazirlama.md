@@ -65,6 +65,22 @@ içine kadar uzanmalı ki boyanınca kopuk durmasın, ama üst kenarları
 <path d="M140 330 L140 379 Q140 385 146 385 L162 385 Q168 385 168 379 L168 330"/>
 ```
 
+**3. Açık konturun ucu, örten şeklin birkaç piksel içinde bitsin.** Kulak ya da
+kuyruk konturu kafanın dışında biterse çizim havada asılı kalmış gibi görünür.
+Uç noktayı bilerek kafa çizgisinin 3-6 piksel içine koyun; iki çizgi kesişince
+göz onları birleşik görür.
+
+### Aynı iskeleti paylaşan bir seri çizmek
+
+Köpekler kategorisi buna örnektir: on cins de aynı oturan gövdeyi, aynı iki ön
+bacağı ve aynı kafa oval merkezini kullanır. Cinsler yalnızca kulak, burun,
+kuyruk ve desenle ayrışır.
+
+Böyle çalışmak iki işe yarar: yeni bir çizim yarım saatte değil beş dakikada
+biter ve resimler birbirinin yanında dururken aynı aileden görünür. Yeni bir
+köpek eklemek isteyen biri için en kolay yol `labrador.svg` dosyasını kopyalayıp
+kulakları, kuyruğu ve desenleri değiştirmektir.
+
 Örnek iskelet:
 
 ```svg
