@@ -22,3 +22,18 @@ test("her kategoride onizlemeler gercekten yukleniyor", async ({ page }) => {
     }
   }
 });
+
+// Galeri ekrandan uzun olabilir; boyle bir sayfada alt bilgi resimlerin
+// uzerine binmemeli. Bir kez body'ye sabit yukseklik verildigi icin tam
+// olarak bu olmustu.
+test("galeri uzadiginda alt bilgi resimlerin uzerine binmez", async ({ page }) => {
+  await page.setViewportSize({ width: 900, height: 700 });
+  await page.goto("/boyama/");
+
+  const izgara = (await page.locator(".galeriIzgara").boundingBox())!;
+  const altBilgi = (await page.locator(".altBilgi").boundingBox())!;
+
+  expect(altBilgi.y, "alt bilgi izgaranin icinde kaliyor").toBeGreaterThanOrEqual(
+    izgara.y + izgara.height,
+  );
+});
