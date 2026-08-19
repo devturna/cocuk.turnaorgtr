@@ -210,6 +210,43 @@
   }
 }
 
+.kodlaYol {
+  color: #6b6459;
+  pointer-events: none;
+}
+
+.kodlaYolParcasi {
+  stroke: currentColor;
+  stroke-width: 7;
+  stroke-linecap: round;
+  opacity: 0.38;
+  /* Ok kendini cizerek uzar: her dokunusun haritada karsiligi olsun diye. */
+  stroke-dasharray: 100;
+  stroke-dashoffset: 0;
+  animation: kodlaOkCizil 260ms ease-out;
+}
+
+.kodlaYolParcasi.dolu {
+  opacity: 0.85;
+  stroke-width: 9;
+}
+
+.kodlaYolParcasi.carpma {
+  stroke-dasharray: 10 8;
+  opacity: 0.5;
+}
+
+@keyframes kodlaOkCizil {
+  from { stroke-dashoffset: 100; }
+  to { stroke-dashoffset: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kodlaYolParcasi {
+    animation: none;
+  }
+}
+
 /* --- Bolum ekrani --- */
 
 .bolumEkrani {

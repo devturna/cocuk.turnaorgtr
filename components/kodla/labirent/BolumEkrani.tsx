@@ -10,6 +10,7 @@ import Link from "next/link";
 import { calistir, type Adim } from "@/lib/kodla/labirent/calistir";
 import type { Komut, Yon } from "@/lib/kodla/labirent/komutlar";
 import { kareAnahtari } from "@/lib/kodla/labirent/harita";
+import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
 import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
 import { bolumHaritasi, type BolumVerisi } from "@/lib/kodla/bolumler";
@@ -148,6 +149,10 @@ export default function BolumEkrani({
     }));
   }
 
+  // Onizleme, gercek calistirmayla ayni fonksiyondan uretiliyor; ikisi
+  // ayrisamaz. Program kisa oldugu icin her render'da hesaplamak ucuz.
+  const yol = onizlemeYolu(durum.program, harita);
+
   return (
     <div className="bolumEkrani">
       <div className="bolumUstBar">
@@ -166,6 +171,8 @@ export default function BolumEkrani({
           toplananlar={durum.toplananlar}
           vardi={durum.bitti !== null}
           bolumAdi={bolum.ad}
+          yol={yol}
+          calisan={durum.vurgulanan}
         />
       </div>
 
