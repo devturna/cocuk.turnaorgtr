@@ -316,6 +316,29 @@
   transform: scale(1.12);
 }
 
+/* Eklenen kutu paletten cubuga uçuyormus gibi girer: her dokunusun
+   haritada ve cubukta olmak uzere iki karsiligi olsun diye. */
+.programBloku.yeni {
+  animation: kodlaKutuGel 220ms ease-out;
+}
+
+@keyframes kodlaKutuGel {
+  0% { opacity: 0; translate: 0 26px; scale: 0.7; }
+  100% { opacity: 1; translate: 0 0; scale: 1; }
+}
+
+.programBloku {
+  transition: scale 140ms ease-out, background-color 140ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .programBloku,
+  .programBloku.yeni {
+    animation: none;
+    transition: none;
+  }
+}
+
 .bolumAltBar {
   display: flex;
   flex-wrap: wrap;
