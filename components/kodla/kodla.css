@@ -433,7 +433,41 @@
 
 .kodlaKutlamaYildiz { font-size: 72px; }
 
+.kodlaKonfeti {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.kodlaKonfetiParcasi {
+  position: absolute;
+  top: -24px;
+  border-radius: 2px;
+  animation-name: kodlaKonfetiDus;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
+}
+
+@keyframes kodlaKonfetiDus {
+  0% { translate: 0 0; rotate: 0deg; opacity: 1; }
+  100% { translate: 0 105vh; rotate: var(--donus); opacity: 0.9; }
+}
+
+/* Altin yildiz doner; iki basari tipi hissedilir farkta olsun. */
+.kodlaKutlamaYildiz.altin {
+  animation: kodlaYildizDon 900ms ease-out;
+}
+
+@keyframes kodlaYildizDon {
+  0% { rotate: 0deg; scale: 0.4; }
+  70% { rotate: 380deg; scale: 1.25; }
+  100% { rotate: 360deg; scale: 1; }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .kodlaKonfeti { display: none; }
+  .kodlaKutlamaYildiz.altin { animation: none; }
   .komutDugmesi,
   .kodlaYardimciDugme,
   .calistirDugmesi {

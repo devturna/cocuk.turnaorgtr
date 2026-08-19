@@ -18,6 +18,7 @@ import { bolumSonucuKaydet, denemeArtir, type YildizTuru } from "@/lib/kodla/ile
 import Sahne from "./Sahne";
 import KomutPaleti from "./KomutPaleti";
 import ProgramSeridi from "./ProgramSeridi";
+import Konfeti from "./Konfeti";
 import type { TurnaPozu } from "./Simgeler";
 import "../kodla.css";
 
@@ -229,11 +230,16 @@ export default function BolumEkrani({
       <p className="bolumIpucu">{bolum.ipucu}</p>
 
       {durum.bitti && (
-        <div className="kodlaKutlama" role="status" onPointerDown={bastanBasla}>
-          <div className="kutlamaKutusu" onPointerDown={(olay) => olay.stopPropagation()}>
-            <span className="kodlaKutlamaYildiz" aria-hidden="true">
-              {durum.bitti === "altin" ? "🌟" : "⭐"}
-            </span>
+        <>
+          <Konfeti yogun={durum.bitti === "altin"} />
+          <div className="kodlaKutlama" role="status" onPointerDown={bastanBasla}>
+            <div className="kutlamaKutusu" onPointerDown={(olay) => olay.stopPropagation()}>
+              <span
+                className={`kodlaKutlamaYildiz${durum.bitti === "altin" ? " altin" : ""}`}
+                aria-hidden="true"
+              >
+                {durum.bitti === "altin" ? "🌟" : "⭐"}
+              </span>
             <p>{durum.bitti === "altin" ? "Harika! En kısa yol!" : "Aferin!"}</p>
             {sonrakiBolumId ? (
               <Link href={`/kodla/${kursId}/${sonrakiBolumId}/`} className="calistirDugmesi">
@@ -244,8 +250,9 @@ export default function BolumEkrani({
                 Duraklar
               </Link>
             )}
+            </div>
           </div>
-        </div>
+        </>
       )}
     </div>
   );
