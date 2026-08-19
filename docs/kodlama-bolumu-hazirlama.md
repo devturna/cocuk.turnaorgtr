@@ -67,6 +67,12 @@ Bütün satırlar aynı uzunlukta olmalı.
   script'i doğru değeri sana söyler.
 - `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle.
 
+**Yeni bir kursun ilk durağı öğreticidir ve her zaman tek adımda
+(`idealAdim: 1`) bitmelidir.** Çocuğun bu bölümle ilk karşılaşması "denedim"
+değil "başardım" olmalı; üç adımlık bir çözüm bile ilk deneyim için fazladır.
+Bkz. `turna-yolu.json` içindeki `goksu-deltasi` (3×3 harita, Turna ortada,
+yuva hemen yanında, tek yön komutuyla biter).
+
 ## 4. Denetle
 
 ```bash

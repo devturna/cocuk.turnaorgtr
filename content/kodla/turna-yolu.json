@@ -1,5 +1,19 @@
 [
   {
+    "id": "goksu-deltasi",
+    "ad": "Göksu Deltası",
+    "mekanik": "labirent",
+    "komutSeti": "yonler",
+    "tema": "sazlik",
+    "durak": { "x": 43, "y": 92 },
+    "idealAdim": 1,
+    "ipucu": "Turnalar Anadolu'ya güneyden, Göksu Deltası üzerinden girer.",
+    "harita": {
+      "bakis": "sag",
+      "satirlar": ["...", ".TH", "..."]
+    }
+  },
+  {
     "id": "sultansazligi",
     "ad": "Sultansazlığı",
     "mekanik": "labirent",

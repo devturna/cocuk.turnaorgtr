@@ -21,8 +21,8 @@ describe("kurslar", () => {
 describe("bolumler", () => {
   const bolumler = kursBolumleri("turna-yolu");
 
-  it("faz 4a bes bolum icerir", () => {
-    expect(bolumler).toHaveLength(5);
+  it("faz 4a ve 4b birlikte alti bolum icerir", () => {
+    expect(bolumler).toHaveLength(6);
   });
 
   it("bolum kimlikleri benzersizdir", () => {
@@ -31,7 +31,7 @@ describe("bolumler", () => {
   });
 
   it("siralama icerik dosyasindaki sirayi korur", () => {
-    expect(bolumSiralamasi("turna-yolu")[0]).toBe("sultansazligi");
+    expect(bolumSiralamasi("turna-yolu")[0]).toBe("goksu-deltasi");
     expect(bolumSiralamasi("turna-yolu").at(-1)).toBe("efes");
   });
 
