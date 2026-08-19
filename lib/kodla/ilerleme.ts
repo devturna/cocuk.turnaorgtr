@@ -51,16 +51,6 @@ export function bolumSonucuKaydet(kursId: string, bolumId: string, tur: YildizTu
   const kurs = ilerleme[kursId] ?? {};
   // Bir kez kazanilan altin yildiz geri alinmaz.
   if (kurs[bolumId] === "altin") return;
-  nezaketleYaz(ilerleme, kursId, kurs, bolumId, tur);
-}
-
-function nezaketleYaz(
-  ilerleme: Record<string, Record<string, YildizTuru>>,
-  kursId: string,
-  kurs: Record<string, YildizTuru>,
-  bolumId: string,
-  tur: YildizTuru,
-): void {
   nesneYaz(ANAHTAR, { ...ilerleme, [kursId]: { ...kurs, [bolumId]: tur } });
 }
 
