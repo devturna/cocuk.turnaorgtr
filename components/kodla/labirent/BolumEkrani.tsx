@@ -8,8 +8,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { calistir, type Adim } from "@/lib/kodla/labirent/calistir";
-import type { Komut, Yon } from "@/lib/kodla/labirent/komutlar";
-import { kareAnahtari } from "@/lib/kodla/labirent/harita";
+import {
+  KOMUT_SETLERI,
+  komutAnahtari,
+  type Komut,
+  type KomutSeti,
+  type Yon,
+} from "@/lib/kodla/labirent/komutlar";
+import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
 import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
 import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
@@ -32,6 +38,24 @@ const ADIM_SURESI = 450;
 
 // Cocuk bu kadar sure hicbir sey yapmazsa demo sessizce tekrarlanir.
 const BOSTA_SURESI = 12000;
+
+/**
+ * Demo icin bir komut secer: Turna GORULEBILIR sekilde yurumeli (cocuk bir
+ * seyin oldugunu gormeli) ama bolumu BITIRMEMELI (yoksa cocugun ilk
+ * deneyimi, kendisi hic dokunmadan "kazanilmis" bir bolum olur). Komut
+ * setindeki her komutu tek basina calistirip bu iki sarti saglayan ilkini
+ * doner. Harita boyle bir komut sunmuyorsa (ornegin tek adimda hem yurüyup
+ * hem bitirmeyen hicbir yon yoksa) null doner; cagiran taraf bu durumda
+ * demoyu hic gostermez. Yanlis bir sey gostermek, hic gostermemekten kotu.
+ */
+function demoKomutuSec(seti: KomutSeti, harita: Harita): Komut | null {
+  for (const komut of KOMUT_SETLERI[seti]) {
+    const sonuc = calistir([komut], harita);
+    const yurudu = sonuc.adimlar.some((adim) => adim.olay === "yurudu");
+    if (yurudu && !sonuc.basarili) return komut;
+  }
+  return null;
+}
 
 type Durum = {
   program: Komut[];
@@ -59,7 +83,13 @@ export default function BolumEkrani({
   // Demo yalnizca kursun ilk duraginda anlamli; sonrakilerde cocuk zaten
   // nasil oynandigini biliyor.
   const ilkDurakDegil = bolumSiralamasi(kursId)[0] !== bolum.id;
-  const ILK_KOMUT: Komut = { tur: "git", yon: "sag" };
+
+  // Lazy initializer: bir kez hesaplanir, sonraki render'larda ayni referans
+  // kalir (bagimlilik dizilerinde guvenle kullanilabilir). ilkDurakDegil
+  // true ise hesaplamaya bile gerek yok.
+  const [demoKomut] = useState<Komut | null>(() =>
+    ilkDurakDegil ? null : demoKomutuSec(bolum.komutSeti, harita),
+  );
 
   const [durum, setDurum] = useState<Durum>({
     program: [],
@@ -73,15 +103,20 @@ export default function BolumEkrani({
 
   // Demo yalnizca ilk durakta ve ilk girişte oynar. Sahte animasyon degil:
   // gercek arayuzu surer, cocuk tam olarak kendi yapacagi seyi gorur.
-  const [demo, setDemo] = useState<"yon" | "calistir" | null>(null);
+  // Ucuncu asama ("izliyor"), demo'nun kendi kosusunun bitmesini bekler ki
+  // kontrol cocuga temiz bir tahtayla gecsin.
+  const [demo, setDemo] = useState<"yon" | "calistir" | "izliyor" | null>(null);
 
   useEffect(() => {
     if (ilkDurakDegil) return;
     if (demoGosterildiMi()) return;
+    demoGosterildi();
+    // Haritada tek adimda hem yuruyup hem bitirmeyen bir komut yoksa
+    // (demoKomut null) demo yaniltici olurdu; sessizce atlanir.
+    if (demoKomut === null) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDemo("yon");
-    demoGosterildi();
-  }, [ilkDurakDegil]);
+  }, [ilkDurakDegil, demoKomut]);
 
   // Ekranda kaydirma yok: cocuk komut secmek icin sayfayi kaydirmamali.
   useEffect(() => {
@@ -180,40 +215,68 @@ export default function BolumEkrani({
 
   const calisiyor = durum.oynatma !== null;
 
-  // Demo adimlarini yurutur: yon dugmesine "dokunur", sonra calistirir.
-  // calistirmayiBaslat asagida tanimlandiktan sonra kullaniliyor diye bu
-  // etki buraya, fonksiyon bildirimlerinin ardina alindi.
+  // Demo adimlarini yurutur: yon dugmesine "dokunur", calistirir, sonra
+  // kosunun bitmesini bekleyip tahtayi sifirlar. calistirmayiBaslat asagida
+  // tanimlandiktan sonra kullaniliyor diye bu etki buraya, fonksiyon
+  // bildirimlerinin ardina alindi.
   useEffect(() => {
     if (demo === null) return;
 
     if (demo === "yon") {
+      // demoKomut burada asla null olamaz: demo yalnizca mount ve
+      // bosta-tekrar etkilerinde demoKomut !== null iken "yon" yapilir.
+      const secilenKomut = demoKomut!;
       const zamanlayici = setTimeout(() => {
         setDurum((onceki) => ({
           ...onceki,
-          program: blokEkle(onceki.program, ILK_KOMUT),
+          program: blokEkle(onceki.program, secilenKomut),
         }));
         setDemo("calistir");
       }, 1400);
       return () => clearTimeout(zamanlayici);
     }
 
-    const zamanlayici = setTimeout(() => {
-      calistirmayiBaslat();
-      setDemo(null);
-    }, 1400);
-    return () => clearTimeout(zamanlayici);
-    // ILK_KOMUT sabit, calistirmayiBaslat her render'da yeniden kuruluyor;
-    // bagimliliga eklemek zamanlayiciyi her render'da sifirlar, demo hic bitmez.
+    if (demo === "calistir") {
+      const zamanlayici = setTimeout(() => {
+        calistirmayiBaslat();
+        setDemo("izliyor");
+      }, 1400);
+      return () => clearTimeout(zamanlayici);
+    }
+
+    // demo === "izliyor": kosu suruyorsa bekle. Kosu bitince "kontrol
+    // cocuga gecer": tahta, cocugun hicbir seye dokunmamis gibi tertemiz
+    // baslamasi icin sifirlanir (program dahil; bastanBasla programi
+    // korur, o yuzden burada ayrica programiTemizle cagriliyor).
+    if (calisiyor) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDurum((onceki) => ({
+      ...onceki,
+      program: programiTemizle(),
+      turna: baslangicTurna,
+      poz: "durus",
+      toplananlar: [],
+      vurgulanan: null,
+      oynatma: null,
+      bitti: null,
+    }));
+    setDemo(null);
+    // calistirmayiBaslat her render'da yeniden kuruluyor; bagimliliga
+    // eklemek zamanlayiciyi her render'da sifirlar, demo hic bitmez.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [demo]);
+  }, [demo, demoKomut, calisiyor]);
 
   // Cocuk uzun sure hicbir sey yapmazsa demo hatirlatma olarak tekrarlanir.
+  // Yalnizca ilk durakta ve gecerli bir demo komutu varsa: baska bir
+  // durakta bosta kalmak, cocuga o haritada anlamsiz olabilecek sabit bir
+  // hareketi (demoKomut, ilk duraga gore secilir) izletmemeli.
   useEffect(() => {
+    if (ilkDurakDegil || demoKomut === null) return;
     if (calisiyor || durum.bitti || demo !== null) return;
     if (durum.program.length > 0) return;
     const zamanlayici = setTimeout(() => setDemo("yon"), BOSTA_SURESI);
     return () => clearTimeout(zamanlayici);
-  }, [calisiyor, durum.bitti, durum.program.length, demo]);
+  }, [ilkDurakDegil, demoKomut, calisiyor, durum.bitti, durum.program.length, demo]);
 
   // Onizleme, gercek calistirmayla ayni fonksiyondan uretiliyor; ikisi
   // ayrisamaz. Program kisa oldugu icin her render'da hesaplamak ucuz.
@@ -253,9 +316,9 @@ export default function BolumEkrani({
         >
           <KomutPaleti
             seti={bolum.komutSeti}
-            kilitli={calisiyor}
+            kilitli={calisiyor || demo !== null}
             onEkle={blokEklendi}
-            hayalet={demo === "yon" ? "git:sag" : null}
+            hayalet={demo === "yon" && demoKomut !== null ? komutAnahtari(demoKomut) : null}
           />
         </div>
 
@@ -293,7 +356,7 @@ export default function BolumEkrani({
               !calisiyor && durum.program.length > 0 && demo === null ? " nabiz" : ""
             }`}
             aria-label="Çalıştır"
-            disabled={calisiyor || durum.program.length === 0}
+            disabled={calisiyor || durum.program.length === 0 || demo !== null}
             onClick={calistirmayiBaslat}
           >
             <span aria-hidden="true">▶</span>

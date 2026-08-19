@@ -11,8 +11,8 @@ const BOLUMLER = kursBolumleri(KURS);
 // Sozsuz ilk temas demosu ilk durakta kendi kendine bir blok ekleyip
 // calistiriyor (Gorev 9). Bu dosyadaki testler paleti kendileri surdugu
 // icin demo devrede kalirsa programa beklenmedik bir blok karisir ve
-// sonuclar kararsizlasir. Demo ayri bir dosyada test edilecek (Gorev 11);
-// burada sessizce kapatiyoruz.
+// sonuclar kararsizlasir. Demo'nun kendisi kodla-demo.spec.ts icinde ayrica
+// test ediliyor; burada sessizce kapatiyoruz.
 test.beforeEach(async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("kodla:demo", "evet"));
 });
