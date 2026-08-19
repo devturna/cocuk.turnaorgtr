@@ -66,6 +66,12 @@ export default function Sahne({
       role="img"
       aria-label={`${bolumAdi} haritasi`}
     >
+      {/* Ok ucu marker'i, kendini referans alan cizginin rengini/opakligini
+          MIRAS ALMAZ (SVG spesifikasyonu: marker icerigi, kendi tanim
+          yerindeki (defs) atalari uzerinden hesaplanir, kullanan elemandan
+          degil). Bu yuzden iki ayri marker: biri soluk, biri dolu; renk ve
+          opaklik burada, .kodlaYol/.kodlaYolParcasi CSS'indeki degerlerle
+          (renk #6b6459, opaklik 0.38/0.85) ayni tutulmus. */}
       <defs>
         <marker
           id="kodlaOkUcu"
@@ -76,7 +82,18 @@ export default function Sahne({
           markerHeight="5"
           orient="auto-start-reverse"
         >
-          <path d="M0 0 L10 5 L0 10 Z" fill="currentColor" />
+          <path d="M0 0 L10 5 L0 10 Z" fill="#6b6459" opacity="0.38" />
+        </marker>
+        <marker
+          id="kodlaOkUcuDolu"
+          viewBox="0 0 10 10"
+          refX="8"
+          refY="5"
+          markerWidth="5"
+          markerHeight="5"
+          orient="auto-start-reverse"
+        >
+          <path d="M0 0 L10 5 L0 10 Z" fill="#6b6459" opacity="0.85" />
         </marker>
       </defs>
 
@@ -116,7 +133,7 @@ export default function Sahne({
               y1={parca.baslangic.y * KARE + 50}
               x2={parca.bitis.x * KARE + 50}
               y2={parca.bitis.y * KARE + 50}
-              markerEnd="url(#kodlaOkUcu)"
+              markerEnd={dolu ? "url(#kodlaOkUcuDolu)" : "url(#kodlaOkUcu)"}
             />
           );
         })}
