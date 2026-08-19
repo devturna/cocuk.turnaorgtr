@@ -125,6 +125,7 @@
 
 .programSeridi {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 6px;
   min-height: 72px;
@@ -132,7 +133,6 @@
   border: 4px dashed var(--kenar);
   border-radius: 16px;
   background: #fff;
-  overflow: hidden;
 }
 
 .programBloku {
@@ -168,7 +168,7 @@
 }
 
 .komutDugmesi,
-.yardimciDugme,
+.kodlaYardimciDugme,
 .calistirDugmesi {
   display: inline-flex;
   align-items: center;
@@ -189,7 +189,7 @@
 .calistirDugmesi { background: #6fbf5b; }
 
 .komutDugmesi:disabled,
-.yardimciDugme:disabled,
+.kodlaYardimciDugme:disabled,
 .calistirDugmesi:disabled { opacity: 0.45; }
 
 .bolumIpucu {
@@ -199,7 +199,7 @@
   text-align: center;
 }
 
-.kutlama {
+.kodlaKutlama {
   position: fixed;
   inset: 0;
   display: flex;
@@ -220,4 +220,4 @@
   text-align: center;
 }
 
-.kutlamaYildiz { font-size: 72px; }
+.kodlaKutlamaYildiz { font-size: 72px; }

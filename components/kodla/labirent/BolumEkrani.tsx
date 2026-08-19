@@ -86,8 +86,8 @@ export default function BolumEkrani({
           adim.olay === "topladi"
             ? [...onceki.toplananlar, kareAnahtari(adim.turna)]
             : onceki.toplananlar,
-        sarsinti: adim.olay === "carpti",
-        vurgulanan: sonAdim ? null : adimlar[sira + 1].blokSirasi,
+        sarsinti: sonAdim ? false : adim.olay === "carpti",
+        vurgulanan: adim.blokSirasi,
         oynatma: sonAdim ? null : { adimlar, sira: sira + 1 },
         bitti: kazanilan,
       }));
@@ -123,7 +123,7 @@ export default function BolumEkrani({
       toplananlar: [],
       sarsinti: false,
       bitti: null,
-      vurgulanan: sonuc.adimlar[0].blokSirasi,
+      vurgulanan: null,
       oynatma: { adimlar: sonuc.adimlar, sira: 0 },
     }));
   }
@@ -156,7 +156,7 @@ export default function BolumEkrani({
         <div className="bolumKontrolleri">
           <button
             type="button"
-            className="yardimciDugme"
+            className="kodlaYardimciDugme"
             aria-label="Son bloğu sil"
             disabled={calisiyor || durum.program.length === 0}
             onClick={() => setDurum((o) => ({ ...o, program: sonBlokuSil(o.program) }))}
@@ -165,7 +165,7 @@ export default function BolumEkrani({
           </button>
           <button
             type="button"
-            className="yardimciDugme"
+            className="kodlaYardimciDugme"
             aria-label="Hepsini temizle"
             disabled={calisiyor || durum.program.length === 0}
             onClick={() => setDurum((o) => ({ ...o, program: programiTemizle() }))}
@@ -174,7 +174,7 @@ export default function BolumEkrani({
           </button>
           <button
             type="button"
-            className="yardimciDugme"
+            className="kodlaYardimciDugme"
             aria-label="Turna'yı başa al"
             disabled={calisiyor}
             onClick={bastanBasla}
@@ -196,9 +196,9 @@ export default function BolumEkrani({
       <p className="bolumIpucu">{bolum.ipucu}</p>
 
       {durum.bitti && (
-        <div className="kutlama" onClick={bastanBasla}>
+        <div className="kodlaKutlama" onClick={bastanBasla}>
           <div className="kutlamaKutusu" onClick={(olay) => olay.stopPropagation()}>
-            <span className="kutlamaYildiz" aria-hidden="true">
+            <span className="kodlaKutlamaYildiz" aria-hidden="true">
               {durum.bitti === "altin" ? "🌟" : "⭐"}
             </span>
             <p>{durum.bitti === "altin" ? "Harika! En kısa yol!" : "Aferin!"}</p>
