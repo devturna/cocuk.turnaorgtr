@@ -5,7 +5,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "sazlik",
-    "durak": { "x": 49, "y": 62 },
+    "durak": { "x": 50, "y": 61 },
     "idealAdim": 3,
     "ipucu": "Turnalar her ilkbahar Sultansazlığı'nda dinlenir.",
     "harita": {
@@ -19,7 +19,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "peribacasi",
-    "durak": { "x": 46, "y": 57 },
+    "durak": { "x": 48, "y": 56 },
     "idealAdim": 5,
     "ipucu": "Peribacaları yumuşak kayanın rüzgârla aşınmasıyla oluştu.",
     "harita": {
@@ -33,7 +33,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "beyaz",
-    "durak": { "x": 39, "y": 55 },
+    "durak": { "x": 40, "y": 54 },
     "idealAdim": 5,
     "ipucu": "Yazın suyu çekilir ve göl bembeyaz tuzla kaplanır.",
     "harita": {
@@ -47,7 +47,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "beyaz",
-    "durak": { "x": 16, "y": 68 },
+    "durak": { "x": 18, "y": 68 },
     "idealAdim": 4,
     "ipucu": "Beyaz basamakları sıcak suyun bıraktığı kireç yaptı.",
     "harita": {
@@ -61,7 +61,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "antiktas",
-    "durak": { "x": 7, "y": 68 },
+    "durak": { "x": 9, "y": 67 },
     "idealAdim": 6,
     "ipucu": "Efes iki bin yıl önce denize açılan büyük bir liman şehriydi.",
     "harita": {
