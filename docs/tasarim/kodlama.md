@@ -450,6 +450,12 @@ Ayrıca harita bütünlüğü denetlenir: bütün satırlar eşit uzunlukta mı,
 yıldızın verildiğini doğrular. `e2e/tum-resimler.spec.ts` kalıbının aynısıdır:
 yeni bir bölüm eklendiğinde test onu otomatik kapsar.
 
+> **Not (19 Ağustos 2026):** Bu belgenin 7. bölümündeki arayüz tasarımı ve
+> 11. bölümündeki 4b-4d fazları
+> [kodlama-arayuz.md](kodlama-arayuz.md) ile değiştirilmiştir. Motor, veri
+> modeli, içerik ve denetim bölümleri geçerliliğini korur. Göç yolu, ilk
+> durağın tek adımlık öğretici bölüme ayrılmasıyla on altı durağa çıkar.
+
 ## 11. Fazlar
 
 | Faz | Kapsam | Gerekçe |

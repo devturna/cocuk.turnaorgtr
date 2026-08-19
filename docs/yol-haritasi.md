@@ -50,14 +50,20 @@ code.org'un 4-7 yaş kurslarının Türkçe ve Türkiye coğrafyası temalı kar
 Bölüm yaş gruplarına (kurs) ayrılır. İlk kurs "Turna'nın Yolu" (4-7 yaş):
 Türkiye haritasında durak durak ilerleyen bir göç yolu.
 
+Hedef, code.org'un aynı yaş grubuna sunduğu Pre-reader Express kursundan
+belirgin biçimde daha iyi bir deneyim.
+
 | Faz | Kapsam | Durum |
 |---|---|---|
-| 4a | Kurs katmanı, göç haritası, labirent motoru, mutlak yönler, ilk beş durak | Yayında |
-| 4b | Sürükleyerek sıralama, duraklar 6-9 | Planlanıyor |
-| 4c | Dönüşlü komut seti, duraklar 10-15 | Planlanıyor |
-| 4d | İkinci yaş grubu kursu (döngü bloğu) | Planlanıyor |
+| 4a | Kurs katmanı, göç haritası, labirent motoru, mutlak yönler, ilk beş durak | Tamamlandı |
+| 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, sessiz demo | Geliştiriliyor |
+| 4c | Döngü: üç aşamalı öğretim ve döngü durakları | Planlanıyor |
+| 4d | Ses katmanı | Planlanıyor |
+| 4e | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) | Planlanıyor |
 
-Tasarım kararları ve gerekçeleri: [kodlama.md](tasarim/kodlama.md)
+Tasarım kararları ve gerekçeleri: motor ve içerik için
+[kodlama.md](tasarim/kodlama.md), arayüz için
+[kodlama-arayuz.md](tasarim/kodlama-arayuz.md)
 
 ## Değişmeyecek ilkeler
 
