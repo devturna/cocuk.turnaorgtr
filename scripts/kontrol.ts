@@ -6,6 +6,7 @@ import { haritayiCoz } from "../lib/kodla/labirent/harita";
 import { enKisaCozum } from "../lib/kodla/labirent/cozucu";
 import type { KomutSeti, Yon } from "../lib/kodla/labirent/komutlar";
 import { KOMUT_SETLERI } from "../lib/kodla/labirent/komutlar";
+import { TEMALAR } from "../lib/kodla/labirent/temalar";
 import { EN_FAZLA_BLOK } from "../lib/kodla/program";
 
 type Girdi = Record<string, unknown>;
@@ -141,6 +142,12 @@ for (const kurs of kurslar) {
     if (!KOMUT_SETLERI_ADLARI.includes(String(bolum.komutSeti))) {
       hatalar.push(`${bolumId}: "komutSeti" yonler veya donusler olmali`);
       continue;
+    }
+    if (!Object.keys(TEMALAR).includes(String(bolum.tema))) {
+      hatalar.push(
+        `${bolumId}: "${String(bolum.tema)}" temasi tanimli degil ` +
+          `(lib/kodla/labirent/temalar.ts icinde tanimla)`,
+      );
     }
 
     const durak = bolum.durak as { x?: unknown; y?: unknown } | undefined;
