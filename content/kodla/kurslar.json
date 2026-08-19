@@ -1,0 +1,16 @@
+[
+  {
+    "id": "turna-yolu",
+    "ad": "Turna'nın Yolu",
+    "yas": "4-7",
+    "ikon": "🕊️",
+    "durum": "yayinda"
+  },
+  {
+    "id": "anadolu-kasifi",
+    "ad": "Anadolu Kâşifi",
+    "yas": "7-9",
+    "ikon": "🧭",
+    "durum": "yakinda"
+  }
+]

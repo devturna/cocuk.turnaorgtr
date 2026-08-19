@@ -1,0 +1,72 @@
+[
+  {
+    "id": "sultansazligi",
+    "ad": "Sultansazlığı",
+    "mekanik": "labirent",
+    "komutSeti": "yonler",
+    "tema": "sazlik",
+    "durak": { "x": 49, "y": 62 },
+    "idealAdim": 3,
+    "ipucu": "Turnalar her ilkbahar Sultansazlığı'nda dinlenir.",
+    "harita": {
+      "bakis": "sag",
+      "satirlar": [".....", ".T..H", "....."]
+    }
+  },
+  {
+    "id": "kapadokya",
+    "ad": "Kapadokya",
+    "mekanik": "labirent",
+    "komutSeti": "yonler",
+    "tema": "peribacasi",
+    "durak": { "x": 46, "y": 57 },
+    "idealAdim": 5,
+    "ipucu": "Peribacaları yumuşak kayanın rüzgârla aşınmasıyla oluştu.",
+    "harita": {
+      "bakis": "sag",
+      "satirlar": ["....H", ".....", ".T#.."]
+    }
+  },
+  {
+    "id": "tuz-golu",
+    "ad": "Tuz Gölü",
+    "mekanik": "labirent",
+    "komutSeti": "yonler",
+    "tema": "beyaz",
+    "durak": { "x": 39, "y": 55 },
+    "idealAdim": 5,
+    "ipucu": "Yazın suyu çekilir ve göl bembeyaz tuzla kaplanır.",
+    "harita": {
+      "bakis": "sol",
+      "satirlar": ["H....", ".#...", "...T."]
+    }
+  },
+  {
+    "id": "pamukkale",
+    "ad": "Pamukkale",
+    "mekanik": "labirent",
+    "komutSeti": "yonler",
+    "tema": "beyaz",
+    "durak": { "x": 16, "y": 68 },
+    "idealAdim": 4,
+    "ipucu": "Beyaz basamakları sıcak suyun bıraktığı kireç yaptı.",
+    "harita": {
+      "bakis": "sag",
+      "satirlar": [".....", ".T.o.", "....H"]
+    }
+  },
+  {
+    "id": "efes",
+    "ad": "Efes",
+    "mekanik": "labirent",
+    "komutSeti": "yonler",
+    "tema": "antiktas",
+    "durak": { "x": 7, "y": 68 },
+    "idealAdim": 6,
+    "ipucu": "Efes iki bin yıl önce denize açılan büyük bir liman şehriydi.",
+    "harita": {
+      "bakis": "sag",
+      "satirlar": ["..o..", ".T#..", "....H"]
+    }
+  }
+]
