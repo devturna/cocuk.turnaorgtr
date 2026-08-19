@@ -130,8 +130,8 @@
   100% { scale: 1 1; }
 }
 
-/* Beklerken ekran olu gorunmesin diye cok yavas nefes. */
-.kodlaTurna.poz-durus {
+/* Nefes yalnizca beklerken: yururken nefesle yaylanma cakisir. */
+.kodlaTurna.bekliyor.poz-durus {
   animation: kodlaNefes 3.2s ease-in-out infinite;
 }
 
@@ -201,7 +201,7 @@
   }
   .kodlaTurna,
   .kodlaTurna.poz-adim,
-  .kodlaTurna.poz-durus,
+  .kodlaTurna.bekliyor.poz-durus,
   .kodlaTurna.poz-carpma,
   .kodlaToz,
   .kodlaYuva,
@@ -313,7 +313,7 @@
 
 .programBloku.calisiyor {
   background: var(--vurgu);
-  transform: scale(1.12);
+  scale: 1.12;
 }
 
 /* Eklenen kutu paletten cubuga uçuyormus gibi girer: her dokunusun

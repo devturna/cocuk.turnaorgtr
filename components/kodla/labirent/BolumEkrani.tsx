@@ -18,21 +18,18 @@ import { bolumSonucuKaydet, denemeArtir, type YildizTuru } from "@/lib/kodla/ile
 import Sahne from "./Sahne";
 import KomutPaleti from "./KomutPaleti";
 import ProgramSeridi from "./ProgramSeridi";
+import type { TurnaPozu } from "./Simgeler";
 import "../kodla.css";
 
 const ADIM_SURESI = 450;
-// Sarsinti bu kadar surer, sonra kendi zamanlayicisiyla kapanir. Bir sonraki
-// adim tikine baglanmaz: son adimda carpma da dahil her carpma gorunur olsun
-// diye.
-const SARSINTI_SURESI = 250;
 
 type Durum = {
   program: Komut[];
   oynatma: { adimlar: Adim[]; sira: number } | null;
   vurgulanan: number | null;
   turna: { x: number; y: number; bakis: Yon };
+  poz: TurnaPozu;
   toplananlar: string[];
-  sarsinti: boolean;
   bitti: YildizTuru | null;
 };
 
@@ -54,8 +51,8 @@ export default function BolumEkrani({
     oynatma: null,
     vurgulanan: null,
     turna: baslangicTurna,
+    poz: "durus",
     toplananlar: [],
-    sarsinti: false,
     bitti: null,
   });
 
@@ -91,10 +88,18 @@ export default function BolumEkrani({
           adim.olay === "topladi"
             ? [...onceki.toplananlar, kareAnahtari(adim.turna)]
             : onceki.toplananlar,
-        // Carpma her zaman gosterilir, son adimda da: sessiz kalan bir
-        // dugme cocuga bozuk gibi gorunur. Kapanmasi asagidaki ayri
-        // zamanlayiciya ait, bir sonraki tike bagli degil.
-        sarsinti: adim.olay === "carpti",
+        // Yurume dongusu iki pozun degismesiyle olusur; her adimda takla
+        // atmasin diye "adim" ile "durus" arasinda gidip geliyor.
+        poz:
+          adim.olay === "carpti"
+            ? "carpma"
+            : adim.olay === "vardi"
+              ? "kutlama"
+              : adim.olay === "yurudu"
+                ? onceki.poz === "adim"
+                  ? "durus"
+                  : "adim"
+                : onceki.poz,
         // Basarisiz bitince vurgu sonsuza kadar son blokta kalmasin.
         vurgulanan: sonAdim && !kazanilan ? null : adim.blokSirasi,
         oynatma: sonAdim ? null : { adimlar, sira: sira + 1 },
@@ -105,17 +110,16 @@ export default function BolumEkrani({
     return () => clearTimeout(zamanlayici);
   }, [durum.oynatma, durum.program.length, bolum.idealAdim, bolum.id, kursId]);
 
-  // Sarsinti kendi kisa zamanlayicisiyla kapanir. durum.sarsinti degisince
-  // bu efekt yeniden calisir; onceki bekleyen zamanlayici temizlik
-  // fonksiyonuyla iptal edilir, boylece bastan baslama veya sayfadan
-  // ayrilma sirasinda sarsinti takili kalmaz.
+  // Kosu bitince poz dinlenme haline doner. Tek blokluk bir carpmada
+  // "carpma" pozunu temizleyecek baska bir adim olmadigi icin gerekli.
   useEffect(() => {
-    if (!durum.sarsinti) return;
+    if (durum.oynatma || durum.bitti) return;
+    if (durum.poz === "durus") return;
     const zamanlayici = setTimeout(() => {
-      setDurum((onceki) => ({ ...onceki, sarsinti: false }));
-    }, SARSINTI_SURESI);
+      setDurum((onceki) => ({ ...onceki, poz: "durus" }));
+    }, 400);
     return () => clearTimeout(zamanlayici);
-  }, [durum.sarsinti]);
+  }, [durum.oynatma, durum.bitti, durum.poz]);
 
   const calisiyor = durum.oynatma !== null;
 
@@ -127,8 +131,8 @@ export default function BolumEkrani({
     setDurum((onceki) => ({
       ...onceki,
       turna: baslangicTurna,
+      poz: "durus",
       toplananlar: [],
-      sarsinti: false,
       vurgulanan: null,
       oynatma: null,
       bitti: null,
@@ -141,8 +145,8 @@ export default function BolumEkrani({
     setDurum((onceki) => ({
       ...onceki,
       turna: baslangicTurna,
+      poz: "durus",
       toplananlar: [],
-      sarsinti: false,
       bitti: null,
       vurgulanan: null,
       oynatma: { adimlar: sonuc.adimlar, sira: 0 },
@@ -167,12 +171,13 @@ export default function BolumEkrani({
           harita={harita}
           tema={tema}
           turna={durum.turna}
-          poz={durum.sarsinti ? "carpma" : "durus"}
+          poz={durum.poz}
+          bekliyor={!calisiyor}
+          yol={yol}
+          calisan={durum.vurgulanan}
           toplananlar={durum.toplananlar}
           vardi={durum.bitti !== null}
           bolumAdi={bolum.ad}
-          yol={yol}
-          calisan={durum.vurgulanan}
         />
       </div>
 

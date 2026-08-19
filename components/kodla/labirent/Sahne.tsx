@@ -22,6 +22,7 @@ export default function Sahne({
   tema,
   turna,
   poz,
+  bekliyor,
   toplananlar,
   vardi,
   bolumAdi,
@@ -32,6 +33,7 @@ export default function Sahne({
   tema: Tema;
   turna: { x: number; y: number; bakis: Yon };
   poz: TurnaPozu;
+  bekliyor: boolean;
   toplananlar: string[];
   vardi: boolean;
   bolumAdi: string;
@@ -183,7 +185,7 @@ export default function Sahne({
 
       {/* Konum ve donus stile yaziliyor; gecisi CSS yapiyor. */}
       <g
-        className={`kodlaTurna poz-${poz}`}
+        className={`kodlaTurna poz-${poz}${bekliyor ? " bekliyor" : ""}`}
         style={
           {
             "--kare-x": turna.x,
