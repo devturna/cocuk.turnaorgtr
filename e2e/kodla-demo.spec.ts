@@ -22,7 +22,14 @@ test("demo bolumu cocuk adina kazanmaz, kosu bitince tahta tertemiz sifirlanir",
   ).toHaveCount(1);
 
   // Demo boyunca cocuk mudahale edemez: palet ve calistir kilitli olmali.
-  await expect(page.getByRole("group", { name: "Komutlar" }).getByRole("button").first()).toBeDisabled();
+  const ilkPaletDugmesi = page.getByRole("group", { name: "Komutlar" }).getByRole("button").first();
+  await expect(ilkPaletDugmesi).toBeDisabled();
+
+  // disabled olmasi tek basina yetmez: zorla tiklansa bile DOM'da devre disi
+  // oldugu icin tarayici olayi hic dugmeye iletmemeli. Program hala tek
+  // blokluk (hayaletin ekledigi) haliyle kalmali.
+  await ilkPaletDugmesi.click({ force: true });
+  await expect(page.locator(".programBloku")).toHaveCount(1);
 
   // Demo kendi kosusunu calistirir; kosu bitince kontrol cocuga geçer ve
   // tahta (program dahil) sifirlanir.

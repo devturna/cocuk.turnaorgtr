@@ -2,6 +2,7 @@ import { test, expect, type Page } from "@playwright/test";
 import { kursBolumleri, bolumHaritasi } from "../lib/kodla/bolumler";
 import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
+import { onizlemeYolu } from "../lib/kodla/labirent/onizleme";
 import { EN_FAZLA_BLOK } from "../lib/kodla/program";
 import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 
@@ -86,6 +87,70 @@ test("bolum bitince sadece sonraki durak acilir", async ({ page }) => {
   await expect(page.getByRole("link", { name: /3\. durak/ })).toHaveCount(0);
 });
 
+test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  // Once bir carpma ekliyoruz ki onizlemenin carpmayi da cizdigi gorulsun.
+  await programiDiz(page, ["git:yukari", ...yol.map(komutAnahtari)]);
+
+  const beklenen = onizlemeYolu(
+    [{ tur: "git", yon: "yukari" }, ...yol],
+    bolumHaritasi(bolum),
+  );
+  await expect(page.locator(".kodlaYolParcasi")).toHaveCount(beklenen.length);
+  await expect(page.locator(".kodlaYolParcasi.carpma")).toHaveCount(
+    beklenen.filter((p) => p.tur === "carpma").length,
+  );
+});
+
+test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/sultansazligi/`);
+  await programiDiz(page, ["git:sag", "git:sag"]);
+  await expect(page.locator(".kodlaYolParcasi")).toHaveCount(2);
+
+  await page.getByRole("button", { name: "Son bloğu sil" }).click();
+  await expect(page.locator(".kodlaYolParcasi")).toHaveCount(1);
+});
+
+test("prefers-reduced-motion acikken gecis ve animasyon yok", async ({ browser }) => {
+  const baglam = await browser.newContext({ reducedMotion: "reduce" });
+  const sayfa = await baglam.newPage();
+  await sayfa.addInitScript(() => {
+    try {
+      localStorage.setItem("kodla:demo", "evet");
+    } catch {
+      // yok sayilir
+    }
+  });
+  await sayfa.goto(`/kodla/${KURS}/sultansazligi/`);
+
+  const turna = sayfa.locator(".kodlaTurna");
+  const stil = await turna.evaluate((oge) => {
+    const hesap = getComputedStyle(oge);
+    return { gecis: hesap.transitionDuration, animasyon: hesap.animationName };
+  });
+  expect(stil.gecis).toBe("0s");
+  expect(stil.animasyon).toBe("none");
+
+  await baglam.close();
+});
+
+test("yon dugmeleri arti duzeninde: yukari ustte, asagi altta", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/sultansazligi/`);
+  const yukari = (await page.getByRole("button", { name: "Yukarı git" }).boundingBox())!;
+  const asagi = (await page.getByRole("button", { name: "Aşağı git" }).boundingBox())!;
+  const sol = (await page.getByRole("button", { name: "Sola git" }).boundingBox())!;
+  const sag = (await page.getByRole("button", { name: "Sağa git" }).boundingBox())!;
+
+  expect(yukari.y).toBeLessThan(asagi.y);
+  expect(sol.x).toBeLessThan(sag.x);
+  // Yukari ve asagi ayni sutunda, sol ve sag ayni satirda olmali.
+  expect(Math.abs(yukari.x - asagi.x)).toBeLessThan(4);
+  expect(Math.abs(sol.y - sag.y)).toBeLessThan(4);
+});
+
 // Her bolum gercekten oynanabiliyor mu? Bir bolumun haritasi bozulursa
 // hangisi oldugu dogrudan gorunsun diye her bolum ayri bir testtir.
 for (const bolum of BOLUMLER) {
@@ -154,4 +219,25 @@ test("serit 20 bloga dolunca da sayfada tasma olmaz", async ({ page }) => {
   }));
   expect(tasma.dikey, "dolu seritte dikey tasma var").toBeLessThanOrEqual(1);
   expect(tasma.yatay, "dolu seritte yatay tasma var").toBeLessThanOrEqual(1);
+});
+
+// BOSTA_SURESI (BolumEkrani.tsx) 12 saniye: cocuk hicbir sey yapmazsa demo
+// hatirlatma olarak tekrar oynar, ama YALNIZCA ilk durakta. Bu testin kendisi
+// 12 saniyeden uzun surer; bilerek boyle - zamanlayiciyi taklit etmenin
+// baska yolu yok ve bu, suitte boyle uzun bekleyen tek test.
+test("cocuk uzun sure dokunmazsa demo yalnizca ilk durakta tekrar oynar", async ({ page }) => {
+  // Iki bosta bekleyisin toplami varsayilan 30sn test suresini asabilir.
+  test.setTimeout(45000);
+
+  // Once ilk durak DISI bir durakta bosta kaliyoruz: zamanlayici burada hic
+  // kurulmamali (ilkDurakDegil kontrolu bunu engeller). Regresyon bu kontrolu
+  // atlarsa program burada da kendiliginden dolar.
+  await page.goto(`/kodla/${KURS}/${BOLUMLER[1].id}/`);
+  await page.waitForTimeout(13000);
+  await expect(page.locator(".programBloku")).toHaveCount(0);
+
+  // Simdi ilk durakta ayni sure bosta kalinca demo hatirlatma olarak
+  // kendiliginden tekrar baslamali: hayaletin ekledigi blok belirir.
+  await page.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
+  await expect(page.locator(".programBloku")).toHaveCount(1, { timeout: 14000 });
 });
