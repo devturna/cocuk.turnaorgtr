@@ -42,10 +42,22 @@ hafıza kartları, şekil-gölge eşleme.
 
 Aynı ilkeler geçerli olacak: reklamsız, veri toplamayan, tamamen statik.
 
-## Faz 4 — Kodlama (planlanıyor)
+## Faz 4 — Kodlama (geliştiriliyor)
 
-code.org tarzı, ebeveynle birlikte yapılabilecek basit kodlama etkinlikleri.
-Blok tabanlı, okuma gerektirmeyen ilk adımlar hedefleniyor.
+Çocuğun komutları doğru sırada dizerek Turna'yı hedefe götürdüğü bölüm.
+code.org'un 4-7 yaş kurslarının Türkçe ve Türkiye coğrafyası temalı karşılığı.
+
+Bölüm yaş gruplarına (kurs) ayrılır. İlk kurs "Turna'nın Yolu" (4-7 yaş):
+Türkiye haritasında durak durak ilerleyen bir göç yolu.
+
+| Faz | Kapsam | Durum |
+|---|---|---|
+| 4a | Kurs katmanı, göç haritası, labirent motoru, mutlak yönler, ilk beş durak | Yayında |
+| 4b | Sürükleyerek sıralama, duraklar 6-9 | Planlanıyor |
+| 4c | Dönüşlü komut seti, duraklar 10-15 | Planlanıyor |
+| 4d | İkinci yaş grubu kursu (döngü bloğu) | Planlanıyor |
+
+Tasarım kararları ve gerekçeleri: [kodlama.md](tasarim/kodlama.md)
 
 ## Değişmeyecek ilkeler
 

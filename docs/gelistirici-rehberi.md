@@ -170,3 +170,44 @@ vuruşlu birine (4) geçerken `durum.tamamlanan[1]` tanımsız oluyor ve sayfa
 çöküyordu.
 
 Kural: birlikte değişmesi gereken değerler tek bir state'te tutulmalı.
+
+## Kodlama bölümü
+
+Dördüncü ana bölüm. Tasarım kararları ve gerekçeleri:
+[tasarim/kodlama.md](tasarim/kodlama.md)
+
+### Dosyalar
+
+| Dosya | Sorumluluk |
+|---|---|
+| `lib/kodla/labirent/komutlar.ts` | Komut tipleri ve iki komut seti |
+| `lib/kodla/labirent/harita.ts` | Metin ızgarasını haritaya çevirir |
+| `lib/kodla/labirent/calistir.ts` | Program + harita → adım listesi |
+| `lib/kodla/labirent/cozucu.ts` | En kısa çözüm (yalnızca denetimde kullanılır) |
+| `lib/kodla/labirent/temalar.ts` | Zemin ve engel çizimleri |
+| `lib/kodla/program.ts` | Blok listesi işlemleri |
+| `lib/kodla/ilerleme.ts` | Yıldızlar, deneme sayacı, kilit kuralı |
+
+### Motor neden adım listesi döndürüyor?
+
+`calistir()` animasyon değil veri üretir: her adımda Turna'nın nerede olduğu
+ve ne olduğu. Bileşen bu listeyi 450 ms aralıklarla oynatır.
+
+Getirisi, boyama bölümündeki ayrımın aynısı: "Turna hedefe vardı mı, kaç
+adımda vardı, engele çarptı mı" sorularının tamamı tarayıcı açmadan test
+edilir. Ayrıca çalışan bloğun vurgulanması bedava gelir; her adım kendisini
+üreten bloğun sırasını taşır.
+
+### Çözücü neden var?
+
+`npm run kontrol` her bölümü genişlik öncelikli aramayla çözer. Çözümü
+olmayan ya da `idealAdim` değeri yanlış olan bir bölüm depoya giremez.
+Boyama tarafındaki "her resmin her bölgesi boyanabiliyor mu" denetiminin
+karşılığıdır. Çözücü siteye dahil edilmez.
+
+### Çarpma neden programı durdurmuyor?
+
+Engele giren komut etkisiz kalır ve program devam eder. Bu bilinçli bir
+karardır: bu yaş grubunda başarısızlık hissi öğrenmeyi durdurur. Aynı
+gerekçe Harfler ve Sayılar bölümündeki "yanlış cevap cezalandırılmaz"
+kuralının arkasında da vardır.

@@ -26,7 +26,7 @@ Bunu bize güvenerek kabul etmeniz gerekmiyor — kendiniz doğrulayabilirsiniz:
 | Boyama | Yayında |
 | Harfler ve Sayılar | Yaz oyunu yayında, diğer üç oyun geliştiriliyor |
 | Oyunlar | Planlanıyor (Faz 3) |
-| Kodlama | Planlanıyor (Faz 4) |
+| Kodlama | Faz 4a yayında (Turna'nın Yolu, ilk beş durak) |
 
 Ayrıntılar: [yol haritası](docs/yol-haritasi.md)
 
@@ -49,7 +49,7 @@ Tarayıcıda http://localhost:3000 adresini aç.
 | `npm run build` | Siteyi `out/` klasörüne statik dosyalar olarak üretir |
 | `npm run test` | Boyama mantığının birim testlerini çalıştırır |
 | `npm run e2e` | Tarayıcıda uçtan uca testleri çalıştırır |
-| `npm run kontrol` | Boyama sayfalarını ve lisans kayıtlarını denetler |
+| `npm run kontrol` | Boyama sayfalarını, lisans kayıtlarını ve kodlama bölümlerini denetler |
 | `npm run lint` | Kod denetimi yapar |
 
 ## Klasör yapısı
@@ -60,11 +60,16 @@ app/                     Sayfalar (Next.js App Router)
   boyama/page.tsx          resim galerisi
   boyama/[resimId]/        boyama ekranı
   ogren/                   harf ve sayı oyunları
+  kodla/                   kodlama bolumu (kurs > bolum)
 components/boyama/       Arayüz bileşenleri
+components/kodla/        Kodlama arayuz bilesenleri
 lib/boyama/              Boyama mantığı (React'tan bağımsız, test edilir)
 lib/ogren/               Oyun mantığı ve içerik (React'tan bağımsız)
+lib/kodla/               Labirent motoru ve ilerleme (React'tan bagimsiz)
 content/                 Boyama sayfası kataloğu
+content/kodla/           Kurs ve bolum icerigi
 public/boyama/           Çizgi resimler (SVG)
+public/kodla/            Turkiye silueti
 scripts/                 Denetim script'i
 docs/                    Belgeler
 e2e/                     Uçtan uca testler
@@ -74,6 +79,9 @@ e2e/                     Uçtan uca testler
 
 Yeni bir boyama sayfası eklemek en kolay başlangıç:
 [boyama sayfası hazırlama](docs/boyama-sayfasi-hazirlama.md)
+
+Yeni bir kodlama bölümü eklemek için:
+[kodlama bölümü hazırlama](docs/kodlama-bolumu-hazirlama.md)
 
 Kod tarafı için: [geliştirici rehberi](docs/gelistirici-rehberi.md) ve
 [katkı kuralları](CONTRIBUTING.md)

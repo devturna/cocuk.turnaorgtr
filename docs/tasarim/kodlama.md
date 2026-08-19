@@ -97,12 +97,15 @@ content/kodla/
 
 lib/kodla/
   kurslar.ts                     kurs kataloğu ve doğrulaması
+  bolumler.ts                    bölüm verisini okuyup doğrulayan katman
   program.ts                     ekle / sil / tasi / temizle
   ilerleme.ts                    kurs bazlı ilerleme (localStorage)
   labirent/
     komutlar.ts                  komut tipleri, iki komut seti
+    harita.ts                    metin ızgarasını haritaya çevirir
     calistir.ts                  program + harita → adım listesi
-    bolumler.ts                  bölüm verisini okuyup doğrulayan katman
+    cozucu.ts                    en kısa çözüm (yalnızca denetimde kullanılır)
+    temalar.ts                   zemin ve engel çizimleri
 
 components/kodla/
   KursKartlari.tsx
@@ -112,9 +115,10 @@ components/kodla/
     Sahne.tsx                    kareli harita, Turna, başaklar
     ProgramSeridi.tsx            bloklar, sürükle-sırala, silme
     KomutPaleti.tsx              dokunulunca blok ekleyen düğmeler
+    Simgeler.tsx                 Turna, yuva ve başak SVG bileşenleri
   kodla.css
 
-public/kodla/                    Turna, yuva, başak, tema çizimleri
+public/kodla/                    Türkiye silueti (turkiye.svg)
 ```
 
 Boyama ve Harfler-Sayılar bölümlerindeki kritik kural burada da geçerlidir:
@@ -385,12 +389,16 @@ aynı çizgidedir.
 
 ### Görseller
 
-Turna tek SVG'dir, dört bakış yönü `transform` ile üretilir. Ayrıca yuva,
-başak ve yedi tema için zemin ile engel çizimi gerekir.
+Turna, yuva ve başak sahnenin kendi SVG'si içinde yaşayan React bileşenleridir
+(`components/kodla/labirent/Simgeler.tsx`); tema zeminleri ve engel çizimleri
+`lib/kodla/labirent/temalar.ts` içinde veri olarak durur. Ayrı dosya olmamalarının
+nedeni: sahnenin `<svg>`i içinde ek dosya isteği doğurmazlar ve renklerini
+temadan alırlar.
 
 Türkiye silueti kamu malı bir kaynaktan (Natural Earth) sadeleştirilerek
-üretilir ve boyama görselleri gibi lisans kaydına işlenir. Bütün görseller
-depoda barınır; çalışma anında hiçbir harici istek yapılmaz.
+üretilir ve `public/kodla/turkiye.svg` altında durur; lisans kaydı
+`content/kodla/LISANSLAR.md` içindedir. Bütün görseller depoda barınır;
+çalışma anında hiçbir harici istek yapılmaz.
 
 ## 9. Kayıt biçimi
 
