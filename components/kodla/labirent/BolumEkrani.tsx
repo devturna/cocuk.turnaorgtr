@@ -1,0 +1,219 @@
+"use client";
+
+// Bolumun tamami: sahne, program seridi, palet ve calistirma.
+//
+// Durum tek bir nesnede tutulur. Ayri useState'lere bolmek Harfler ve
+// Sayilar bolumunde gercek bir cokmeye yol acmisti: birlikte degismesi
+// gereken degerler bir render boyunca birbirinden ayri kaliyordu.
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { calistir, type Adim } from "@/lib/kodla/labirent/calistir";
+import type { Komut, Yon } from "@/lib/kodla/labirent/komutlar";
+import { kareAnahtari } from "@/lib/kodla/labirent/harita";
+import { temaBul } from "@/lib/kodla/labirent/temalar";
+import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
+import { bolumHaritasi, type BolumVerisi } from "@/lib/kodla/bolumler";
+import { bolumSonucuKaydet, denemeArtir, type YildizTuru } from "@/lib/kodla/ilerleme";
+import Sahne from "./Sahne";
+import KomutPaleti from "./KomutPaleti";
+import ProgramSeridi from "./ProgramSeridi";
+import "../kodla.css";
+
+const ADIM_SURESI = 450;
+
+type Durum = {
+  program: Komut[];
+  oynatma: { adimlar: Adim[]; sira: number } | null;
+  vurgulanan: number | null;
+  turna: { x: number; y: number; bakis: Yon };
+  toplananlar: string[];
+  sarsinti: boolean;
+  bitti: YildizTuru | null;
+};
+
+export default function BolumEkrani({
+  kursId,
+  bolum,
+  sonrakiBolumId,
+}: {
+  kursId: string;
+  bolum: BolumVerisi;
+  sonrakiBolumId: string | null;
+}) {
+  const harita = bolumHaritasi(bolum);
+  const tema = temaBul(bolum.tema);
+  const baslangicTurna = { ...harita.baslangic, bakis: harita.bakis };
+
+  const [durum, setDurum] = useState<Durum>({
+    program: [],
+    oynatma: null,
+    vurgulanan: null,
+    turna: baslangicTurna,
+    toplananlar: [],
+    sarsinti: false,
+    bitti: null,
+  });
+
+  // Ekranda kaydirma yok: cocuk komut secmek icin sayfayi kaydirmamali.
+  useEffect(() => {
+    document.body.classList.add("tamEkran");
+    return () => document.body.classList.remove("tamEkran");
+  }, []);
+
+  // Adimlari sirayla oynatir. Her tik bir adimi uygular; son adimda sonucu
+  // kaydeder.
+  useEffect(() => {
+    if (!durum.oynatma) return;
+    const { adimlar, sira } = durum.oynatma;
+    const adim = adimlar[sira];
+    const sonAdim = sira === adimlar.length - 1;
+
+    const zamanlayici = setTimeout(() => {
+      let kazanilan: YildizTuru | null = null;
+      if (sonAdim) {
+        if (adim.olay === "vardi") {
+          kazanilan = durum.program.length <= bolum.idealAdim ? "altin" : "yildiz";
+          bolumSonucuKaydet(kursId, bolum.id, kazanilan);
+        } else {
+          denemeArtir(kursId, bolum.id);
+        }
+      }
+
+      setDurum((onceki) => ({
+        ...onceki,
+        turna: { x: adim.turna.x, y: adim.turna.y, bakis: adim.turna.bakis },
+        toplananlar:
+          adim.olay === "topladi"
+            ? [...onceki.toplananlar, kareAnahtari(adim.turna)]
+            : onceki.toplananlar,
+        sarsinti: adim.olay === "carpti",
+        vurgulanan: sonAdim ? null : adimlar[sira + 1].blokSirasi,
+        oynatma: sonAdim ? null : { adimlar, sira: sira + 1 },
+        bitti: kazanilan,
+      }));
+    }, ADIM_SURESI);
+
+    return () => clearTimeout(zamanlayici);
+  }, [durum.oynatma, durum.program.length, bolum.idealAdim, bolum.id, kursId]);
+
+  const calisiyor = durum.oynatma !== null;
+
+  function blokEklendi(komut: Komut) {
+    setDurum((onceki) => ({ ...onceki, program: blokEkle(onceki.program, komut) }));
+  }
+
+  function bastanBasla() {
+    setDurum((onceki) => ({
+      ...onceki,
+      turna: baslangicTurna,
+      toplananlar: [],
+      sarsinti: false,
+      vurgulanan: null,
+      oynatma: null,
+      bitti: null,
+    }));
+  }
+
+  function calistirmayiBaslat() {
+    const sonuc = calistir(durum.program, harita);
+    if (sonuc.adimlar.length === 0) return;
+    setDurum((onceki) => ({
+      ...onceki,
+      turna: baslangicTurna,
+      toplananlar: [],
+      sarsinti: false,
+      bitti: null,
+      vurgulanan: sonuc.adimlar[0].blokSirasi,
+      oynatma: { adimlar: sonuc.adimlar, sira: 0 },
+    }));
+  }
+
+  return (
+    <div className="bolumEkrani">
+      <div className="bolumUstBar">
+        <Link href={`/kodla/${kursId}/`} className="geriDugmesi">
+          <span aria-hidden="true">←</span> Duraklar
+        </Link>
+        <h1 className="bolumAdi">{bolum.ad}</h1>
+      </div>
+
+      <div className="sahneAlani">
+        <Sahne
+          harita={harita}
+          tema={tema}
+          turna={durum.turna}
+          toplananlar={durum.toplananlar}
+          sarsinti={durum.sarsinti}
+          bolumAdi={bolum.ad}
+        />
+      </div>
+
+      <ProgramSeridi program={durum.program} vurgulanan={durum.vurgulanan} />
+
+      <div className="bolumAltBar">
+        <KomutPaleti seti={bolum.komutSeti} kilitli={calisiyor} onEkle={blokEklendi} />
+
+        <div className="bolumKontrolleri">
+          <button
+            type="button"
+            className="yardimciDugme"
+            aria-label="Son bloğu sil"
+            disabled={calisiyor || durum.program.length === 0}
+            onClick={() => setDurum((o) => ({ ...o, program: sonBlokuSil(o.program) }))}
+          >
+            <span aria-hidden="true">↩</span>
+          </button>
+          <button
+            type="button"
+            className="yardimciDugme"
+            aria-label="Hepsini temizle"
+            disabled={calisiyor || durum.program.length === 0}
+            onClick={() => setDurum((o) => ({ ...o, program: programiTemizle() }))}
+          >
+            <span aria-hidden="true">🗑</span>
+          </button>
+          <button
+            type="button"
+            className="yardimciDugme"
+            aria-label="Turna'yı başa al"
+            disabled={calisiyor}
+            onClick={bastanBasla}
+          >
+            <span aria-hidden="true">↺</span>
+          </button>
+          <button
+            type="button"
+            className="calistirDugmesi"
+            aria-label="Çalıştır"
+            disabled={calisiyor || durum.program.length === 0}
+            onClick={calistirmayiBaslat}
+          >
+            <span aria-hidden="true">▶</span>
+          </button>
+        </div>
+      </div>
+
+      <p className="bolumIpucu">{bolum.ipucu}</p>
+
+      {durum.bitti && (
+        <div className="kutlama" onClick={bastanBasla}>
+          <div className="kutlamaKutusu" onClick={(olay) => olay.stopPropagation()}>
+            <span className="kutlamaYildiz" aria-hidden="true">
+              {durum.bitti === "altin" ? "🌟" : "⭐"}
+            </span>
+            <p>{durum.bitti === "altin" ? "Harika! En kısa yol!" : "Aferin!"}</p>
+            {sonrakiBolumId ? (
+              <Link href={`/kodla/${kursId}/${sonrakiBolumId}/`} className="calistirDugmesi">
+                Sonraki durak <span aria-hidden="true">➡</span>
+              </Link>
+            ) : (
+              <Link href={`/kodla/${kursId}/`} className="calistirDugmesi">
+                Duraklar
+              </Link>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
