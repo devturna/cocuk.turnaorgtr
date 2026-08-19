@@ -88,21 +88,28 @@ test("bolum bitince sadece sonraki durak acilir", async ({ page }) => {
 });
 
 test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page }) => {
-  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  const bolum = BOLUMLER.find((b) => b.id === "kapadokya")!;
   const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // Once bir carpma ekliyoruz ki onizlemenin carpmayi da cizdigi gorulsun.
-  await programiDiz(page, ["git:yukari", ...yol.map(komutAnahtari)]);
+  // Kapadokya'da Turna (1,2)'de "sag" bakarak baslar ve hemen saginda
+  // (2,2) bir engel var: "git:sag" harita kenarina degil gercek bir
+  // engele carpar. (Sultansazligi'nda ayni amacla denenen "git:yukari"
+  // bos bir kareye yuruyordu; carpma hic uretmiyordu ve testin carpma
+  // yarisi hicbir zaman basarisiz olamazdi.)
+  await programiDiz(page, ["git:sag", ...yol.map(komutAnahtari)]);
 
   const beklenen = onizlemeYolu(
-    [{ tur: "git", yon: "yukari" }, ...yol],
+    [{ tur: "git", yon: "sag" }, ...yol],
     bolumHaritasi(bolum),
   );
+  const beklenenCarpma = beklenen.filter((p) => p.tur === "carpma").length;
+  // Assertion'in gercekten bir seyi test ettigini kanitlar: sifirsa carpma
+  // sinifi hicbir zaman aranmiyor demektir.
+  expect(beklenenCarpma).toBeGreaterThan(0);
   await expect(page.locator(".kodlaYolParcasi")).toHaveCount(beklenen.length);
-  await expect(page.locator(".kodlaYolParcasi.carpma")).toHaveCount(
-    beklenen.filter((p) => p.tur === "carpma").length,
-  );
+  await expect(page.locator(".kodlaYolParcasi.carpma")).toHaveCount(beklenenCarpma);
 });
 
 test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
@@ -239,5 +246,7 @@ test("cocuk uzun sure dokunmazsa demo yalnizca ilk durakta tekrar oynar", async 
   // Simdi ilk durakta ayni sure bosta kalinca demo hatirlatma olarak
   // kendiliginden tekrar baslamali: hayaletin ekledigi blok belirir.
   await page.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
-  await expect(page.locator(".programBloku")).toHaveCount(1, { timeout: 14000 });
+  // 12sn zamanlayiciya karsi rahat bir pay birakiyoruz; yuklu bir makinede
+  // 14sn'lik bir sinir kararsizliga yol acabilir.
+  await expect(page.locator(".programBloku")).toHaveCount(1, { timeout: 18000 });
 });
