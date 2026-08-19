@@ -19,11 +19,10 @@ export default function AnaSayfa() {
           <span className="bolumAd">Oyunlar</span>
           <span className="yakinda">Yakında</span>
         </div>
-        <div className="bolumKarti pasif">
+        <Link href="/kodla/" className="bolumKarti">
           <span className="bolumIkon" aria-hidden="true">🧩</span>
           <span className="bolumAd">Kodlama</span>
-          <span className="yakinda">Yakında</span>
-        </div>
+        </Link>
       </div>
     </div>
   );

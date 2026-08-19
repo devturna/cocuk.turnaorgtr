@@ -1,0 +1,45 @@
+/* Kodlama bolumu. Dokunma hedefleri en az 64 piksel. */
+
+.kodlaGirisi {
+  padding: 24px 16px 48px;
+  text-align: center;
+}
+
+.kursKartlari {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+  margin-top: 24px;
+}
+
+.kursKarti {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  width: 220px;
+  min-height: 200px;
+  padding: 20px;
+  border: 4px solid var(--kenar);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--metin);
+  text-decoration: none;
+}
+
+.kursKarti.pasif {
+  opacity: 0.55;
+}
+
+.kursIkon { font-size: 56px; line-height: 1; }
+.kursAd { font-size: 24px; font-weight: 700; }
+.kursYas { font-size: 18px; }
+.kursIlerleme,
+.kursYakinda {
+  margin-top: auto;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--vurgu);
+  font-weight: 700;
+}
