@@ -88,17 +88,17 @@
 
 .gocDuragi.bitti { background: var(--vurgu); }
 
-/* Kilitli duraklar dokunmayi yutmasin: acik/tamamlanmis duraklarin
-   ustunde kalmasinlar diye z-index acikca verilir, DOM sirasina
-   guvenilmez. Iki durak haritada ust uste dusebiliyor (bkz.
-   docs/kodlama-bolumu-hazirlama.md). */
+/* Kilitli bir durak asla dokunmayi yutmaz: gercek koordinatlar aynı bolgede
+   yakin duraklari gorsel olarak ust uste getirebilir (bkz.
+   docs/kodlama-bolumu-hazirlama.md), ama Faz 4a'da her an tek durak acik
+   oldugu icin bu, dokunulabilir hedefi belirsizlestirmez. Acik/tamamlanmis
+   duraklarin z-index'i GocHaritasi.tsx icinde tek tek, sira numarasina gore
+   acikca verilir; DOM sirasindaki dolayli esitlige guvenilmez. */
 .gocDuragi.kilitli {
   opacity: 0.5;
   pointer-events: none;
   z-index: 1;
 }
-
-.gocDuragi:not(.kilitli) { z-index: 2; }
 
 /* --- Bolum ekrani --- */
 

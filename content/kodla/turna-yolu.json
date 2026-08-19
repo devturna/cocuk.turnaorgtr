@@ -5,7 +5,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "sazlik",
-    "durak": { "x": 96, "y": 61 },
+    "durak": { "x": 50, "y": 61 },
     "idealAdim": 3,
     "ipucu": "Turnalar her ilkbahar Sultansazlığı'nda dinlenir.",
     "harita": {
@@ -19,7 +19,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "peribacasi",
-    "durak": { "x": 74, "y": 56 },
+    "durak": { "x": 48, "y": 56 },
     "idealAdim": 5,
     "ipucu": "Peribacaları yumuşak kayanın rüzgârla aşınmasıyla oluştu.",
     "harita": {
@@ -33,7 +33,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "beyaz",
-    "durak": { "x": 52, "y": 54 },
+    "durak": { "x": 40, "y": 54 },
     "idealAdim": 5,
     "ipucu": "Yazın suyu çekilir ve göl bembeyaz tuzla kaplanır.",
     "harita": {
@@ -47,7 +47,7 @@
     "mekanik": "labirent",
     "komutSeti": "yonler",
     "tema": "beyaz",
-    "durak": { "x": 31, "y": 68 },
+    "durak": { "x": 18, "y": 68 },
     "idealAdim": 4,
     "ipucu": "Beyaz basamakları sıcak suyun bıraktığı kireç yaptı.",
     "harita": {

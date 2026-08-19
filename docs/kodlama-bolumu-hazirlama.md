@@ -42,14 +42,26 @@ Bütün satırlar aynı uzunlukta olmalı.
 - `tema`: `lib/kodla/labirent/temalar.ts` içinde tanımlı olmalı. Yeni bir
   tema eklemek istiyorsan oraya zemin rengi ve engel çizimi ekle.
 - `durak`: Türkiye haritasındaki yüzde konum (sol üst köşe 0,0; `x` ve `y`
-  0-100 arasında olmalı). Bu bir **sunum** koordinatıdır, coğrafi bir iddia
-  değil: gerçek konumdan yola çıkarak seçilir ama harita ince (yaklaşık
-  1000×422) olduğu için birbirine yakın iki durak, özellikle küçük ekranda,
-  aynı 64 piksellik işaretin üstüne düşebilir ve alttaki dokunulamaz hale
-  gelir. Yeni bir durak eklerken komşu duraklarla en az ~72 piksel arayı
-  (390×844 gibi en küçük desteklenen ekranda) koru; gerekirse yüzdeleri
-  nazikçe it — batı hep batıda, kuzey-güney sırası hep aynı kalacak şekilde.
-  Kesin coğrafi doğruluk feda edilebilir, çakışma feda edilemez.
+  0-100 arasında olmalı). Bu, durağın gerçek konumunun `public/kodla/turkiye.svg`
+  siluetiyle **aynı projeksiyon hattından** geçirilmiş halidir (bkz. commit
+  `b942064`). **Yerleşim için taşınmaz.** Bu sayı bir çocuğun kendi
+  coğrafyasını öğrendiği tek referans; Kapadokya'yı Erzurum'un yanına
+  koymak, iki 64 piksellik işaretin görsel olarak çakışmasından çok daha
+  büyük bir hatadır.
+
+  Bilinen kısıt: harita ince olduğu için (yaklaşık 1000×422) gerçekten
+  yakın duraklar (ör. Sultansazlığı ve Kapadokya, ikisi de Orta Anadolu'da,
+  aralarında ~100 km var) küçük ekranda görsel olarak üst üste düşebilir.
+  Bu, koordinatı değil, etkileşim katmanını ilgilendiren bir sorundur ve
+  şöyle çözülür: kilitli bir durak `.gocDuragi.kilitli { pointer-events:
+  none }` sayesinde asla dokunmayı yutmaz, açık/tamamlanmış duraklar
+  arasında da `GocHaritasi.tsx` her durağa açıkça bir `z-index` verir. Faz
+  4a'da aynı anda yalnızca tek durak açık olduğu için bu her zaman
+  yeterlidir. Faz 4c'de on beş durağa çıkılınca ve aynı bölgede birden
+  fazla durak açılabilir hale gelince muhtemelen **kılavuz çizgi** (leader
+  line) gerekecek: işaret gerçek noktasından hafifçe kaydırılıp kısa bir
+  çizgiyle asıl noktaya bağlanır. O zaman bile koordinatın kendisi
+  değişmez, yalnızca çizimi kaydırılır.
 - `harita.bakis`: `yukari`, `asagi`, `sol` veya `sag` olmalı.
 - `idealAdim`: en kısa çözümün adım sayısı. **Tahmin etme** — denetim
   script'i doğru değeri sana söyler.

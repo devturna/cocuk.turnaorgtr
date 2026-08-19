@@ -83,7 +83,16 @@ export default function GocHaritasi({
         {bolumler.map((bolum, sira) => {
           const sonuc = sonuclar[bolum.id];
           const acik = acilanlar[bolum.id];
-          const konum = { left: `${bolum.durak.x}%`, top: `${bolum.durak.y}%` };
+          // Gercek konumlar yakin duraklari ust uste getirebilir (Sultansazligi
+          // ve Kapadokya gibi). Kilitli olanlar zaten dokunmayi yutmaz
+          // (.gocDuragi.kilitli, pointer-events: none); acik/tamamlanmis
+          // duraklar arasindaki cizim sirasi da CSS'e veya DOM sirasina
+          // birakilmaz, her durak icin siraya gore acikca verilir.
+          const konum = {
+            left: `${bolum.durak.x}%`,
+            top: `${bolum.durak.y}%`,
+            zIndex: acik ? 2 + sira : 1,
+          };
           const isaret = sonuc === "altin" ? "🌟" : sonuc === "yildiz" ? "⭐" : acik ? "🕊️" : "🔒";
           const sinif = `gocDuragi${sonuc ? " bitti" : ""}${acik ? "" : " kilitli"}`;
 
