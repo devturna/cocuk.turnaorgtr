@@ -4,7 +4,8 @@ import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { haritayiCoz } from "../lib/kodla/labirent/harita";
 import { enKisaCozum } from "../lib/kodla/labirent/cozucu";
-import type { KomutSeti } from "../lib/kodla/labirent/komutlar";
+import type { KomutSeti, Yon } from "../lib/kodla/labirent/komutlar";
+import { KOMUT_SETLERI } from "../lib/kodla/labirent/komutlar";
 import { EN_FAZLA_BLOK } from "../lib/kodla/program";
 
 type Girdi = Record<string, unknown>;
@@ -72,7 +73,11 @@ for (const dosya of readdirSync(SVG_KLASORU)) {
 const KODLA_KLASORU = join(KOK, "content", "kodla");
 const KURS_ZORUNLU = ["id", "ad", "yas", "ikon", "durum"];
 const BOLUM_ZORUNLU = ["id", "ad", "mekanik", "komutSeti", "tema", "ipucu"];
-const KOMUT_SETLERI_ADLARI = ["yonler", "donusler"];
+// Derive valid command set names from the runtime record, not a static copy.
+const KOMUT_SETLERI_ADLARI = Object.keys(KOMUT_SETLERI);
+// Valid directions for harita.bakis are hard-coded here: the Yon type union
+// is not enumerable at runtime, and SAAT_SIRASI is not exported from komutlar.
+const GECERLI_YONLER: Yon[] = ["yukari", "asagi", "sol", "sag"];
 
 const kurslar = JSON.parse(
   readFileSync(join(KODLA_KLASORU, "kurslar.json"), "utf8"),
@@ -149,6 +154,11 @@ for (const kurs of kurslar) {
     const haritaVerisi = bolum.harita as { bakis?: unknown; satirlar?: unknown } | undefined;
     if (!Array.isArray(haritaVerisi?.satirlar)) {
       hatalar.push(`${bolumId}: "harita.satirlar" bir dizi olmali`);
+      continue;
+    }
+
+    if (!GECERLI_YONLER.includes(haritaVerisi.bakis as Yon)) {
+      hatalar.push(`${bolumId}: "harita.bakis" gecersiz yon "${String(haritaVerisi.bakis)}"`);
       continue;
     }
 
