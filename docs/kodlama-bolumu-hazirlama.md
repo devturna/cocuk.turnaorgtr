@@ -42,7 +42,14 @@ Bütün satırlar aynı uzunlukta olmalı.
 - `tema`: `lib/kodla/labirent/temalar.ts` içinde tanımlı olmalı. Yeni bir
   tema eklemek istiyorsan oraya zemin rengi ve engel çizimi ekle.
 - `durak`: Türkiye haritasındaki yüzde konum (sol üst köşe 0,0; `x` ve `y`
-  0-100 arasında olmalı).
+  0-100 arasında olmalı). Bu bir **sunum** koordinatıdır, coğrafi bir iddia
+  değil: gerçek konumdan yola çıkarak seçilir ama harita ince (yaklaşık
+  1000×422) olduğu için birbirine yakın iki durak, özellikle küçük ekranda,
+  aynı 64 piksellik işaretin üstüne düşebilir ve alttaki dokunulamaz hale
+  gelir. Yeni bir durak eklerken komşu duraklarla en az ~72 piksel arayı
+  (390×844 gibi en küçük desteklenen ekranda) koru; gerekirse yüzdeleri
+  nazikçe it — batı hep batıda, kuzey-güney sırası hep aynı kalacak şekilde.
+  Kesin coğrafi doğruluk feda edilebilir, çakışma feda edilemez.
 - `harita.bakis`: `yukari`, `asagi`, `sol` veya `sag` olmalı.
 - `idealAdim`: en kısa çözümün adım sayısı. **Tahmin etme** — denetim
   script'i doğru değeri sana söyler.
@@ -88,3 +95,15 @@ npm run e2e
 
 uçtan uca test yeni bölümü otomatik olarak oynar ve bitirilebildiğini
 doğrular.
+
+## 5. Yeni bir DURAK mı, yeni bir KURS mu?
+
+Yukarıdaki adımlar yalnızca **mevcut bir kursa durak eklemek** içindir ve
+kod yazmayı gerektirmez.
+
+Yeni bir **kurs** (yaş grubu) eklemek farklıdır ve tek satırlık bir kod
+değişikliği ister: `lib/kodla/bolumler.ts` içindeki `KURS_BOLUMLERI`
+kaydına yeni kursun içerik dosyasını import edip bir girdi eklemen gerekir
+(`"turna-yolu"` girdisiyle aynı desen). Bu satır unutulursa `npm run kontrol`
+hatayla durur — sessizce geçmez — çünkü `content/kodla/kurslar.json`
+içindeki `"yayinda"` kurslarla `KURS_BOLUMLERI` kaydı burada karşılaştırılır.

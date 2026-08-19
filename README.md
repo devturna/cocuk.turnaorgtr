@@ -60,16 +60,16 @@ app/                     Sayfalar (Next.js App Router)
   boyama/page.tsx          resim galerisi
   boyama/[resimId]/        boyama ekranı
   ogren/                   harf ve sayı oyunları
-  kodla/                   kodlama bolumu (kurs > bolum)
+  kodla/                   kodlama bölümü (kurs > bölüm)
 components/boyama/       Arayüz bileşenleri
-components/kodla/        Kodlama arayuz bilesenleri
+components/kodla/        Kodlama arayüz bileşenleri
 lib/boyama/              Boyama mantığı (React'tan bağımsız, test edilir)
 lib/ogren/               Oyun mantığı ve içerik (React'tan bağımsız)
-lib/kodla/               Labirent motoru ve ilerleme (React'tan bagimsiz)
+lib/kodla/               Labirent motoru ve ilerleme (React'tan bağımsız)
 content/                 Boyama sayfası kataloğu
-content/kodla/           Kurs ve bolum icerigi
+content/kodla/           Kurs ve bölüm içeriği
 public/boyama/           Çizgi resimler (SVG)
-public/kodla/            Turkiye silueti
+public/kodla/            Türkiye silueti
 scripts/                 Denetim script'i
 docs/                    Belgeler
 e2e/                     Uçtan uca testler
@@ -93,3 +93,6 @@ Kod MIT lisanslıdır ([LICENSE](LICENSE)).
 Boyama sayfalarının görselleri kendi lisanslarıyla `content/boyama-katalogu.json`
 içinde girdi bazında kayıtlıdır; özet tablo:
 [public/boyama/LISANSLAR.md](public/boyama/LISANSLAR.md)
+
+Kodlama bölümündeki Türkiye silueti için lisans kaydı:
+[content/kodla/LISANSLAR.md](content/kodla/LISANSLAR.md)

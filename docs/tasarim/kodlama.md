@@ -116,6 +116,7 @@ components/kodla/
     ProgramSeridi.tsx            bloklar, sürükle-sırala, silme
     KomutPaleti.tsx              dokunulunca blok ekleyen düğmeler
     Simgeler.tsx                 Turna, yuva ve başak SVG bileşenleri
+    komutGorunumu.ts             komutun ikonu ve okunabilir adı (palet ve şerit ortak kaynağı)
   kodla.css
 
 public/kodla/                    Türkiye silueti (turkiye.svg)
@@ -258,15 +259,17 @@ code.org aynı sorunu "blok sınırı" ile çözüyor; sınır koymak takılma �
 ### Program uzunluğu
 
 En fazla 20 blok. Sebep arayüzdür: şerit ekrana sığmalı, ekranda kaydırma
-olmamalıdır. Şerit doldukça bloklar kademeli olarak küçülür ve yirmi blok en dar
-hedef tabletde bile yan yana sığar; şeridin kendisi de kaydırılmaz. Bölüm
-verisi bu sınırı düşürebilir.
+olmamalıdır. Şerit doldukça bloklar önce küçülür (esnek genişlik, asgari
+34 piksel), yetmediğinde alt satıra sarar — tek satırda sıkıştırıp okunmaz
+hale getirmek yerine. Sarma da kaydırma sayılmaz: `.bolumEkrani` dikey
+alanı sabit kalır, şerit büyüdükçe sahne alanı küçülür, sayfanın kendisi
+kaymaz. Bölüm verisi bu sınırı düşürebilir.
 
 ## 7. Arayüz
 
 ```
 ┌──────────────────────────────────────────────┐
-│  ← Duraklar        Sultansazlığı        ⭐   │
+│  ← Duraklar            Sultansazlığı          │
 ├──────────────────────────────────────────────┤
 │                                              │
 │        SAHNE  (SVG, kareli harita)           │
@@ -309,8 +312,10 @@ kilitlenir.
 
 ### Bölüm bitince
 
-Turna yuvaya konar, yıldız (veya altın yıldız) ilerleme köşesine uçar ve tek
-bir büyük **Sonraki durak** düğmesi çıkar. Kalmak isteyen tekrar deneyebilir.
+Turna yuvaya konar ve ekranın ortasında yıldızı (veya altın yıldızı) gösteren
+bir kutlama katmanı belirir, tek bir büyük **Sonraki durak** düğmesiyle.
+Katman `role="status"` taşır ve herhangi bir yere dokunmak onu kapatıp
+Turna'yı başa alır; kalmak isteyen tekrar deneyebilir.
 
 ### Arayüz kuralları
 

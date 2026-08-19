@@ -20,7 +20,12 @@ export default function GocHaritasi({
   haritaSvg: string;
 }) {
   const [sonuclar, setSonuclar] = useState<Record<string, YildizTuru | undefined>>({});
-  const [acilanlar, setAcilanlar] = useState<Record<string, boolean>>({});
+  // Ilk durak her zaman aciktir; bu bir kural, kayitli veri degil. Sunucuda
+  // uretilen HTML'de de dogru olsun diye baslangic degeri burada kurulur,
+  // boylece ilk durak kilitli gorunup effect calisinca acilmiyor.
+  const [acilanlar, setAcilanlar] = useState<Record<string, boolean>>(() =>
+    bolumler.length > 0 ? { [bolumler[0].id]: true } : {},
+  );
 
   // Ilerleme yalnizca tarayicida bulunur; sayfa sunucuda uretilirken okunamaz.
   useEffect(() => {
@@ -53,7 +58,11 @@ export default function GocHaritasi({
           commit edilmis tek bir dosya derleme aninda okunuyor. Boyama
           bolumundeki ayni gerekce gecerli.
         */}
-        <div className="gocSiluet" dangerouslySetInnerHTML={{ __html: haritaSvg }} />
+        <div
+          className="gocSiluet"
+          aria-hidden="true"
+          dangerouslySetInnerHTML={{ __html: haritaSvg }}
+        />
 
         <svg className="gocYolu" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
           {yolParcalari.map((parca, sira) => (

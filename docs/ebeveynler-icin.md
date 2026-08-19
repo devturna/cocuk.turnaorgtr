@@ -57,18 +57,27 @@ Teknik bilgi gerektirmeyen iki yöntem:
 
 1. Aynı geliştirici araçlarında **Application** (Uygulama) sekmesine geçin.
 2. Soldaki menüden **Local Storage** > `cocuk.turna.org.tr` seçin.
-3. Burada `boyama:kedi` gibi anahtarlar görürsünüz. İçerikleri hangi bölgenin
-   hangi renge boyandığından ibarettir. İsim, tarih, kimlik numarası gibi
-   hiçbir bilgi yoktur.
+3. Burada şu anahtarları görürsünüz:
+
+   | Anahtar | Ne içerir |
+   |---|---|
+   | `boyama:kedi` gibi `boyama:` ile başlayanlar | Hangi bölgenin hangi renge boyandığı |
+   | `ogren:yildizlar` | Harfler ve Sayılar bölümünde tamamlanan harf/sayılar |
+   | `kodla:ilerleme` | Kodlama bölümünde kazanılan yıldızlar (kurs ve durak bazında) |
+   | `kodla:denemeler` | Bir duraktaki deneme sayısı (kilit açma kuralı için, geçici) |
+
+   Hepsinin içeriği bu kadardır. İsim, tarih, kimlik numarası gibi hiçbir
+   bilgi yoktur.
 
 ### 3. Kodun kendisine bakın
 
 Sitenin tüm kaynak kodu herkese açıktır:
 https://github.com/devturna/cocuk.turnaorgtr
 
-Verilerin saklanmasıyla ilgili kodun tamamı tek bir küçük dosyadadır:
-`lib/boyama/yerelKayit.ts`. Yazılımcı olmasanız bile dosyanın kısalığı fikir
-verir.
+Verilerin saklanmasıyla ilgili kod her bölüm için ayrı, küçük bir
+dosyadadır: boyama için `lib/boyama/yerelKayit.ts`, Harfler ve Sayılar için
+`lib/ogren/yildiz.ts`, Kodlama için `lib/kodla/ilerleme.ts`. Yazılımcı
+olmasanız bile dosyaların kısalığı fikir verir.
 
 ## Çizimleri nasıl silerim?
 

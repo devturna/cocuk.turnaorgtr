@@ -1,7 +1,8 @@
 import { test, expect, type Page } from "@playwright/test";
 import { kursBolumleri, bolumHaritasi } from "../lib/kodla/bolumler";
 import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
-import { komutAnahtari } from "../lib/kodla/labirent/komutlar";
+import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
+import { EN_FAZLA_BLOK } from "../lib/kodla/program";
 import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 
 const KURS = "turna-yolu";
@@ -110,7 +111,7 @@ test("bolum ekraninda kaydirma yok ve dokunma hedefleri en az 64 piksel", async 
     expect(tasma.dikey, `dikey tasma var (${ekran.g}x${ekran.y})`).toBeLessThanOrEqual(1);
     expect(tasma.yatay, `yatay tasma var (${ekran.g}x${ekran.y})`).toBeLessThanOrEqual(1);
 
-    const dugmeler = page.locator(".komutDugmesi, .kodlaYardimciDugme, .calistirDugmesi");
+    const dugmeler = page.locator(".komutDugmesi, .kodlaYardimciDugme, .calistirDugmesi, .geriDugmesi");
     const adet = await dugmeler.count();
     for (let i = 0; i < adet; i++) {
       const kutu = (await dugmeler.nth(i).boundingBox())!;
@@ -121,4 +122,27 @@ test("bolum ekraninda kaydirma yok ve dokunma hedefleri en az 64 piksel", async 
       ).toBeGreaterThanOrEqual(64);
     }
   }
+});
+
+// Yukaridaki test bos bir seritle olculuyor. Serit 20 bloga dolunca
+// bekleneni buyur, alt satira sarar; body.tamEkran overflow: hidden
+// verdigi icin bir gerileme kaydirma degil kirpilma uretir. Bu yuzden dolu
+// seritte de tasma olmadigini ayrica dogrulamak gerekir.
+test("serit 20 bloga dolunca da sayfada tasma olmaz", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
+
+  const ilkKomut = KOMUT_SETLERI["yonler"][0];
+  const dugme = page.getByRole("button", { name: KOMUT_ADLARI[komutAnahtari(ilkKomut)], exact: true });
+  for (let i = 0; i < EN_FAZLA_BLOK; i++) {
+    await dugme.click();
+  }
+  await expect(page.locator(".programBloku")).toHaveCount(EN_FAZLA_BLOK);
+
+  const tasma = await page.evaluate(() => ({
+    dikey: document.documentElement.scrollHeight - window.innerHeight,
+    yatay: document.documentElement.scrollWidth - window.innerWidth,
+  }));
+  expect(tasma.dikey, "dolu seritte dikey tasma var").toBeLessThanOrEqual(1);
+  expect(tasma.yatay, "dolu seritte yatay tasma var").toBeLessThanOrEqual(1);
 });

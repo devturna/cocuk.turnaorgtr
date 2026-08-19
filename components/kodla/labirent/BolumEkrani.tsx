@@ -20,6 +20,10 @@ import ProgramSeridi from "./ProgramSeridi";
 import "../kodla.css";
 
 const ADIM_SURESI = 450;
+// Sarsinti bu kadar surer, sonra kendi zamanlayicisiyla kapanir. Bir sonraki
+// adim tikine baglanmaz: son adimda carpma da dahil her carpma gorunur olsun
+// diye.
+const SARSINTI_SURESI = 250;
 
 type Durum = {
   program: Komut[];
@@ -86,8 +90,12 @@ export default function BolumEkrani({
           adim.olay === "topladi"
             ? [...onceki.toplananlar, kareAnahtari(adim.turna)]
             : onceki.toplananlar,
-        sarsinti: sonAdim ? false : adim.olay === "carpti",
-        vurgulanan: adim.blokSirasi,
+        // Carpma her zaman gosterilir, son adimda da: sessiz kalan bir
+        // dugme cocuga bozuk gibi gorunur. Kapanmasi asagidaki ayri
+        // zamanlayiciya ait, bir sonraki tike bagli degil.
+        sarsinti: adim.olay === "carpti",
+        // Basarisiz bitince vurgu sonsuza kadar son blokta kalmasin.
+        vurgulanan: sonAdim && !kazanilan ? null : adim.blokSirasi,
         oynatma: sonAdim ? null : { adimlar, sira: sira + 1 },
         bitti: kazanilan,
       }));
@@ -95,6 +103,18 @@ export default function BolumEkrani({
 
     return () => clearTimeout(zamanlayici);
   }, [durum.oynatma, durum.program.length, bolum.idealAdim, bolum.id, kursId]);
+
+  // Sarsinti kendi kisa zamanlayicisiyla kapanir. durum.sarsinti degisince
+  // bu efekt yeniden calisir; onceki bekleyen zamanlayici temizlik
+  // fonksiyonuyla iptal edilir, boylece bastan baslama veya sayfadan
+  // ayrilma sirasinda sarsinti takili kalmaz.
+  useEffect(() => {
+    if (!durum.sarsinti) return;
+    const zamanlayici = setTimeout(() => {
+      setDurum((onceki) => ({ ...onceki, sarsinti: false }));
+    }, SARSINTI_SURESI);
+    return () => clearTimeout(zamanlayici);
+  }, [durum.sarsinti]);
 
   const calisiyor = durum.oynatma !== null;
 
@@ -196,8 +216,8 @@ export default function BolumEkrani({
       <p className="bolumIpucu">{bolum.ipucu}</p>
 
       {durum.bitti && (
-        <div className="kodlaKutlama" onClick={bastanBasla}>
-          <div className="kutlamaKutusu" onClick={(olay) => olay.stopPropagation()}>
+        <div className="kodlaKutlama" role="status" onPointerDown={bastanBasla}>
+          <div className="kutlamaKutusu" onPointerDown={(olay) => olay.stopPropagation()}>
             <span className="kodlaKutlamaYildiz" aria-hidden="true">
               {durum.bitti === "altin" ? "🌟" : "⭐"}
             </span>

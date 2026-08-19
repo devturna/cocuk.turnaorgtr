@@ -87,7 +87,18 @@
 }
 
 .gocDuragi.bitti { background: var(--vurgu); }
-.gocDuragi.kilitli { opacity: 0.5; }
+
+/* Kilitli duraklar dokunmayi yutmasin: acik/tamamlanmis duraklarin
+   ustunde kalmasinlar diye z-index acikca verilir, DOM sirasina
+   guvenilmez. Iki durak haritada ust uste dusebiliyor (bkz.
+   docs/kodlama-bolumu-hazirlama.md). */
+.gocDuragi.kilitli {
+  opacity: 0.5;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.gocDuragi:not(.kilitli) { z-index: 2; }
 
 /* --- Bolum ekrani --- */
 
@@ -105,6 +116,11 @@
   align-items: center;
   gap: 12px;
 }
+
+/* Bu bolumde dokunma hedefleri 64 piksel: portal genelindeki geriDugmesi
+   (app/globals.css, 56px) burada oyle kalir cunku boyama ve harfler-sayilar
+   bolumleri o degere bagimli; sadece bu bolum icin buyutulur. */
+.bolumEkrani .geriDugmesi { min-height: 64px; }
 
 .bolumAdi { margin: 0; font-size: 22px; }
 
@@ -202,6 +218,7 @@
 .kodlaKutlama {
   position: fixed;
   inset: 0;
+  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -221,3 +238,7 @@
 }
 
 .kodlaKutlamaYildiz { font-size: 72px; }
+
+/* Turna kareler arasinda kaysin, sicramasin; carpma sarsintisi da bu
+   gecisle yumusar. */
+.kodlaTurna { transition: transform 0.2s ease; }

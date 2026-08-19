@@ -8,6 +8,12 @@ import type { KomutSeti, Yon } from "../lib/kodla/labirent/komutlar";
 import { KOMUT_SETLERI } from "../lib/kodla/labirent/komutlar";
 import { TEMALAR } from "../lib/kodla/labirent/temalar";
 import { EN_FAZLA_BLOK } from "../lib/kodla/program";
+// Uygulama icerigi lib/kodla/bolumler.ts icindeki KURS_BOLUMLERI kaydi
+// uzerinden okur; bu dosya "yayinda" kurslari kendi tarafindan JSON'dan
+// okur. Iki taraf ayni kurs kimligini gormezse yayinlanan bir kurs bos bir
+// harita olarak sitede belirir, hicbir hata vermeden. Asagidaki kontrol bu
+// kaymayi yakalar.
+import { kursBolumleri } from "../lib/kodla/bolumler";
 
 type Girdi = Record<string, unknown>;
 
@@ -74,10 +80,14 @@ for (const dosya of readdirSync(SVG_KLASORU)) {
 const KODLA_KLASORU = join(KOK, "content", "kodla");
 const KURS_ZORUNLU = ["id", "ad", "yas", "ikon", "durum"];
 const BOLUM_ZORUNLU = ["id", "ad", "mekanik", "komutSeti", "tema", "ipucu"];
-// Derive valid command set names from the runtime record, not a static copy.
+// Gecerli komut seti adlari calisma zamanindaki KOMUT_SETLERI kaydindan
+// turetilir, elle tutulan ayri bir liste degil: boylece denetim
+// kutuphaneden asla sapamaz.
 const KOMUT_SETLERI_ADLARI = Object.keys(KOMUT_SETLERI);
-// Valid directions for harita.bakis are hard-coded here: the Yon type union
-// is not enumerable at runtime, and SAAT_SIRASI is not exported from komutlar.
+// harita.bakis icin gecerli yonler burada sabit yazilir: Yon tip birlesimi
+// calisma zamaninda listelenemez, SAAT_SIRASI de komutlar.ts disina acilmaz.
+// Bu liste olmadan yanlis yazilmis (typo) bir bakis degeri sessizce
+// varsayilan bir yone dusebilir; liste boyle bir kaymayi denetimde yakalar.
 const GECERLI_YONLER: Yon[] = ["yukari", "asagi", "sol", "sag"];
 
 const kurslar = JSON.parse(
@@ -115,6 +125,21 @@ for (const kurs of kurslar) {
 
   if (bolumler.length === 0) {
     hatalar.push(`kurs ${kursId}: yayindaki kursun en az bir bolumu olmali`);
+  }
+
+  // lib/kodla/bolumler.ts kursBolumleri() bilinmeyen bir kurs kimligi icin
+  // hata atmaz, sessizce bos dizi doner (KURS_BOLUMLERI[kursId] ?? []).
+  // Bu yuzden "kayit yok" ile "gercekten bolumu yok" ayni sekilde gorunur;
+  // ilkini burada ayirt ediyoruz.
+  if (kursBolumleri(kursId).length === 0) {
+    hatalar.push(
+      `kurs ${kursId}: durum "yayinda" ama lib/kodla/bolumler.ts icindeki ` +
+        `KURS_BOLUMLERI kaydinda "${kursId}" yok. content/kodla/${kursId}.json ` +
+        `dosyasini import edip KURS_BOLUMLERI nesnesine "${kursId}" anahtariyla ` +
+        `ekleyin ("turna-yolu" girdisiyle ayni desen). Eklenmezse ` +
+        `generateStaticParams bu kursun sayfalarini hic uretmez ve site bos ` +
+        `bir haritayla yayina cikar.`,
+    );
   }
 
   const gorulenBolumler = new Set<string>();
