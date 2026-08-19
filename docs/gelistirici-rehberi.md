@@ -211,3 +211,42 @@ Engele giren komut etkisiz kalır ve program devam eder. Bu bilinçli bir
 karardır: bu yaş grubunda başarısızlık hissi öğrenmeyi durdurur. Aynı
 gerekçe Harfler ve Sayılar bölümündeki "yanlış cevap cezalandırılmaz"
 kuralının arkasında da vardır.
+
+### Arayüz nasıl kurgulanıyor?
+
+Oyun ekranının tasarım gerekçeleri ayrı belgede:
+[tasarim/kodlama-arayuz.md](tasarim/kodlama-arayuz.md)
+
+| Dosya | Sorumluluk |
+|---|---|
+| `lib/kodla/labirent/onizleme.ts` | Programı haritaya çizilecek yol parçalarına çevirir |
+| `components/kodla/labirent/Sahne.tsx` | Kareler, yol, Turna, toz, yuva |
+| `components/kodla/labirent/Simgeler.tsx` | Poz tabanlı çizim sözleşmesi |
+| `components/kodla/labirent/KomutPaleti.tsx` | Artı düzeninde komut düğmeleri |
+| `components/kodla/labirent/Konfeti.tsx` | Kutlama parçacıkları |
+
+### Önizleme ile çalıştırma neden ayrışamaz?
+
+Çocuk blok eklediğinde haritada beliren yol, `onizlemeYolu()` ile üretilir;
+o da `calistir()`'i çağırır. Yani önizleme ile gerçek çalıştırma **aynı
+fonksiyonun aynı çıktısıdır**, yalnızca iki farklı biçimde çizilir. İkisinin
+farklı davranması için birinin diğerinden bağımsız bir kural edinmesi
+gerekirdi; öyle bir yer yok.
+
+### Hareket neden CSS'te?
+
+SVG'nin `transform` **niteliği** CSS geçişiyle canlandırılamaz, CSS
+`transform` **özelliği** canlandırılabilir. Bu yüzden Turna'nın karesi
+`--kare-x` / `--kare-y` özel değişkenleriyle veriliyor ve geçişi CSS
+yapıyor. Getirisi: ara kareleri tarayıcı üretir, React hiç render etmez.
+
+Bütün süreler `kodla.css`'teki oyun ekranı bölümünün başındaki
+değişkenlerde durur; "yürüme hızını değiştir" tek satırdır.
+
+### Turna'nın çizimi nasıl değiştirilir?
+
+`Simgeler.tsx` dört yön ve dört poz (`durus`, `adim`, `carpma`, `kutlama`)
+taşıyan bir sözleşmedir. Dışarıdan illüstrasyon geldiğinde yalnızca bu
+dosyanın gövdesi değişir; çağıran hiçbir bileşen poz ve yön dışında bir şey
+bilmez. Beklenen varlık listesi ve format şartları tasarım belgesinin
+"Varlık sözleşmesi" bölümündedir.

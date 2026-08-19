@@ -277,15 +277,77 @@ Sanat entegrasyonu ayrı bir faz değildir; varlıklar geldikçe sürekli yapıl
 
 ## 12. Faz 4b tamamlanma ölçütleri
 
-1. Program eklendikçe haritada yol önizlemesi çiziliyor ve `calistir()`
-   sonucuyla birebir uyuşuyor
-2. Yön düğmeleri artı düzeninde ve en az 64 piksel
-3. Turna kareler arası yumuşak geçişle yürüyor, kanat çırpıyor, inişte
-   yaylanıyor, beklerken nefes alıyor
-4. Çarpma yerinde geri tepme ve toz bulutu olarak görünüyor; program kesilmiyor
-5. Düğmelere basınca görsel karşılık var; eklenen kutu çubuğa uçuyor
-6. Kutlamada konfeti var; altın yıldız normal yıldızdan hissedilir farkta
-7. İlk girişte sessiz demo oynuyor; 12 saniye hareketsizlikte tekrar ediyor
-8. İlk durak tek adımlık; göç yolu on altı durak
-9. `prefers-reduced-motion` açıkken hiçbir geçiş ve konfeti yok
-10. Birim testleri, çözücü denetimi ve uçtan uca testler geçiyor
+**Durum: Faz 4b tamamlandı** (19 Ağustos 2026). Aşağıdaki on madde tek tek,
+kod okunarak ve `npm run lint && npm run test && npm run kontrol && npm run e2e`
+çalıştırılarak doğrulandı. Doğrulama yöntemi her maddenin yanında.
+
+1. [x] Program eklendikçe haritada yol önizlemesi çiziliyor ve `calistir()`
+   sonucuyla birebir uyuşuyor — `lib/kodla/labirent/onizleme.ts` doğrudan
+   `calistir()`'in adım listesini biçimlendirir, ayrı bir kural yoktur;
+   `e2e/kodla.spec.ts`'teki "haritadaki yol, calistir sonucuyla ayni sayida
+   parca cizer" testi haritada çizilen ok/çarpma sayısını `onizlemeYolu()`
+   çıktısıyla birebir karşılaştırır.
+2. [x] Yön düğmeleri artı düzeninde ve en az 64 piksel —
+   `e2e/kodla.spec.ts`'teki "yon dugmeleri arti duzeninde" testi yukarı/aşağı
+   aynı sütunda, sol/sağ aynı satırda olduğunu; "kaydirma yok ve dokunma
+   hedefleri en az 64 piksel" testi dört ekran boyutunda tüm düğmelerin
+   `min(genişlik, yükseklik) >= 64` olduğunu doğruluyor.
+3. [x] Turna kareler arası yumuşak geçişle yürüyor, kanat/bacak pozu
+   değişiyor, inişte yaylanıyor, beklerken nefes alıyor — `BolumEkrani.tsx`
+   her adımda pozu `"adim"` ile `"durus"` arasında değiştirir (yürüme
+   döngüsü), `Simgeler.tsx` bu iki poz için farklı kanat/bacak yolu çizer;
+   `kodla.css`'teki `.kodlaTurna` geçişi `--kodla-adim-suresi` (380ms) ile,
+   `.kodlaTurna.poz-adim` inişte `kodlaYaylan` ezilme-yaylanmasıyla,
+   `.kodlaTurna.bekliyor.poz-durus` `kodlaNefes` ile canlanıyor.
+   `prefers-reduced-motion` testi bu geçiş ve animasyonların normal modda var
+   olduğunu (kapalı modda `0s`/`none` olduklarını göstererek) dolaylı
+   doğruluyor.
+4. [x] Çarpma yerinde geri tepme ve toz bulutu olarak görünüyor; program
+   kesilmiyor — `Sahne.tsx` poz `"carpma"` iken toz bulutu render eder,
+   `kodla.css`'teki `kodlaCarp`/`kodlaTozDagil` bunu canlandırır;
+   `lib/kodla/labirent/calistir.ts` çarpan komutu `continue` ile atlar,
+   döngü durmaz (bu davranış Faz 4a'dan devralınan, dokunulmayan koddur).
+5. [x] Düğmelere basınca görsel karşılık var; eklenen kutu çubuğa uçarak
+   giriyor — `kodla.css`'teki `:active` kuralı basılan düğmeyi 80ms'de
+   %94'e küçültüyor; `ProgramSeridi.tsx` yeni eklenen kutuya `.yeni` sınıfı
+   veriyor, `kodlaKutuGel` keyframe'i onu küçük/saydam/aşağıda başlatıp
+   büyüterek/belirerek yerine oturtuyor.
+6. [x] Kutlamada konfeti var; altın yıldız normal yıldızdan hissedilir
+   farkta — `Konfeti.tsx` altın kutlamada 42, normalde 22 parçacık
+   üretiyor (`yogun` prop'u); `.kodlaKutlamaYildiz.altin` ayrıca
+   `kodlaYildizDon` ile 900ms boyunca dönüp büyüyor, normal yıldız
+   dönmüyor.
+7. [x] İlk girişte sessiz demo oynuyor; 12 saniye hareketsizlikte tekrar
+   ediyor — `e2e/kodla-demo.spec.ts` ilk girişte demonun kendiliğinden
+   devreye girip bir blok eklediğini, palet ve çalıştır düğmesinin demo
+   boyunca kilitli kaldığını ve koşu bitince tahtanın sıfırlandığını
+   doğruluyor; `e2e/kodla.spec.ts`'teki "cocuk uzun sure dokunmazsa demo
+   yalnizca ilk durakta tekrar oynar" testi 12 saniyelik `BOSTA_SURESI`
+   sonrası tekrarı ve bunun yalnızca ilk durakta olduğunu doğruluyor.
+8. [x] İlk durak tek adımlık — `turna-yolu.json`'daki ilk durak
+   (`goksu-deltasi`) `idealAdim: 1` taşıyor ve bu, `npm run kontrol`
+   tarafından çözücüyle denetleniyor.
+   - [ ] **"göç yolu on altı durak" kısmı doğrulanamadı ve gerçeğe
+     uymuyor.** `content/kodla/turna-yolu.json` şu an **altı** durak
+     taşıyor (`goksu-deltasi`, `sultansazligi`, `kapadokya`, `tuz-golu`,
+     `pamukkale`, `efes`) — bu sayı Görev 12'nin kendi talimatındaki
+     README güncellemesiyle de tutarlı ("altı durak"). Bu maddedeki "on
+     altı durak" hedefi muhtemelen sonraki fazlarda (döngü, ikinci
+     mekanik) eklenecek durakları içeren daha büyük bir kapsam
+     tahminiydi; Faz 4b kapsamında durak sayısını artırmak yoktu ve
+     artırılmadı. Bu alt madde bilerek işaretlenmedi; sayı ileride
+     güncellenmeli ya da bu belgeden çıkarılmalı.
+9. [x] `prefers-reduced-motion` açıkken hiçbir geçiş ve konfeti yok —
+   `e2e/kodla.spec.ts`'teki ilgili test `reducedMotion: "reduce"`
+   bağlamında Turna'nın geçiş süresinin `0s`, animasyonunun `none`
+   olduğunu doğruluyor; `kodla.css`'teki ilgili tüm `@media
+   (prefers-reduced-motion: reduce)` blokları (yol oku, program kutusu,
+   konfeti/yıldız/düğme, hayalet parmak/nabız) kod okunarak tek tek
+   kontrol edildi. Not: dosyanın en sonundaki blok, aynı özgüllükte
+   erken kurallarla çakıştığı için CSS'te kasıtlı olarak son sırada
+   tutuluyor (dosya içindeki yorum bunu açıklıyor) — bu, bu daldaki
+   dört kez tekrarlanan bir hatanın düzeltmesidir.
+10. [x] Birim testleri, çözücü denetimi ve uçtan uca testler geçiyor —
+    bu görev kapsamında çalıştırıldı: `npm run lint` temiz, `npm run test`
+    154/154, `npm run kontrol` 41 boyama sayfası ve 6 kodlama bölümünü
+    onayladı, `npm run e2e` 91/91.
