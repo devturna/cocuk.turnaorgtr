@@ -162,8 +162,9 @@ export default function BolumEkrani({
           harita={harita}
           tema={tema}
           turna={durum.turna}
+          poz={durum.sarsinti ? "carpma" : "durus"}
           toplananlar={durum.toplananlar}
-          sarsinti={durum.sarsinti}
+          vardi={durum.bitti !== null}
           bolumAdi={bolum.ad}
         />
       </div>

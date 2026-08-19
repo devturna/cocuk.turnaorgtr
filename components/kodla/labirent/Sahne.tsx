@@ -1,34 +1,42 @@
-// Bolumun kareli haritasi. Tek bir SVG'dir ve viewBox ile olceklenir;
-// boyama tuvalindeki kalibin aynisi.
+// Bolumun kareli haritasi. Tek bir SVG'dir ve viewBox ile olceklenir.
+//
+// Turna'nin konumu ve donusu CSS ozel degiskenleriyle verilir; gecisi CSS
+// yapar. SVG'nin transform NITELIGI canlandirilamaz, CSS transform'u
+// canlandirilabilir - bu yuzden konum niteliğe degil stile yaziliyor.
 import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
 import type { Yon } from "@/lib/kodla/labirent/komutlar";
 import type { Tema } from "@/lib/kodla/labirent/temalar";
-import { BasakSimgesi, TurnaSimgesi, YuvaSimgesi } from "./Simgeler";
+import {
+  BasakSimgesi,
+  TozSimgesi,
+  TurnaSimgesi,
+  YuvaSimgesi,
+  type TurnaPozu,
+} from "./Simgeler";
 
 const KARE = 100;
-
-// Turna saga bakacak sekilde cizildi; her yon icin dondurulecek aci.
-const ACILAR: Record<Yon, number> = { sag: 0, asagi: 90, sol: 180, yukari: 270 };
 
 export default function Sahne({
   harita,
   tema,
   turna,
+  poz,
   toplananlar,
-  sarsinti,
+  vardi,
   bolumAdi,
 }: {
   harita: Harita;
   tema: Tema;
   turna: { x: number; y: number; bakis: Yon };
+  poz: TurnaPozu;
   toplananlar: string[];
-  sarsinti: boolean;
+  vardi: boolean;
   bolumAdi: string;
 }) {
   const genislik = harita.genislik * KARE;
   const yukseklik = harita.yukseklik * KARE;
-  const kareler = [];
 
+  const kareler = [];
   for (let y = 0; y < harita.yukseklik; y++) {
     for (let x = 0; x < harita.genislik; x++) {
       kareler.push(
@@ -45,9 +53,6 @@ export default function Sahne({
       );
     }
   }
-
-  // Carpinca Turna yerinde hafifce saga kayar; kirmizi ve unlem yok.
-  const kayma = sarsinti ? 10 : 0;
 
   return (
     <svg
@@ -70,23 +75,47 @@ export default function Sahne({
         />
       ))}
 
-      <g transform={`translate(${harita.hedef.x * KARE} ${harita.hedef.y * KARE})`}>
-        <YuvaSimgesi />
+      {/* Yuva nefes alir: cocuk nereye gitmesi gerektigini kimse soylemeden bilir. */}
+      <g
+        className={`kodlaYuva${vardi ? " dolu" : ""}`}
+        transform={`translate(${harita.hedef.x * KARE} ${harita.hedef.y * KARE})`}
+      >
+        <YuvaSimgesi dolu={vardi} />
       </g>
 
-      {harita.basaklar
-        .filter((basak) => !toplananlar.includes(kareAnahtari(basak)))
-        .map((basak) => (
-          <g key={kareAnahtari(basak)} transform={`translate(${basak.x * KARE} ${basak.y * KARE})`}>
+      {harita.basaklar.map((basak) => {
+        const toplandi = toplananlar.includes(kareAnahtari(basak));
+        return (
+          <g
+            key={kareAnahtari(basak)}
+            className={`kodlaBasak${toplandi ? " toplandi" : ""}`}
+            transform={`translate(${basak.x * KARE} ${basak.y * KARE})`}
+          >
             <BasakSimgesi />
           </g>
-        ))}
+        );
+      })}
 
+      {poz === "carpma" && (
+        <g
+          className="kodlaToz"
+          transform={`translate(${turna.x * KARE} ${turna.y * KARE})`}
+        >
+          <TozSimgesi />
+        </g>
+      )}
+
+      {/* Konum ve donus stile yaziliyor; gecisi CSS yapiyor. */}
       <g
-        className="kodlaTurna"
-        transform={`translate(${turna.x * KARE + kayma} ${turna.y * KARE}) rotate(${ACILAR[turna.bakis]} 50 50)`}
+        className={`kodlaTurna poz-${poz}`}
+        style={
+          {
+            "--kare-x": turna.x,
+            "--kare-y": turna.y,
+          } as React.CSSProperties
+        }
       >
-        <TurnaSimgesi />
+        <TurnaSimgesi yon={turna.bakis} poz={poz} />
       </g>
     </svg>
   );
