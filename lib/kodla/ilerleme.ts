@@ -1,0 +1,110 @@
+// Kodlama bolumunde kazanilan yildizlar ve kilit durumu.
+// Boyama cizimleri gibi yalnizca tarayicida saklanir; hicbir yere gonderilmez.
+
+const ANAHTAR = "kodla:ilerleme";
+const DENEME_ANAHTARI = "kodla:denemeler";
+
+export type YildizTuru = "yildiz" | "altin";
+
+/** Bir bolumde bu kadar denendikten sonra sonraki durak sessizce acilir. */
+export const EN_FAZLA_DENEME = 5;
+
+function nesneOku(anahtar: string): Record<string, Record<string, unknown>> {
+  let ham: string | null;
+  try {
+    ham = localStorage.getItem(anahtar);
+  } catch {
+    return {};
+  }
+  if (ham === null) return {};
+
+  try {
+    const cozulmus = JSON.parse(ham);
+    // Bozuk veya eski bir kayit oyunu kirmasin diye seklini dogruluyoruz.
+    if (cozulmus && typeof cozulmus === "object" && !Array.isArray(cozulmus)) {
+      return cozulmus as Record<string, Record<string, unknown>>;
+    }
+    return {};
+  } catch {
+    return {};
+  }
+}
+
+function nesneYaz(anahtar: string, deger: unknown): void {
+  try {
+    localStorage.setItem(anahtar, JSON.stringify(deger));
+  } catch {
+    // Depolama dolu veya kapali olabilir. Kayit tutulmaz ama oyun surer.
+  }
+}
+
+export function tumIlerleme(): Record<string, Record<string, YildizTuru>> {
+  return nesneOku(ANAHTAR) as Record<string, Record<string, YildizTuru>>;
+}
+
+export function bolumSonucu(kursId: string, bolumId: string): YildizTuru | undefined {
+  return tumIlerleme()[kursId]?.[bolumId];
+}
+
+export function bolumSonucuKaydet(kursId: string, bolumId: string, tur: YildizTuru): void {
+  const ilerleme = tumIlerleme();
+  const kurs = ilerleme[kursId] ?? {};
+  // Bir kez kazanilan altin yildiz geri alinmaz.
+  if (kurs[bolumId] === "altin") return;
+  nezaketleYaz(ilerleme, kursId, kurs, bolumId, tur);
+}
+
+function nezaketleYaz(
+  ilerleme: Record<string, Record<string, YildizTuru>>,
+  kursId: string,
+  kurs: Record<string, YildizTuru>,
+  bolumId: string,
+  tur: YildizTuru,
+): void {
+  nesneYaz(ANAHTAR, { ...ilerleme, [kursId]: { ...kurs, [bolumId]: tur } });
+}
+
+export function kursYildizSayisi(kursId: string): number {
+  return Object.keys(tumIlerleme()[kursId] ?? {}).length;
+}
+
+function tumDenemeler(): Record<string, Record<string, number>> {
+  return nesneOku(DENEME_ANAHTARI) as Record<string, Record<string, number>>;
+}
+
+export function denemeSayisi(kursId: string, bolumId: string): number {
+  const deger = tumDenemeler()[kursId]?.[bolumId];
+  return typeof deger === "number" ? deger : 0;
+}
+
+export function denemeArtir(kursId: string, bolumId: string): number {
+  const denemeler = tumDenemeler();
+  const kurs = denemeler[kursId] ?? {};
+  const yeni = denemeSayisi(kursId, bolumId) + 1;
+  nesneYaz(DENEME_ANAHTARI, { ...denemeler, [kursId]: { ...kurs, [bolumId]: yeni } });
+  return yeni;
+}
+
+/**
+ * Siradaki durak aciktir, sonrasi kilitlidir. Bir bolumde EN_FAZLA_DENEME
+ * kadar denedigi halde gecemeyen cocuga sonraki durak sessizce acilir:
+ * kimse bir bolumde mahsur kalmamali.
+ */
+export function bolumAcikMi(kursId: string, bolumId: string, sirali: string[]): boolean {
+  const sira = sirali.indexOf(bolumId);
+  if (sira === -1) return false;
+  if (sira === 0) return true;
+
+  const onceki = sirali[sira - 1];
+  if (bolumSonucu(kursId, onceki) !== undefined) return true;
+  return denemeSayisi(kursId, onceki) >= EN_FAZLA_DENEME;
+}
+
+export function ilerlemeyiSil(): void {
+  try {
+    localStorage.removeItem(ANAHTAR);
+    localStorage.removeItem(DENEME_ANAHTARI);
+  } catch {
+    // Yok sayilir.
+  }
+}
