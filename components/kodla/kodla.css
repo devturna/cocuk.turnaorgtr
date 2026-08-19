@@ -474,3 +474,52 @@
     transition: none;
   }
 }
+
+/* --- Sozsuz ilk temas: hayalet parmak ve nabiz --- */
+
+/* Hayalet parmak: hangi dugmeye dokunulacagini soyler, tek kelime etmeden. */
+.komutDugmesi.hayaletli::after,
+.calistirDugmesi.hayaletli::after {
+  content: "👆";
+  position: absolute;
+  right: -10px;
+  bottom: -14px;
+  font-size: 32px;
+  animation: kodlaDokun 1400ms ease-in-out;
+  pointer-events: none;
+}
+
+.komutDugmesi,
+.calistirDugmesi {
+  position: relative;
+}
+
+@keyframes kodlaDokun {
+  0%, 100% { translate: 0 8px; opacity: 0.5; }
+  50% { translate: 0 -4px; opacity: 1; }
+}
+
+/* Siradaki adim her zaman gozle bulunur. Golge ile parliyor, scale ile
+   degil: scale sinirlayici kutuyu (bounding box) surekli degistirir, bu da
+   hem kucuk parmaklar icin hedefi kaydirir hem de e2e testlerinde
+   Playwright'in "eleman kararli mi" kontrolunun hic gecmemesine, dolayisiyla
+   tiklamalarin donmesine yol acar. */
+.nabiz {
+  animation: kodlaNabiz 1800ms ease-in-out infinite;
+}
+
+@keyframes kodlaNabiz {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245, 166, 35, 0.55); }
+  50% { box-shadow: 0 0 0 10px rgba(245, 166, 35, 0); }
+}
+
+/* Bu blok dosyadaki son prefers-reduced-motion kurali olarak tutulur: ayni
+   secicilere ayni ozellikleri veren erken kurallarla ayni ozguculukte
+   oldugu icin sirada en sonda olmasi kazanmasini garantiler. */
+@media (prefers-reduced-motion: reduce) {
+  .komutDugmesi.hayaletli::after,
+  .calistirDugmesi.hayaletli::after,
+  .nabiz {
+    animation: none;
+  }
+}

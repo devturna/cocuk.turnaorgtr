@@ -4,6 +4,8 @@ import {
   bolumAcikMi,
   bolumSonucu,
   bolumSonucuKaydet,
+  demoGosterildi,
+  demoGosterildiMi,
   denemeArtir,
   denemeSayisi,
   ilerlemeyiSil,
@@ -100,5 +102,22 @@ describe("ilerlemeyiSil", () => {
     ilerlemeyiSil();
     expect(tumIlerleme()).toEqual({});
     expect(denemeSayisi(KURS, "kapadokya")).toBe(0);
+  });
+});
+
+describe("demo bayragi", () => {
+  it("ilk basta gosterilmemis sayilir", () => {
+    expect(demoGosterildiMi()).toBe(false);
+  });
+
+  it("isaretlendikten sonra gosterilmis sayilir", () => {
+    demoGosterildi();
+    expect(demoGosterildiMi()).toBe(true);
+  });
+
+  it("ilerleme silinince bayrak da silinir", () => {
+    demoGosterildi();
+    ilerlemeyiSil();
+    expect(demoGosterildiMi()).toBe(false);
   });
 });

@@ -3,6 +3,7 @@
 
 const ANAHTAR = "kodla:ilerleme";
 const DENEME_ANAHTARI = "kodla:denemeler";
+const DEMO_ANAHTARI = "kodla:demo";
 
 export type YildizTuru = "yildiz" | "altin";
 
@@ -94,7 +95,28 @@ export function ilerlemeyiSil(): void {
   try {
     localStorage.removeItem(ANAHTAR);
     localStorage.removeItem(DENEME_ANAHTARI);
+    localStorage.removeItem(DEMO_ANAHTARI);
   } catch {
     // Yok sayilir.
+  }
+}
+
+/**
+ * Sessiz demo bir kez oynatilir. Bayrak burada duruyor cunku localStorage'a
+ * yalnizca bu dosya dokunur.
+ */
+export function demoGosterildiMi(): boolean {
+  try {
+    return localStorage.getItem(DEMO_ANAHTARI) === "evet";
+  } catch {
+    return false;
+  }
+}
+
+export function demoGosterildi(): void {
+  try {
+    localStorage.setItem(DEMO_ANAHTARI, "evet");
+  } catch {
+    // Depolama kapali olabilir; demo her acilista oynar, oyun surer.
   }
 }

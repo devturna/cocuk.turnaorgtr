@@ -8,6 +8,15 @@ import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 const KURS = "turna-yolu";
 const BOLUMLER = kursBolumleri(KURS);
 
+// Sozsuz ilk temas demosu ilk durakta kendi kendine bir blok ekleyip
+// calistiriyor (Gorev 9). Bu dosyadaki testler paleti kendileri surdugu
+// icin demo devrede kalirsa programa beklenmedik bir blok karisir ve
+// sonuclar kararsizlasir. Demo ayri bir dosyada test edilecek (Gorev 11);
+// burada sessizce kapatiyoruz.
+test.beforeEach(async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("kodla:demo", "evet"));
+});
+
 /** Verilen komutlari paletten sirayla ekler. */
 async function programiDiz(page: Page, anahtarlar: string[]) {
   for (const anahtar of anahtarlar) {

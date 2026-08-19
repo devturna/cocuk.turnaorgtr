@@ -13,8 +13,14 @@ import { kareAnahtari } from "@/lib/kodla/labirent/harita";
 import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
 import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
-import { bolumHaritasi, type BolumVerisi } from "@/lib/kodla/bolumler";
-import { bolumSonucuKaydet, denemeArtir, type YildizTuru } from "@/lib/kodla/ilerleme";
+import { bolumHaritasi, bolumSiralamasi, type BolumVerisi } from "@/lib/kodla/bolumler";
+import {
+  bolumSonucuKaydet,
+  demoGosterildi,
+  demoGosterildiMi,
+  denemeArtir,
+  type YildizTuru,
+} from "@/lib/kodla/ilerleme";
 import Sahne from "./Sahne";
 import KomutPaleti from "./KomutPaleti";
 import ProgramSeridi from "./ProgramSeridi";
@@ -23,6 +29,9 @@ import type { TurnaPozu } from "./Simgeler";
 import "../kodla.css";
 
 const ADIM_SURESI = 450;
+
+// Cocuk bu kadar sure hicbir sey yapmazsa demo sessizce tekrarlanir.
+const BOSTA_SURESI = 12000;
 
 type Durum = {
   program: Komut[];
@@ -47,6 +56,11 @@ export default function BolumEkrani({
   const tema = temaBul(bolum.tema);
   const baslangicTurna = { ...harita.baslangic, bakis: harita.bakis };
 
+  // Demo yalnizca kursun ilk duraginda anlamli; sonrakilerde cocuk zaten
+  // nasil oynandigini biliyor.
+  const ilkDurakDegil = bolumSiralamasi(kursId)[0] !== bolum.id;
+  const ILK_KOMUT: Komut = { tur: "git", yon: "sag" };
+
   const [durum, setDurum] = useState<Durum>({
     program: [],
     oynatma: null,
@@ -56,6 +70,18 @@ export default function BolumEkrani({
     toplananlar: [],
     bitti: null,
   });
+
+  // Demo yalnizca ilk durakta ve ilk girişte oynar. Sahte animasyon degil:
+  // gercek arayuzu surer, cocuk tam olarak kendi yapacagi seyi gorur.
+  const [demo, setDemo] = useState<"yon" | "calistir" | null>(null);
+
+  useEffect(() => {
+    if (ilkDurakDegil) return;
+    if (demoGosterildiMi()) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDemo("yon");
+    demoGosterildi();
+  }, [ilkDurakDegil]);
 
   // Ekranda kaydirma yok: cocuk komut secmek icin sayfayi kaydirmamali.
   useEffect(() => {
@@ -122,8 +148,6 @@ export default function BolumEkrani({
     return () => clearTimeout(zamanlayici);
   }, [durum.oynatma, durum.bitti, durum.poz]);
 
-  const calisiyor = durum.oynatma !== null;
-
   function blokEklendi(komut: Komut) {
     setDurum((onceki) => ({ ...onceki, program: blokEkle(onceki.program, komut) }));
   }
@@ -153,6 +177,43 @@ export default function BolumEkrani({
       oynatma: { adimlar: sonuc.adimlar, sira: 0 },
     }));
   }
+
+  const calisiyor = durum.oynatma !== null;
+
+  // Demo adimlarini yurutur: yon dugmesine "dokunur", sonra calistirir.
+  // calistirmayiBaslat asagida tanimlandiktan sonra kullaniliyor diye bu
+  // etki buraya, fonksiyon bildirimlerinin ardina alindi.
+  useEffect(() => {
+    if (demo === null) return;
+
+    if (demo === "yon") {
+      const zamanlayici = setTimeout(() => {
+        setDurum((onceki) => ({
+          ...onceki,
+          program: blokEkle(onceki.program, ILK_KOMUT),
+        }));
+        setDemo("calistir");
+      }, 1400);
+      return () => clearTimeout(zamanlayici);
+    }
+
+    const zamanlayici = setTimeout(() => {
+      calistirmayiBaslat();
+      setDemo(null);
+    }, 1400);
+    return () => clearTimeout(zamanlayici);
+    // ILK_KOMUT sabit, calistirmayiBaslat her render'da yeniden kuruluyor;
+    // bagimliliga eklemek zamanlayiciyi her render'da sifirlar, demo hic bitmez.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demo]);
+
+  // Cocuk uzun sure hicbir sey yapmazsa demo hatirlatma olarak tekrarlanir.
+  useEffect(() => {
+    if (calisiyor || durum.bitti || demo !== null) return;
+    if (durum.program.length > 0) return;
+    const zamanlayici = setTimeout(() => setDemo("yon"), BOSTA_SURESI);
+    return () => clearTimeout(zamanlayici);
+  }, [calisiyor, durum.bitti, durum.program.length, demo]);
 
   // Onizleme, gercek calistirmayla ayni fonksiyondan uretiliyor; ikisi
   // ayrisamaz. Program kisa oldugu icin her render'da hesaplamak ucuz.
@@ -185,7 +246,18 @@ export default function BolumEkrani({
       <ProgramSeridi program={durum.program} vurgulanan={durum.vurgulanan} />
 
       <div className="bolumAltBar">
-        <KomutPaleti seti={bolum.komutSeti} kilitli={calisiyor} onEkle={blokEklendi} />
+        <div
+          className={`komutPaletiSarmalayici${
+            !calisiyor && demo === null && durum.program.length === 0 ? " nabiz" : ""
+          }`}
+        >
+          <KomutPaleti
+            seti={bolum.komutSeti}
+            kilitli={calisiyor}
+            onEkle={blokEklendi}
+            hayalet={demo === "yon" ? "git:sag" : null}
+          />
+        </div>
 
         <div className="bolumKontrolleri">
           <button
@@ -217,7 +289,9 @@ export default function BolumEkrani({
           </button>
           <button
             type="button"
-            className="calistirDugmesi"
+            className={`calistirDugmesi${demo === "calistir" ? " hayaletli" : ""}${
+              !calisiyor && durum.program.length > 0 && demo === null ? " nabiz" : ""
+            }`}
             aria-label="Çalıştır"
             disabled={calisiyor || durum.program.length === 0}
             onClick={calistirmayiBaslat}

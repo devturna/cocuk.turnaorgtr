@@ -26,10 +26,12 @@ export default function KomutPaleti({
   seti,
   kilitli,
   onEkle,
+  hayalet,
 }: {
   seti: KomutSeti;
   kilitli: boolean;
   onEkle: (komut: Komut) => void;
+  hayalet: string | null;
 }) {
   return (
     <div className="komutPaleti" role="group" aria-label="Komutlar">
@@ -39,7 +41,10 @@ export default function KomutPaleti({
           <button
             key={anahtar}
             type="button"
-            className={`komutDugmesi yer-${YERLESIM[anahtar]}`}
+            className={
+              `komutDugmesi yer-${YERLESIM[anahtar]}` +
+              `${hayalet === anahtar ? " hayaletli" : ""}`
+            }
             aria-label={KOMUT_ADLARI[anahtar]}
             disabled={kilitli}
             onClick={() => onEkle(komut)}
