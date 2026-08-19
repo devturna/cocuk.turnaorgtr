@@ -111,6 +111,11 @@
   /* Kare koordinati piksel degil, viewBox birimi; SVG'de 1 kare = 100 birim. */
   transform: translate(calc(var(--kare-x) * 100px), calc(var(--kare-y) * 100px));
   transition: transform var(--kodla-adim-suresi) ease-in-out;
+  /* scale/translate keyframe'leri elemanin kendi kutusuna gore olcelsin diye;
+     varsayilan view-box kutusu harita merkezine gore olceklerdi ve Turna
+     kenardayken yaylanirken yana kayardi. */
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 /* Karaya inisteki ezilme-yaylanma: Turna'yi surüklenen bir resim olmaktan
@@ -168,6 +173,9 @@
 
 .kodlaYuva {
   animation: kodlaCagir 2.4s ease-in-out infinite;
+  /* Yaylanma yuvanin kendi merkezine gore olcelsin, harita merkezine gore degil. */
+  transform-box: fill-box;
+  transform-origin: center;
 }
 
 .kodlaYuva.dolu {
@@ -192,6 +200,9 @@
     transition: none;
   }
   .kodlaTurna,
+  .kodlaTurna.poz-adim,
+  .kodlaTurna.poz-durus,
+  .kodlaTurna.poz-carpma,
   .kodlaToz,
   .kodlaYuva,
   .kodlaYuva.dolu {
