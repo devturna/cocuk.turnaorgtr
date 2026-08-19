@@ -324,10 +324,33 @@
   gap: 10px;
 }
 
-.komutPaleti,
+/* Arti duzeni: yon = konum.
+   Donusler setinde alt hucre bos kalir, duzen bozulmaz. */
+.komutPaleti {
+  display: grid;
+  grid-template-areas:
+    ".   ust  ."
+    "sol .    sag"
+    ".   alt  .";
+  gap: 8px;
+}
+
 .bolumKontrolleri {
   display: flex;
   gap: 10px;
+}
+
+.komutDugmesi.yer-ust { grid-area: ust; }
+.komutDugmesi.yer-alt { grid-area: alt; }
+.komutDugmesi.yer-sol { grid-area: sol; }
+.komutDugmesi.yer-sag { grid-area: sag; }
+
+/* Parmagin altinda bir sey oldugu hissi. */
+.komutDugmesi:active:not(:disabled),
+.kodlaYardimciDugme:active:not(:disabled),
+.calistirDugmesi:active:not(:disabled) {
+  scale: 0.94;
+  box-shadow: none;
 }
 
 .komutDugmesi,
@@ -347,6 +370,7 @@
   font-size: 28px;
   font-weight: 700;
   text-decoration: none;
+  transition: scale var(--kodla-basma-suresi) ease-out;
 }
 
 .calistirDugmesi { background: #6fbf5b; }
@@ -385,3 +409,11 @@
 }
 
 .kodlaKutlamaYildiz { font-size: 72px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .komutDugmesi,
+  .kodlaYardimciDugme,
+  .calistirDugmesi {
+    transition: none;
+  }
+}
