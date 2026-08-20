@@ -5,7 +5,10 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { BolumVerisi } from "@/lib/kodla/bolumler";
-import { bolumAcikMi, bolumSonucu, type YildizTuru } from "@/lib/kodla/yerelKayit";
+import { kursKarakterleri, varsayilanKarakter } from "@/lib/kodla/karakterler";
+import { bolumAcikMi, bolumSonucu, karakterSec, seciliKarakter, seciliKarakterId, type YildizTuru } from "@/lib/kodla/yerelKayit";
+import { KarakterSimgesi } from "./Simgeler";
+import KarakterKartlari from "./KarakterKartlari";
 import "../kodla.css";
 
 export default function GocHaritasi({
@@ -26,6 +29,25 @@ export default function GocHaritasi({
   const [acilanlar, setAcilanlar] = useState<Record<string, boolean>>(() =>
     bolumler.length > 0 ? { [bolumler[0].id]: true } : {},
   );
+
+  const karakterler = kursKarakterleri(kursId);
+  // Sunucuda uretilen HTML varsayilan kusu gosterir; secim ekrani ancak
+  // tarayicida, gercekten secim yapilmamissa acilir. Boylece harita
+  // "once kartlar acik sonra kapali" diye zipzalmaz.
+  const [karakter, setKarakter] = useState(() => varsayilanKarakter(kursId));
+  const [secimAcik, setSecimAcik] = useState(false);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setKarakter(seciliKarakter(kursId));
+    setSecimAcik(seciliKarakterId(kursId) === undefined && karakterler.length > 1);
+  }, [kursId, karakterler.length]);
+
+  function karakteriSec(karakterId: string) {
+    karakterSec(kursId, karakterId);
+    setKarakter(seciliKarakter(kursId));
+    setSecimAcik(false);
+  }
 
   // Ilerleme yalnizca tarayicida bulunur; sayfa sunucuda uretilirken okunamaz.
   useEffect(() => {
@@ -51,6 +73,19 @@ export default function GocHaritasi({
   return (
     <div className="gocEkrani">
       <h1>{kursAdi}</h1>
+
+      {karakter && (
+        <button
+          type="button"
+          className="karakterMadalyonu"
+          aria-label={`Kuşu değiştir: ${karakter.ad}`}
+          onClick={() => setSecimAcik(true)}
+        >
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <KarakterSimgesi yon="sag" poz="durus" palet={karakter.palet} />
+          </svg>
+        </button>
+      )}
 
       <div className="gocHaritasi">
         {/*
@@ -116,6 +151,8 @@ export default function GocHaritasi({
           );
         })}
       </div>
+
+      {secimAcik && <KarakterKartlari karakterler={karakterler} onSec={karakteriSec} />}
     </div>
   );
 }

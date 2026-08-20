@@ -47,6 +47,7 @@
 /* --- Goc haritasi --- */
 
 .gocEkrani {
+  position: relative;
   padding: 16px 16px 40px;
   text-align: center;
 }
@@ -560,5 +561,100 @@
   .calistirDugmesi.hayaletli::after,
   .nabiz {
     animation: none;
+  }
+}
+
+/* --- Karakter secimi --- */
+
+.karakterSecimi {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+  background: var(--arkaplan);
+}
+
+.karakterBaslik {
+  margin: 0;
+  font-size: 28px;
+}
+
+.karakterKartlari {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+.karakterKarti {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 240px;
+  min-height: 260px;
+  padding: 16px;
+  border: 4px solid var(--kenar);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--metin);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.karakterCizim {
+  width: 140px;
+  height: 140px;
+}
+
+.karakterAd {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.karakterBilgi {
+  font-size: 14px;
+  color: #6c6862;
+  text-align: center;
+}
+
+/* Madalyon: secili kus her zaman gorunur ve dokunulabilir. */
+.karakterMadalyonu {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 64px;
+  height: 64px;
+  padding: 4px;
+  border: 4px solid var(--kenar);
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+
+.karakterMadalyonu svg {
+  width: 100%;
+  height: 100%;
+}
+
+.karakterKarti:active,
+.karakterMadalyonu:active {
+  scale: 0.96;
+}
+
+.karakterKarti,
+.karakterMadalyonu {
+  transition: scale var(--kodla-basma-suresi) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karakterKarti,
+  .karakterMadalyonu {
+    transition: none;
   }
 }
