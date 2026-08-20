@@ -15,7 +15,7 @@ export default function KarakterKartlari({
   onSec: (karakterId: string) => void;
 }) {
   return (
-    <div className="karakterSecimi" role="dialog" aria-label="Kiminle uçalım?">
+    <div className="karakterSecimi" role="dialog" aria-modal="true" aria-label="Kiminle uçalım?">
       <h2 className="karakterBaslik">Kiminle uçalım?</h2>
       <div className="karakterKartlari">
         {karakterler.map((karakter) => (
