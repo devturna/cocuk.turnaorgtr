@@ -58,14 +58,20 @@ belirgin biçimde daha iyi bir deneyim.
 | 4a | Kurs katmanı, göç haritası, labirent motoru, mutlak yönler, ilk beş durak | Tamamlandı |
 | 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, sessiz demo, tek adımlık öğretici ilk durak | Tamamlandı (altı durak yayında) |
 | 4c | Karakter seçimi: çocuk hangi kuşla uçacağını seçer | Tamamlandı (turna ve flamingo yayında) |
-| 4d | Döngü: üç aşamalı öğretim ve döngü durakları | Planlanıyor |
-| 4e | Ses katmanı | Planlanıyor |
-| 4f | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) | Planlanıyor |
+| 4d | Dizi duraklar, on beş duraklık rota, hata ayıklama, döngü, dönüş komutları | Planlanıyor |
+| 4e | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) | Planlanıyor |
+| 4f | Olaylar: dokununca ne olsun | Planlanıyor |
+
+Kapsamın ölçütü code.org'un Pre-reader Express kursudur: o kursun öğrettiği
+her kavram bu bölümde de öğretilir. Hangi dersin hangi durağa düştüğü
+[kodlama-kapsam.md](tasarim/kodlama-kapsam.md) içindedir. Ses bir kavram
+değil kolaylık olduğu için kavramlar bittikten sonra ayrıca ele alınacak.
 
 Tasarım kararları ve gerekçeleri: motor ve içerik için
 [kodlama.md](tasarim/kodlama.md), arayüz için
 [kodlama-arayuz.md](tasarim/kodlama-arayuz.md), karakter seçimi için
-[kodlama-karakter.md](tasarim/kodlama-karakter.md)
+[kodlama-karakter.md](tasarim/kodlama-karakter.md), bölümün nereye kadar
+gideceği için [kodlama-kapsam.md](tasarim/kodlama-kapsam.md)
 
 ## Değişmeyecek ilkeler
 
