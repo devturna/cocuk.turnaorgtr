@@ -228,9 +228,16 @@ Görev 7'de tek tek doğrulanmış, işaretli olmayan madde yok (bkz.
 
 - [x] 1. Kursa ilk girişte iki kuş kartı çıkıyor ve seçim yapılmadan harita
       kullanılamıyor — `e2e/kodla.spec.ts`'teki "ilk giriste kus secimi
-      sorulur..." testi diyaloğun açıldığını doğruluyor; iki kart sayısı ve
-      diyalog açıkken durağa tıklanamadığı elle (Playwright ile, tek seferlik
-      bir denetim testiyle) doğrulandı — bkz. görev 7 raporu.
+      sorulur..." testi diyaloğun açıldığını doğruluyor; kart sayısı
+      katalogla (`kursKarakterleri(KURS).length`) karşılaştırılarak
+      "karakter secim ekraninda dokunma hedefleri en az 64 piksel" testinde
+      doğrulanıyor; "secim yapilmadan durak tiklanamaz, diyalog acik ve url
+      degismez kalir" testi ise diyalog açıkken durağa tıklama denemesinin
+      reddettiğini, diyaloğun açık kaldığını ve URL'nin değişmediğini
+      doğruluyor — bu son test CSS'teki `.karakterSecimi` kuralı geçici
+      olarak zayıflatılıp (z-index kaldırılıp arkaplan şeffaf yapılarak)
+      kırmızıya döndüğü kanıtlanmış bir testtir (bkz. görev 7 raporu,
+      "Düzeltme turu 1").
 - [x] 2. Seçim hatırlanıyor; ikinci girişte sorulmuyor — aynı testin
       "Ikinci acilista sorulmaz" adımı.
 - [x] 3. Göç haritasındaki madalyon seçimi yeniden açıyor — aynı testin son

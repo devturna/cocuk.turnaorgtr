@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { kursBolumleri, bolumHaritasi } from "../lib/kodla/bolumler";
+import { kursKarakterleri } from "../lib/kodla/karakterler";
 import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
 import { onizlemeYolu } from "../lib/kodla/labirent/onizleme";
@@ -8,6 +9,7 @@ import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 
 const KURS = "turna-yolu";
 const BOLUMLER = kursBolumleri(KURS);
+const KARAKTERLER = kursKarakterleri(KURS);
 
 // Sozsuz ilk temas demosu ilk durakta kendi kendine bir blok ekleyip
 // calistiriyor (Gorev 9). Bu dosyadaki testler paleti kendileri surdugu
@@ -450,12 +452,33 @@ test("cocuk uzun sure dokunmazsa demo yalnizca ilk durakta tekrar oynar", async 
 // browser.newContext() ile acilan taze bir baglam beforeEach'in
 // addInitScript'inden ETKILENMEZ ve kodla:karakter bos baslar. Bu, testin
 // yazilmadan once elle dogrulanmistir (bkz. gorev-7-report.md).
+//
+// Bu bolumdeki her test kendi temiz baglamini `temizBaglamAc` ile acar.
+// Sozsuz ilk temas demosu (dosya basindaki yorumda anlatilan, 12sn bosta
+// kalinca kendiliginden calisan demo) beforeEach'te KASITLI kapatiliyordu;
+// ayni gerekce burada da gecerli - demo bu testlerin konusu degil, kendi
+// dosyasinda (kodla-demo.spec.ts) test ediliyor - bu yuzden temiz
+// baglamlarda da demo bayragini onceden kapatiyoruz.
+async function temizBaglamAc(
+  browser: import("@playwright/test").Browser,
+  secenekler?: Parameters<import("@playwright/test").Browser["newContext"]>[0],
+) {
+  const baglam = await browser.newContext(secenekler);
+  const sayfa = await baglam.newPage();
+  await sayfa.addInitScript(() => {
+    try {
+      localStorage.setItem("kodla:demo", "evet");
+    } catch {
+      // yok sayilir
+    }
+  });
+  return { baglam, sayfa };
+}
+
 test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabilir", async ({
   browser,
 }) => {
-  // Temiz baglam: beforeEach'in secimi atlatan ayarindan etkilenmesin.
-  const baglam = await browser.newContext();
-  const sayfa = await baglam.newPage();
+  const { baglam, sayfa } = await temizBaglamAc(browser);
 
   await sayfa.goto(`/kodla/${KURS}/`);
   await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
@@ -482,6 +505,46 @@ test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabil
   await baglam.close();
 });
 
+// Duzeltme turu 1 (review): §11 madde 1'in "secim yapilmadan harita
+// kullanilamiyor" yarisi daha once HICBIR kalici teste baglanmamisti -
+// yalnizca elle, bir kerelik bir denemeyle dogrulanip test dosyasi
+// silinmisti. Bu invaryant tamamen CSS'e dayanir (kodla.css'teki
+// .karakterSecimi: position:fixed, inset:0, z-index:20, opak arkaplan);
+// GocHaritasi.tsx'teki durak <Link>'i DOM'dan hic kaldirmaz, yalnizca
+// gorsel/etkilesimsel olarak ustunu orter. z-index, position veya arkaplan
+// gelecekte degistirilirse hicbir committed test bunu yakalamazdi. Kalici
+// hale getiriyoruz.
+//
+// Formulasyon: gercek bir tiklama denemesi kisa bir timeout ile yapiliyor
+// ve REDDETMESI bekleniyor. Playwright'in actionability kontrolu, hedef
+// baska bir eleman tarafindan kapatildigi surece asla "tiklanabilir" hale
+// gelmeyecegi icin click() suresiz beklerdi; bu yuzden kisa bir timeout
+// (2000ms) veriyoruz ki test suitesi gereksiz uzamasin. force:true KULLANMA
+// - o, actionability kontrolunu tamamen atlar ve tam da test etmek
+// istedigimiz "gercekten tiklanamiyor" durumunu gizler. Bu formulasyon
+// tercih edildi cunku ne zamanlayiciya ne animasyona bagli - tek kararsizlik
+// kaynagi olabilecek sey sayfanin ilk yuklenmesidir, o da yukaridaki
+// `toBeVisible()` beklemesiyle zaten senkronize ediliyor.
+test("secim yapilmadan durak tiklanamaz, diyalog acik ve url degismez kalir", async ({
+  browser,
+}) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+
+  await expect(
+    sayfa.getByRole("link", { name: /1\. durak/ }).click({ timeout: 2000 }),
+  ).rejects.toThrow();
+
+  // Tiklama denemesi basarisiz olmus OLMALI ama sayfa hicbir yere gitmemis
+  // OLMALI da: diyalog hala acik, url hala goc haritasinda.
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+  await expect(sayfa).toHaveURL(new RegExp(`/kodla/${KURS}/$`));
+
+  await baglam.close();
+});
+
 // Diger dokunma hedefi testi ("bolum ekraninda kaydirma yok...") daima
 // beforeEach'in karakter secimini onceden yapmis sayan baglaminda calisir,
 // yani secim ekranina hic girmez. .karakterMadalyonu tam 64px (CSS'te sabit
@@ -496,15 +559,20 @@ test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ brow
     { g: 390, y: 844 },
     { g: 844, y: 390 },
   ]) {
-    const baglam = await browser.newContext({ viewport: { width: ekran.g, height: ekran.y } });
-    const sayfa = await baglam.newPage();
+    const { baglam, sayfa } = await temizBaglamAc(browser, {
+      viewport: { width: ekran.g, height: ekran.y },
+    });
     await sayfa.goto(`/kodla/${KURS}/`);
     const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
     await expect(diyalog).toBeVisible();
 
+    // Duzeltme turu 1 (review): kart sayisi yalnizca >0 degil, katalogdaki
+    // karakter sayisiyla TAM eslesmeli - katalogdaki listeden turetiliyor
+    // (KARAKTERLER.length), 2 olarak sabitlenmiyor; yarin uculu bir kurs
+    // eklenirse test kendiliginden yeni beklentiye uyar.
     const kartlar = sayfa.locator(".karakterKarti");
+    await expect(kartlar, `${ekran.g}x${ekran.y}`).toHaveCount(KARAKTERLER.length);
     const adet = await kartlar.count();
-    expect(adet, `${ekran.g}x${ekran.y}`).toBeGreaterThan(0);
     for (let i = 0; i < adet; i++) {
       const kutu = (await kartlar.nth(i).boundingBox())!;
       expect(
@@ -528,8 +596,7 @@ test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ brow
 });
 
 test("secilen kus bolum ekraninda gercekten cizilir", async ({ browser }) => {
-  const baglam = await browser.newContext();
-  const sayfa = await baglam.newPage();
+  const { baglam, sayfa } = await temizBaglamAc(browser);
 
   await sayfa.goto(`/kodla/${KURS}/`);
   await sayfa.getByRole("button", { name: "Flamingo" }).click();
