@@ -65,6 +65,7 @@ Teknik bilgi gerektirmeyen iki yöntem:
    | `ogren:yildizlar` | Harfler ve Sayılar bölümünde tamamlanan harf/sayılar |
    | `kodla:ilerleme` | Kodlama bölümünde kazanılan yıldızlar (kurs ve durak bazında) |
    | `kodla:denemeler` | Bir duraktaki deneme sayısı (kilit açma kuralı için, geçici) |
+   | `kodla:demo` | Baştaki sessiz tanıtımın daha önce gösterilmiş olduğu (yalnızca bir kez oynaması için) |
    | `kodla:karakter` | Kodlama bölümünde seçilen kuş (kurs bazında) |
 
    Hepsinin içeriği bu kadardır. İsim, tarih, kimlik numarası gibi hiçbir
