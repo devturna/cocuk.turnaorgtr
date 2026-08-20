@@ -15,11 +15,11 @@ export function onizlemeYolu(program: Komut[], harita: Harita): YolParcasi[] {
   const { adimlar } = calistir(program, harita);
   const parcalar: YolParcasi[] = [];
 
-  // Turna'nin bir onceki karesi; ilk adim baslangic karesinden cikar.
+  // Karakterin bir onceki karesi; ilk adim baslangic karesinden cikar.
   let onceki: Kare = harita.baslangic;
 
   for (const adim of adimlar) {
-    const kare = { x: adim.turna.x, y: adim.turna.y };
+    const kare = { x: adim.karakter.x, y: adim.karakter.y };
 
     if (adim.olay === "yurudu") {
       parcalar.push({
@@ -33,7 +33,7 @@ export function onizlemeYolu(program: Komut[], harita: Harita): YolParcasi[] {
       parcalar.push({
         tur: "carpma",
         kare,
-        yon: adim.turna.bakis,
+        yon: adim.karakter.bakis,
         blokSirasi: adim.blokSirasi,
       });
     }

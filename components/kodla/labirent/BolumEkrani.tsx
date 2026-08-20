@@ -46,7 +46,7 @@ import "../kodla.css";
 //      kesilir.
 //   3. ADIM_SURESI (asagida, 450ms) — bu bilesenin bir sonraki adima
 //      gectigi JS tik suresi. Bu, CSS gecisinden UZUN olmak zorunda;
-//      kisaltilirsa Turna gecis bitmeden bir sonraki kareye ISINLANIR
+//      kisaltilirsa karakter gecis bitmeden bir sonraki kareye ISINLANIR
 //      (transform hala eski konuma dogru animasyon oynatirken React yeni
 //      --kare-x/--kare-y degerini yazar, gecis yarida kesilip yeniden
 //      baslar — akici yurume hissi bozulur).
@@ -63,7 +63,7 @@ const POZ_SIFIRLAMA_GECIKMESI = 400;
 const BOSTA_SURESI = 12000;
 
 /**
- * Demo icin bir komut secer: Turna GORULEBILIR sekilde yurumeli (cocuk bir
+ * Demo icin bir komut secer: karakter GORULEBILIR sekilde yurumeli (cocuk bir
  * seyin oldugunu gormeli) ama bolumu BITIRMEMELI (yoksa cocugun ilk
  * deneyimi, kendisi hic dokunmadan "kazanilmis" bir bolum olur). Komut
  * setindeki her komutu tek basina calistirip bu iki sarti saglayan ilkini
@@ -90,7 +90,7 @@ type Durum = {
   sonEklenenSira: number | null;
   oynatma: { adimlar: Adim[]; sira: number } | null;
   vurgulanan: number | null;
-  turna: { x: number; y: number; bakis: Yon };
+  karakterKonumu: { x: number; y: number; bakis: Yon };
   poz: KarakterPozu;
   toplananlar: string[];
   bitti: YildizTuru | null;
@@ -107,7 +107,7 @@ export default function BolumEkrani({
 }) {
   const harita = bolumHaritasi(bolum);
   const tema = temaBul(bolum.tema);
-  const baslangicTurna = { ...harita.baslangic, bakis: harita.bakis };
+  const baslangicKarakterKonumu = { ...harita.baslangic, bakis: harita.bakis };
 
   // Karakter yalnizca tarayicida secilir; sayfa sunucuda uretilirken
   // localStorage yoktur. Bu yuzden once varsayilanla cizip, ekran acilinca
@@ -135,7 +135,7 @@ export default function BolumEkrani({
     sonEklenenSira: null,
     oynatma: null,
     vurgulanan: null,
-    turna: baslangicTurna,
+    karakterKonumu: baslangicKarakterKonumu,
     poz: "durus",
     toplananlar: [],
     bitti: null,
@@ -190,10 +190,10 @@ export default function BolumEkrani({
 
       setDurum((onceki) => ({
         ...onceki,
-        turna: { x: adim.turna.x, y: adim.turna.y, bakis: adim.turna.bakis },
+        karakterKonumu: { x: adim.karakter.x, y: adim.karakter.y, bakis: adim.karakter.bakis },
         toplananlar:
           adim.olay === "topladi"
-            ? [...onceki.toplananlar, kareAnahtari(adim.turna)]
+            ? [...onceki.toplananlar, kareAnahtari(adim.karakter)]
             : onceki.toplananlar,
         // Yurume dongusu iki pozun degismesiyle olusur; her adimda takla
         // atmasin diye "adim" ile "durus" arasinda gidip geliyor.
@@ -243,7 +243,7 @@ export default function BolumEkrani({
   function bastanBasla() {
     setDurum((onceki) => ({
       ...onceki,
-      turna: baslangicTurna,
+      karakterKonumu: baslangicKarakterKonumu,
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
@@ -257,7 +257,7 @@ export default function BolumEkrani({
     if (sonuc.adimlar.length === 0) return;
     setDurum((onceki) => ({
       ...onceki,
-      turna: baslangicTurna,
+      karakterKonumu: baslangicKarakterKonumu,
       poz: "durus",
       toplananlar: [],
       bitti: null,
@@ -307,7 +307,7 @@ export default function BolumEkrani({
       ...onceki,
       program: programiTemizle(),
       sonEklenenSira: null,
-      turna: baslangicTurna,
+      karakterKonumu: baslangicKarakterKonumu,
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
@@ -349,7 +349,7 @@ export default function BolumEkrani({
         <Sahne
           harita={harita}
           tema={tema}
-          turna={durum.turna}
+          karakterKonumu={durum.karakterKonumu}
           poz={durum.poz}
           palet={karakter?.palet ?? VARSAYILAN_PALET}
           bekliyor={!calisiyor}

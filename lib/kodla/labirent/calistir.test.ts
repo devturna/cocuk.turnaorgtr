@@ -30,7 +30,7 @@ describe("yurume", () => {
   it("hedefe varinca kalan bloklar calistirilmaz", () => {
     const sonuc = calistir([git("sag"), git("sag"), git("sol"), git("sol")], DUZ);
     expect(sonuc.basarili).toBe(true);
-    expect(sonuc.adimlar.at(-1)?.turna).toEqual({ x: 3, y: 0, bakis: "sag" });
+    expect(sonuc.adimlar.at(-1)?.karakter).toEqual({ x: 3, y: 0, bakis: "sag" });
   });
 });
 
@@ -40,14 +40,14 @@ describe("carpma cezalandirilmaz", () => {
   it("engele giren komut etkisizdir ama program surer", () => {
     const sonuc = calistir([git("sag"), git("sag")], ENGELLI);
     expect(sonuc.adimlar.map((adim) => adim.olay)).toEqual(["carpti", "carpti"]);
-    expect(sonuc.adimlar.at(-1)?.turna).toEqual({ x: 1, y: 0, bakis: "sag" });
+    expect(sonuc.adimlar.at(-1)?.karakter).toEqual({ x: 1, y: 0, bakis: "sag" });
     expect(sonuc.basarili).toBe(false);
   });
 
   it("harita disina cikmak da carpmadir", () => {
     const sonuc = calistir([git("yukari")], DUZ);
     expect(sonuc.adimlar[0].olay).toBe("carpti");
-    expect(sonuc.adimlar[0].turna).toEqual({ x: 1, y: 0, bakis: "yukari" });
+    expect(sonuc.adimlar[0].karakter).toEqual({ x: 1, y: 0, bakis: "yukari" });
   });
 
   it("carpmadan sonraki bloklar yine calisir", () => {
@@ -92,12 +92,12 @@ describe("donusler seti", () => {
   it("don komutu yalnizca bakisi degistirir", () => {
     const sonuc = calistir([don("sag")], KOSE);
     expect(sonuc.adimlar[0].olay).toBe("dondu");
-    expect(sonuc.adimlar[0].turna).toEqual({ x: 1, y: 0, bakis: "asagi" });
+    expect(sonuc.adimlar[0].karakter).toEqual({ x: 1, y: 0, bakis: "asagi" });
   });
 
   it("sola donus saat tersine calisir", () => {
     const sonuc = calistir([don("sol")], KOSE);
-    expect(sonuc.adimlar[0].turna.bakis).toBe("yukari");
+    expect(sonuc.adimlar[0].karakter.bakis).toBe("yukari");
   });
 
   it("ileri baktigi yone yurur", () => {

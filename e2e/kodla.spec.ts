@@ -61,7 +61,7 @@ test("fazladan blokla bitirmek normal yildiz verir ve cezalandirmaz", async ({ p
   const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
-  // Sona fazladan blok: Turna hedefe varinca kalan bloklar calistirilmaz,
+  // Sona fazladan blok: karakter hedefe varinca kalan bloklar calistirilmaz,
   // ama program uzunlugu idealAdim'i astigi icin altin yildiz verilmez.
   await programiDiz(page, [...yol.map(komutAnahtari), "git:sol"]);
   await page.getByRole("button", { name: "Çalıştır" }).click();
@@ -93,7 +93,7 @@ test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // Once bir carpma ekliyoruz ki onizlemenin carpmayi da cizdigi gorulsun.
-  // Kapadokya'da Turna (1,2)'de "sag" bakarak baslar ve hemen saginda
+  // Kapadokya'da karakter (1,2)'de "sag" bakarak baslar ve hemen saginda
   // (2,2) bir engel var: "git:sag" harita kenarina degil gercek bir
   // engele carpar. (Sultansazligi'nda ayni amacla denenen "git:yukari"
   // bos bir kareye yuruyordu; carpma hic uretmiyordu ve testin carpma
@@ -156,7 +156,8 @@ test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
   await expect(page.locator(".kodlaYolParcasi")).toHaveCount(1);
 });
 
-// Onceki surum yalnizca .kodlaTurna'yi orneklerdi: kodla.css'teki
+// Onceki surum yalnizca .kodlaTurna'yi orneklerdi (bu sinif daha sonra
+// .kodlaKarakter olarak adlandirildi): kodla.css'teki
 // prefers-reduced-motion blogunda BUNUN disinda on bes ayri sinif/durum
 // daha var, ve bu fazda tam olarak orada dort ayri CSS ozgulluk hatasi
 // bulundu. Tek bir secici, sonrakinin de yakalanacagini garanti etmez; bu
@@ -215,12 +216,12 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   }
 
   // --- Kosuya gerek olmadan, sayfa acilir acilmaz erisilebilen durumlar ---
-  animasyonYok(await anlikYakala(".kodlaTurna"), ".kodlaTurna (animation)");
-  gecisYok(await anlikYakala(".kodlaTurna"), ".kodlaTurna (transition)");
+  animasyonYok(await anlikYakala(".kodlaKarakter"), ".kodlaKarakter (animation)");
+  gecisYok(await anlikYakala(".kodlaKarakter"), ".kodlaKarakter (transition)");
   // Baslangic hali zaten "bekliyor" + "poz-durus": kosu gerekmez.
   animasyonYok(
-    await anlikYakala(".kodlaTurna.bekliyor.poz-durus"),
-    ".kodlaTurna.bekliyor.poz-durus",
+    await anlikYakala(".kodlaKarakter.bekliyor.poz-durus"),
+    ".kodlaKarakter.bekliyor.poz-durus",
   );
   gecisYok(await anlikYakala(".kodlaBasak"), ".kodlaBasak");
   animasyonYok(await anlikYakala(".kodlaYuva"), ".kodlaYuva");
@@ -233,7 +234,7 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   await programiDiz(sayfa, ["git:sag"]);
   animasyonYok(await anlikYakala(".kodlaYolParcasi"), ".kodlaYolParcasi");
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
-  animasyonYok(await anlikYakala(".kodlaTurna.poz-carpma"), ".kodlaTurna.poz-carpma");
+  animasyonYok(await anlikYakala(".kodlaKarakter.poz-carpma"), ".kodlaKarakter.poz-carpma");
   animasyonYok(await anlikYakala(".kodlaToz"), ".kodlaToz");
 
   // Tahtayi kazanma denemesi icin sifirla.
@@ -265,7 +266,7 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   animasyonYok(await anlikYakala(".calistirDugmesi.nabiz"), ".calistirDugmesi.nabiz (program dolu)");
 
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
-  animasyonYok(await anlikYakala(".kodlaTurna.poz-adim"), ".kodlaTurna.poz-adim");
+  animasyonYok(await anlikYakala(".kodlaKarakter.poz-adim"), ".kodlaKarakter.poz-adim");
   await expect(sayfa.getByText("Harika! En kısa yol!")).toBeVisible({ timeout: 15000 });
 
   animasyonYok(await anlikYakala(".kodlaYuva.dolu"), ".kodlaYuva.dolu");

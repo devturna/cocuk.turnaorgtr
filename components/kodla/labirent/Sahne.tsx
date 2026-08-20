@@ -1,6 +1,6 @@
 // Bolumun kareli haritasi. Tek bir SVG'dir ve viewBox ile olceklenir.
 //
-// Turna'nin konumu ve donusu CSS ozel degiskenleriyle verilir; gecisi CSS
+// Karakterin konumu ve donusu CSS ozel degiskenleriyle verilir; gecisi CSS
 // yapar. SVG'nin transform NITELIGI canlandirilamaz, CSS transform'u
 // canlandirilabilir - bu yuzden konum nitelige degil stile yaziliyor.
 import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
@@ -21,7 +21,7 @@ const KARE = 100;
 // Carpma yonune gore surukleme: hem geri tepme (CSS keyframe kodlaCarp)
 // hem toz bulutu bu vektorle DUVARA DOGRU yon alir. Onceden ikisi de
 // sabit/varsayilan bir yone (recoil hep sag, toz hep sol) gidiyordu;
-// Turna nereye carparsa carpsin ayni goruntuyu veriyordu.
+// karakter nereye carparsa carpsin ayni goruntuyu veriyordu.
 const CARPMA_VEKTORU: Record<Yon, { x: number; y: number }> = {
   yukari: { x: 0, y: -1 },
   asagi: { x: 0, y: 1 },
@@ -31,14 +31,14 @@ const CARPMA_VEKTORU: Record<Yon, { x: number; y: number }> = {
 
 // kodla.css'teki kodlaCarp keyframe'inin kullandigi 14px'lik surukleme
 // buyuklugu ile AYNI: SVG kullanici birimi burada css piksele esit (bkz.
-// .kodlaTurna'nin translate hesaplamasi), o yuzden ayni sayi toz grubunun
+// .kodlaKarakter'in translate hesaplamasi), o yuzden ayni sayi toz grubunun
 // statik konumunu kaydirmak icin de kullanilabilir.
 const CARPMA_KAYMASI = 14;
 
 export default function Sahne({
   harita,
   tema,
-  turna,
+  karakterKonumu,
   poz,
   palet,
   bekliyor,
@@ -50,7 +50,7 @@ export default function Sahne({
 }: {
   harita: Harita;
   tema: Tema;
-  turna: { x: number; y: number; bakis: Yon };
+  karakterKonumu: { x: number; y: number; bakis: Yon };
   poz: KarakterPozu;
   palet: KarakterPaleti;
   bekliyor: boolean;
@@ -62,7 +62,7 @@ export default function Sahne({
 }) {
   const genislik = harita.genislik * KARE;
   const yukseklik = harita.yukseklik * KARE;
-  const carpVektoru = CARPMA_VEKTORU[turna.bakis];
+  const carpVektoru = CARPMA_VEKTORU[karakterKonumu.bakis];
 
   const kareler = [];
   for (let y = 0; y < harita.yukseklik; y++) {
@@ -198,8 +198,8 @@ export default function Sahne({
       {poz === "carpma" && (
         <g
           className="kodlaToz"
-          transform={`translate(${turna.x * KARE + carpVektoru.x * CARPMA_KAYMASI} ${
-            turna.y * KARE + carpVektoru.y * CARPMA_KAYMASI
+          transform={`translate(${karakterKonumu.x * KARE + carpVektoru.x * CARPMA_KAYMASI} ${
+            karakterKonumu.y * KARE + carpVektoru.y * CARPMA_KAYMASI
           })`}
         >
           <TozSimgesi />
@@ -207,20 +207,20 @@ export default function Sahne({
       )}
 
       {/* Konum ve donus stile yaziliyor; gecisi CSS yapiyor. --carp-x/y,
-          kodlaCarp keyframe'ine hangi yone suruklenecegini soyler: Turna'nin
+          kodlaCarp keyframe'ine hangi yone suruklenecegini soyler: karakterin
           bakis yonu, yani carptigi duvarin yonu. */}
       <g
-        className={`kodlaTurna poz-${poz}${bekliyor ? " bekliyor" : ""}`}
+        className={`kodlaKarakter poz-${poz}${bekliyor ? " bekliyor" : ""}`}
         style={
           {
-            "--kare-x": turna.x,
-            "--kare-y": turna.y,
+            "--kare-x": karakterKonumu.x,
+            "--kare-y": karakterKonumu.y,
             "--carp-x": carpVektoru.x,
             "--carp-y": carpVektoru.y,
           } as React.CSSProperties
         }
       >
-        <KarakterSimgesi yon={turna.bakis} poz={poz} palet={palet} />
+        <KarakterSimgesi yon={karakterKonumu.bakis} poz={poz} palet={palet} />
       </g>
     </svg>
   );

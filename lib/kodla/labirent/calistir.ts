@@ -2,7 +2,7 @@
 //
 // Bu fonksiyon animasyon degil VERI dondurur: adim adim ne oldugunun listesi.
 // Bileseni ilgilendiren tek sey o listeyi sirayla oynatmaktir. Boylece
-// "Turna hedefe vardi mi, kac adimda vardi" sorulari tarayici acmadan test
+// "Karakter hedefe vardi mi, kac adimda vardi" sorulari tarayici acmadan test
 // edilir.
 import {
   komsuKare,
@@ -23,7 +23,7 @@ import {
 export type Adim = {
   /** Bu adimi ureten blogun program icindeki sirasi. Arayuz onu vurgular. */
   blokSirasi: number;
-  turna: { x: number; y: number; bakis: Yon };
+  karakter: { x: number; y: number; bakis: Yon };
   olay: "yurudu" | "dondu" | "carpti" | "topladi" | "vardi";
 };
 
@@ -39,7 +39,7 @@ export function calistir(program: Komut[], harita: Harita): Sonuc {
   const adimlar: Adim[] = [];
 
   const adimEkle = (blokSirasi: number, olay: Adim["olay"]) => {
-    adimlar.push({ blokSirasi, turna: { x: kare.x, y: kare.y, bakis }, olay });
+    adimlar.push({ blokSirasi, karakter: { x: kare.x, y: kare.y, bakis }, olay });
   };
 
   const hepsiToplandi = () => toplananlar.size === harita.basaklar.length;
@@ -53,7 +53,7 @@ export function calistir(program: Komut[], harita: Harita): Sonuc {
       continue;
     }
 
-    // "git" mutlak yon verir ve Turna o yone doner; "ileri" baktigi yone yurur.
+    // "git" mutlak yon verir ve karakter o yone doner; "ileri" baktigi yone yurur.
     if (komut.tur === "git") bakis = komut.yon;
     const hedefKare = komsuKare(kare, bakis);
 
