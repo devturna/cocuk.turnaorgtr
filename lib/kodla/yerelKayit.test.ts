@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { kursKarakterleri } from "./karakterler";
 import {
   EN_FAZLA_DENEME,
   bolumAcikMi,
@@ -11,6 +12,7 @@ import {
   ilerlemeyiSil,
   karakterSec,
   kursYildizSayisi,
+  secimSorulmaliMi,
   seciliKarakter,
   seciliKarakterId,
   tumIlerleme,
@@ -136,8 +138,13 @@ describe("karakter secimi", () => {
   });
 
   it("kurslar birbirini etkilemez", () => {
+    // Yazilmamis bir kursun `undefined` okumasi yetmez: karakterSec butun
+    // kaydi yeni bir nesneyle DEGISTIRSE bile o beklenti tutardi. Gercek
+    // soru, ikinci kursun secimi birincisini silip silmedigi.
     karakterSec("turna-yolu", "flamingo");
-    expect(seciliKarakterId("baska-kurs")).toBeUndefined();
+    karakterSec("baska-kurs", "turna");
+    expect(seciliKarakterId("turna-yolu")).toBe("flamingo");
+    expect(seciliKarakterId("baska-kurs")).toBe("turna");
   });
 
   it("seciliKarakter, secim yokken varsayilani verir", () => {
@@ -164,5 +171,37 @@ describe("karakter secimi", () => {
     karakterSec("turna-yolu", "flamingo");
     ilerlemeyiSil();
     expect(seciliKarakterId("turna-yolu")).toBeUndefined();
+  });
+});
+
+describe("secim sorulmali mi", () => {
+  const IKI_KUS = kursKarakterleri("turna-yolu");
+  const TEK_KUS = IKI_KUS.slice(0, 1);
+
+  it("secim yokken ve iki kus varken sorulur", () => {
+    expect(secimSorulmaliMi("turna-yolu", IKI_KUS)).toBe(true);
+  });
+
+  it("gecerli bir secim varken sorulmaz", () => {
+    karakterSec("turna-yolu", "flamingo");
+    expect(secimSorulmaliMi("turna-yolu", IKI_KUS)).toBe(false);
+  });
+
+  it("kayitli kus katalogdan cikarilmissa yeniden sorulur", () => {
+    // Yalnizca "kayit var mi" diye bakan bir kontrol burada YANILIR:
+    // kayit vardir ama karsiligi yoktur, seciliKarakter sessizce
+    // listedeki ilk kusa duser ve cocuk bir daha hic sorulmaz.
+    localStorage.setItem("kodla:karakter", JSON.stringify({ "turna-yolu": "devekusu" }));
+    expect(secimSorulmaliMi("turna-yolu", IKI_KUS)).toBe(true);
+  });
+
+  it("tek karakterli kursta hic sorulmaz", () => {
+    // Sececek bir sey yoksa kart ekrani cocugu bosuna durdurur; tek kus
+    // sessizce gecerli sayilir (bkz. docs/kodlama-bolumu-hazirlama.md §6).
+    expect(secimSorulmaliMi("turna-yolu", TEK_KUS)).toBe(false);
+  });
+
+  it("karakteri olmayan kursta hic sorulmaz", () => {
+    expect(secimSorulmaliMi("yok-boyle", [])).toBe(false);
   });
 });

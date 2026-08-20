@@ -15,7 +15,12 @@ export type YildizTuru = "yildiz" | "altin";
 /** Bir bolumde bu kadar denendikten sonra sonraki durak sessizce acilir. */
 export const EN_FAZLA_DENEME = 5;
 
-function nesneOku(anahtar: string): Record<string, Record<string, unknown>> {
+// Deger tipi bilerek `unknown`: bu dosyada dort ayri anahtar okunuyor ve
+// sekilleri ayni degil (ilerleme ve denemeler ic ice nesne tutar, karakter
+// secimi duz bir dizedir). Daraltmayi her erisimci kendi yapar; boylece
+// tek bir "hepsine uyan" donus tipi uydurup sonra cift cast ile kirmak
+// gerekmiyor.
+function nesneOku(anahtar: string): Record<string, unknown> {
   let ham: string | null;
   try {
     ham = localStorage.getItem(anahtar);
@@ -28,7 +33,7 @@ function nesneOku(anahtar: string): Record<string, Record<string, unknown>> {
     const cozulmus = JSON.parse(ham);
     // Bozuk veya eski bir kayit oyunu kirmasin diye seklini dogruluyoruz.
     if (cozulmus && typeof cozulmus === "object" && !Array.isArray(cozulmus)) {
-      return cozulmus as Record<string, Record<string, unknown>>;
+      return cozulmus as Record<string, unknown>;
     }
     return {};
   } catch {
@@ -129,8 +134,7 @@ export function demoGosterildi(): void {
 
 /** Kurs basina secilen karakterin kimligi. */
 export function seciliKarakterId(kursId: string): string | undefined {
-  const secimler = nesneOku(KARAKTER_ANAHTARI) as unknown as Record<string, unknown>;
-  const deger = secimler[kursId];
+  const deger = nesneOku(KARAKTER_ANAHTARI)[kursId];
   return typeof deger === "string" ? deger : undefined;
 }
 
@@ -148,4 +152,22 @@ export function karakterSec(kursId: string, karakterId: string): void {
 export function seciliKarakter(kursId: string): Karakter | undefined {
   const id = seciliKarakterId(kursId);
   return (id ? karakterBul(kursId, id) : undefined) ?? varsayilanKarakter(kursId);
+}
+
+/**
+ * Goc haritasi acilirken "Kiminle ucalim?" sorulmali mi?
+ *
+ * Iki kural birlikte:
+ *
+ * 1. Kursta secilecek en az iki kus yoksa sorulmaz. Tek kusluk bir kursta
+ *    kart ekrani cocugu bir secenek icin durdurmus olurdu.
+ * 2. Kayitli secim, kursun BUGUNKU listesinde gercekten bulunmalidir.
+ *    Yalnizca "kayit var mi" diye bakmak yetmez: katalogdan cikarilmis bir
+ *    kusla kaydedilmis cocuk sessizce listedeki ilk kusla ucar ve bir daha
+ *    hic sorulmaz (seciliKarakter varsayilana duser).
+ */
+export function secimSorulmaliMi(kursId: string, karakterler: Karakter[]): boolean {
+  if (karakterler.length < 2) return false;
+  const id = seciliKarakterId(kursId);
+  return karakterler.every((karakter) => karakter.id !== id);
 }

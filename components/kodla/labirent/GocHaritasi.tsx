@@ -2,11 +2,11 @@
 
 // Kursun bolum secim ekrani: Turkiye silueti ve uzerinde duraklar.
 // Tamamlanan duraklar arasina kesik cizgi bir ucus yolu cizilir.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import type { BolumVerisi } from "@/lib/kodla/bolumler";
 import { kursKarakterleri, varsayilanKarakter } from "@/lib/kodla/karakterler";
-import { bolumAcikMi, bolumSonucu, karakterSec, seciliKarakter, seciliKarakterId, type YildizTuru } from "@/lib/kodla/yerelKayit";
+import { bolumAcikMi, bolumSonucu, karakterSec, secimSorulmaliMi, seciliKarakter, type YildizTuru } from "@/lib/kodla/yerelKayit";
 import { KarakterSimgesi } from "./Simgeler";
 import KarakterKartlari from "./KarakterKartlari";
 import "../kodla.css";
@@ -30,23 +30,33 @@ export default function GocHaritasi({
     bolumler.length > 0 ? { [bolumler[0].id]: true } : {},
   );
 
-  const karakterler = kursKarakterleri(kursId);
+  // useMemo sart: kursKarakterleri bilinmeyen bir kurs icin her cagrida
+  // YENI bir bos dizi doner; asagidaki etkinin bagimlilik listesinde ham
+  // cagri dursaydi bu sonsuz donguye girerdi.
+  const karakterler = useMemo(() => kursKarakterleri(kursId), [kursId]);
   // Sunucuda uretilen HTML varsayilan kusu gosterir; secim ekrani ancak
   // tarayicida, gercekten secim yapilmamissa acilir. Boylece harita
   // "once kartlar acik sonra kapali" diye zipzalmaz.
   const [karakter, setKarakter] = useState(() => varsayilanKarakter(kursId));
   const [secimAcik, setSecimAcik] = useState(false);
+  // Ilk giriste secim ZORUNLUDUR: arkada gecerli bir durum yok, Escape ile
+  // kapatan cocuk kussuz bir haritada kalirdi. Madalyondan yeniden
+  // acildiginda secim zaten var; orada vazgecmek gecerli bir cevaptir.
+  const [secimZorunlu, setSecimZorunlu] = useState(false);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setKarakter(seciliKarakter(kursId));
-    setSecimAcik(seciliKarakterId(kursId) === undefined && karakterler.length > 1);
-  }, [kursId, karakterler.length]);
+    const sorulmali = secimSorulmaliMi(kursId, karakterler);
+    setSecimAcik(sorulmali);
+    setSecimZorunlu(sorulmali);
+  }, [kursId, karakterler]);
 
   function karakteriSec(karakterId: string) {
     karakterSec(kursId, karakterId);
     setKarakter(seciliKarakter(kursId));
     setSecimAcik(false);
+    setSecimZorunlu(false);
   }
 
   // Ilerleme yalnizca tarayicida bulunur; sayfa sunucuda uretilirken okunamaz.
@@ -72,11 +82,21 @@ export default function GocHaritasi({
 
   return (
     <div className="gocEkrani">
-      <h1>{kursAdi}</h1>
+      {/*
+        Secim ekrani acikken arkasindaki her sey `inert` olur. Ustunu
+        opak bir ortuyle kapatmak yalnizca FAREYI durdurur; durak
+        <Link>'leri DOM'da kalir ve sekme sirasindan cikmaz, yani
+        klavyeyle Tab-Tab-Enter kus secmeden bir bolume girerdi. `inert`
+        hem odagi hem erisilebilirlik agacini kapatir; React 19 bunu duz
+        bir ozellik olarak geciriyor (bkz. e2e'deki "secim yapilmadan
+        durak klavyeyle de acilamaz" testi).
+      */}
+      <h1 inert={secimAcik}>{kursAdi}</h1>
 
       {karakter && (
         <button
           type="button"
+          inert={secimAcik}
           className="karakterMadalyonu"
           aria-label={`Kuşu değiştir: ${karakter.ad}`}
           onClick={() => setSecimAcik(true)}
@@ -87,7 +107,7 @@ export default function GocHaritasi({
         </button>
       )}
 
-      <div className="gocHaritasi">
+      <div className="gocHaritasi" inert={secimAcik}>
         {/*
           Silueti dogrudan basiyoruz. Icerik kullanicidan gelmiyor: depoya
           commit edilmis tek bir dosya derleme aninda okunuyor. Boyama
@@ -152,7 +172,14 @@ export default function GocHaritasi({
         })}
       </div>
 
-      {secimAcik && <KarakterKartlari karakterler={karakterler} onSec={karakteriSec} />}
+      {secimAcik && (
+        <KarakterKartlari
+          karakterler={karakterler}
+          onSec={karakteriSec}
+          kapatilabilir={!secimZorunlu}
+          onKapat={() => setSecimAcik(false)}
+        />
+      )}
     </div>
   );
 }
