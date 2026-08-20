@@ -158,7 +158,12 @@ const kurslar = JSON.parse(
   readFileSync(join(KODLA_KLASORU, "kurslar.json"), "utf8"),
 ) as Girdi[];
 
+const karakterKatalogu = JSON.parse(
+  readFileSync(join(KODLA_KLASORU, "karakterler.json"), "utf8"),
+) as Record<string, unknown[]>;
+
 let denetlenenBolum = 0;
+let denetlenenKarakter = 0;
 const gorulenKurslar = new Set<string>();
 
 for (const kurs of kurslar) {
@@ -178,6 +183,40 @@ for (const kurs of kurslar) {
   }
   // Yakinda olan kursun icerik dosyasi henuz olmayabilir.
   if (kurs.durum !== "yayinda") continue;
+
+  const karakterler = (karakterKatalogu[kursId] ?? []) as Girdi[];
+  if (karakterler.length === 0) {
+    hatalar.push(
+      `kurs ${kursId}: yayindaki kursun en az bir karakteri olmali ` +
+        `(content/kodla/karakterler.json icine ekle)`,
+    );
+  }
+
+  const gorulenKarakterler = new Set<string>();
+  for (const karakter of karakterler) {
+    const kimlik = `${kursId}/${String(karakter.id ?? "(kimliksiz)")}`;
+    denetlenenKarakter++;
+
+    for (const alan of ["id", "ad", "bilgi"]) {
+      const deger = karakter[alan];
+      if (typeof deger !== "string" || deger.trim() === "") {
+        hatalar.push(`karakter ${kimlik}: "${alan}" alani bos veya eksik`);
+      }
+    }
+
+    if (gorulenKarakterler.has(String(karakter.id))) {
+      hatalar.push(`karakter ${kimlik}: kimlik bu kursta birden fazla kez kullanilmis`);
+    }
+    gorulenKarakterler.add(String(karakter.id));
+
+    const palet = karakter.palet as Record<string, unknown> | undefined;
+    for (const alan of ["govde", "gaga", "bacak"]) {
+      const renk = palet?.[alan];
+      if (typeof renk !== "string" || !/^#[0-9a-f]{6}$/i.test(renk)) {
+        hatalar.push(`karakter ${kimlik}: palet.${alan} "#rrggbb" biciminde olmali`);
+      }
+    }
+  }
 
   let bolumler: Girdi[];
   try {
@@ -397,6 +436,7 @@ if (hatalar.length > 0) {
 }
 
 console.log(
-  `Kontrol tamam: ${katalog.length} boyama sayfasi, ${denetlenenBolum} kodlama bolumu ve ` +
-    `${turkceTaranacakDosyalar.length} kodlama kaynak dosyasi (turkce karakter) dogrulandi.`,
+  `Kontrol tamam: ${katalog.length} boyama sayfasi, ${denetlenenBolum} kodlama bolumu, ` +
+    `${denetlenenKarakter} kodlama karakteri ve ${turkceTaranacakDosyalar.length} kodlama ` +
+    `kaynak dosyasi (turkce karakter) dogrulandi.`,
 );

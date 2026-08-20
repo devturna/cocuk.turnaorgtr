@@ -66,7 +66,9 @@ Bütün satırlar aynı uzunlukta olmalı.
 - `harita.bakis`: `yukari`, `asagi`, `sol` veya `sag` olmalı.
 - `idealAdim`: en kısa çözümün adım sayısı. **Tahmin etme** — denetim
   script'i doğru değeri sana söyler.
-- `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle.
+- `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle. **Yere
+  dairdir, kuşa değil** — kurs birden fazla kuş sunuyorsa (bkz. §6) kuşa
+  dair bir ipucu, seçilmeyen kuşlar için yanlış olur.
 
 **Yeni bir kursun ilk durağı öğreticidir ve her zaman tek adımda
 (`idealAdim: 1`) bitmelidir.** Çocuğun bu bölümle ilk karşılaşması "denedim"
@@ -126,3 +128,18 @@ kaydına yeni kursun içerik dosyasını import edip bir girdi eklemen gerekir
 (`"turna-yolu"` girdisiyle aynı desen). Bu satır unutulursa `npm run kontrol`
 hatayla durur — sessizce geçmez — çünkü `content/kodla/kurslar.json`
 içindeki `"yayinda"` kurslarla `KURS_BOLUMLERI` kaydı burada karşılaştırılır.
+
+## 6. Yeni bir kursun karakterleri
+
+Yeni bir kurs, kendi kuş seçeneklerini de getirmelidir:
+`content/kodla/karakterler.json` içine kurs kimliğiyle eşleşen bir anahtar
+altında en az bir karakter eklenir (`id`, `ad`, `bilgi`, `palet.govde`,
+`palet.gaga`, `palet.bacak` — renkler `"#rrggbb"` biçiminde). `npm run
+kontrol` bu dosyayı da denetler: karakteri olmayan `"yayinda"` bir kurs,
+eksik/boş bir alan veya geçersiz bir renk denetimi düşürür.
+
+Kuşa dair bilgi (adı, göç öyküsü, vb.) burada, karakter kartında durur —
+durak `ipucu`sine asla sızmaz, çünkü `ipucu` yere dairdir (bkz. §3). Aynı
+kursta birden fazla kuş varsa, her ikisi de aynı duraklardan geçer; bir
+durağın ipucu belirli bir kuşa özgü bir gerçek içeriyorsa, o kuşu seçmeyen
+çocuklar için ipucu yanlış olur.

@@ -7,7 +7,7 @@
     "tema": "sazlik",
     "durak": { "x": 43, "y": 92 },
     "idealAdim": 1,
-    "ipucu": "Turnalar Anadolu'ya güneyden, Göksu Deltası üzerinden girer.",
+    "ipucu": "Göksu Deltası Mersin'de, Türkiye'nin en zengin kuş sulak alanlarından biridir.",
     "harita": {
       "bakis": "sag",
       "satirlar": ["...", ".TH", "..."]
@@ -21,7 +21,7 @@
     "tema": "sazlik",
     "durak": { "x": 50, "y": 61 },
     "idealAdim": 3,
-    "ipucu": "Turnalar her ilkbahar Sultansazlığı'nda dinlenir.",
+    "ipucu": "Sultansazlığı Kayseri'de sazlıklar ve göllerden oluşan bir kuş cennetidir.",
     "harita": {
       "bakis": "sag",
       "satirlar": [".....", ".T..H", "....."]
