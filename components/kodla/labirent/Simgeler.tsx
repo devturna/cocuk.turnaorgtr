@@ -1,8 +1,8 @@
 // Sahnedeki cizimler ve dis dunyaya verdigimiz sozlesme.
 //
 // Her simge 0-100 birimlik bir kutuya cizilir; sahne translate ile
-// yerlestirir. Turna dort yon ve dort poz tasir: yurume dongusu "durus" ile
-// "adim" pozlarinin degismesiyle olusur.
+// yerlestirir. Karakter dort yon ve dort poz tasir: yurume dongusu "durus"
+// ile "adim" pozlarinin degismesiyle olusur.
 //
 // Illustrator ciktisi geldiginde yalnizca bu dosyanin govdesi degisir.
 // Cagiran bilesenler poz ve yon disinda hicbir sey bilmez.
@@ -21,7 +21,7 @@ export const VARSAYILAN_PALET: KarakterPaleti = {
   bacak: "#33312e",
 };
 
-// Turna saga bakacak sekilde cizilir; digerleri dondurulerek elde edilir.
+// Karakter saga bakacak sekilde cizilir; digerleri dondurulerek elde edilir.
 // Sola bakarken ters donmemesi icin dondurme degil aynalama kullanilir.
 const YON_DONUSUMU: Record<Yon, string> = {
   sag: "",

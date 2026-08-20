@@ -402,7 +402,7 @@ export default function BolumEkrani({
           <button
             type="button"
             className="kodlaYardimciDugme"
-            aria-label="Turna'yı başa al"
+            aria-label="Kuşu başa al"
             disabled={calisiyor}
             onClick={bastanBasla}
           >

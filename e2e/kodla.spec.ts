@@ -238,7 +238,7 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   animasyonYok(await anlikYakala(".kodlaToz"), ".kodlaToz");
 
   // Tahtayi kazanma denemesi icin sifirla.
-  await sayfa.getByRole("button", { name: "Turna'yı başa al" }).click();
+  await sayfa.getByRole("button", { name: "Kuşu başa al" }).click();
   await sayfa.getByRole("button", { name: "Hepsini temizle" }).click();
   await expect(sayfa.locator(".programBloku")).toHaveCount(0);
 
