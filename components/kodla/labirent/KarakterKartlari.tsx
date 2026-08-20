@@ -39,6 +39,19 @@ export default function KarakterKartlari({
     kutu.current?.querySelector<HTMLButtonElement>(".karakterKarti")?.focus();
   }, []);
 
+  useEffect(() => {
+    // Duzeltme turu (review): Escape'i BELGE seviyesinde dinliyoruz, div
+    // uzerindeki onKeyDown degil. Ortuye (bosluga) dokunmak odagi
+    // <body>'ye tasir; <body> diyalogun ATASI degil, bubbling ona hic
+    // ugramaz - div'e baglanmis bir onKeyDown bu durumda asla tetiklenmez.
+    // Belge seviyesinde dinlemek odagin nerede oldugundan bagimsizdir.
+    function tusaBasildi(olay: KeyboardEvent) {
+      if (olay.key === "Escape" && kapatilabilir) onKapat?.();
+    }
+    document.addEventListener("keydown", tusaBasildi);
+    return () => document.removeEventListener("keydown", tusaBasildi);
+  }, [kapatilabilir, onKapat]);
+
   return (
     <div
       ref={kutu}
@@ -46,8 +59,14 @@ export default function KarakterKartlari({
       role="dialog"
       aria-modal="true"
       aria-label="Kiminle uçalım?"
-      onKeyDown={(olay) => {
-        if (olay.key === "Escape" && kapatilabilir) onKapat?.();
+      onClick={(olay) => {
+        // Tablette Escape tusu yok: bos ortuye (yani bu div'in KENDISINE,
+        // bir cocuguna degil) dokunmak da vazgecme sayilir. Sadece
+        // kapatilabilir yolda (madalyondan yeniden acilis) - ilk giriste
+        // secim zorunlu, ortu hicbir sey yapmaz. e.target === e.currentTarget
+        // kontrolu diyalogun kendi YUZEYINE (baslik, kartlar) tiklamayi
+        // kapatmadan disarida birakir.
+        if (kapatilabilir && olay.target === olay.currentTarget) onKapat?.();
       }}
     >
       <h2 className="karakterBaslik">Kiminle uçalım?</h2>

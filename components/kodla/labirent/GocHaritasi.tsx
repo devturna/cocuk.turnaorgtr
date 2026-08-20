@@ -2,7 +2,7 @@
 
 // Kursun bolum secim ekrani: Turkiye silueti ve uzerinde duraklar.
 // Tamamlanan duraklar arasina kesik cizgi bir ucus yolu cizilir.
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { BolumVerisi } from "@/lib/kodla/bolumler";
 import { kursKarakterleri, varsayilanKarakter } from "@/lib/kodla/karakterler";
@@ -44,6 +44,33 @@ export default function GocHaritasi({
   // acildiginda secim zaten var; orada vazgecmek gecerli bir cevaptir.
   const [secimZorunlu, setSecimZorunlu] = useState(false);
 
+  // Kapanis turu (review): diyalog kapaninca odak <body>'ye dusmemeli -
+  // duserse klavye kullanan cocuk belgenin basindan yeniden sekmelemek
+  // zorunda kalir. Standart sozlesme odagi CAGIRANA geri verir; madalyondan
+  // yeniden acilan yolda cagiran odur. Ilk giriste geri donulecek bir
+  // cagiran yoktur (secim karttan yapilir, madalyona hic tiklanmamistir);
+  // orada odagi ilk duraga koyuyoruz - cocugun bir sonraki dogal adimi
+  // zaten oraya gitmektir, madalyon ise yalnizca "kusu degistir" gibi
+  // ikincil bir eylemi tekrar sunar.
+  const madalyonRef = useRef<HTMLButtonElement>(null);
+  const haritaRef = useRef<HTMLDivElement>(null);
+  // Kapanisin hangi yoldan geldigini (ilk giris mi, yeniden acilis mi)
+  // asagidaki [secimAcik] etkisi calisana kadar tasir. null: henuz bir
+  // kapanis olmadi (ilk mount'ta odak tasinmamali).
+  const kapanisIlkGirisRef = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    if (secimAcik) return;
+    const ilkGiristi = kapanisIlkGirisRef.current;
+    if (ilkGiristi === null) return;
+    kapanisIlkGirisRef.current = null;
+    if (ilkGiristi) {
+      haritaRef.current?.querySelector<HTMLAnchorElement>("a.gocDuragi")?.focus();
+    } else {
+      madalyonRef.current?.focus();
+    }
+  }, [secimAcik]);
+
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setKarakter(seciliKarakter(kursId));
@@ -53,10 +80,16 @@ export default function GocHaritasi({
   }, [kursId, karakterler]);
 
   function karakteriSec(karakterId: string) {
+    kapanisIlkGirisRef.current = secimZorunlu;
     karakterSec(kursId, karakterId);
     setKarakter(seciliKarakter(kursId));
     setSecimAcik(false);
     setSecimZorunlu(false);
+  }
+
+  function secimiKapat() {
+    kapanisIlkGirisRef.current = secimZorunlu;
+    setSecimAcik(false);
   }
 
   // Ilerleme yalnizca tarayicida bulunur; sayfa sunucuda uretilirken okunamaz.
@@ -96,6 +129,7 @@ export default function GocHaritasi({
       {karakter && (
         <button
           type="button"
+          ref={madalyonRef}
           inert={secimAcik}
           className="karakterMadalyonu"
           aria-label={`Kuşu değiştir: ${karakter.ad}`}
@@ -107,7 +141,7 @@ export default function GocHaritasi({
         </button>
       )}
 
-      <div className="gocHaritasi" inert={secimAcik}>
+      <div className="gocHaritasi" ref={haritaRef} inert={secimAcik}>
         {/*
           Silueti dogrudan basiyoruz. Icerik kullanicidan gelmiyor: depoya
           commit edilmis tek bir dosya derleme aninda okunuyor. Boyama
@@ -177,7 +211,7 @@ export default function GocHaritasi({
           karakterler={karakterler}
           onSec={karakteriSec}
           kapatilabilir={!secimZorunlu}
-          onKapat={() => setSecimAcik(false)}
+          onKapat={secimiKapat}
         />
       )}
     </div>
