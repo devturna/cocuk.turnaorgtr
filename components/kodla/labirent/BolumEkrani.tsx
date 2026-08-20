@@ -34,7 +34,28 @@ import Konfeti from "./Konfeti";
 import type { TurnaPozu } from "./Simgeler";
 import "../kodla.css";
 
+// Uc zamanlama sabiti birbirine bagli ve SIRALARI onemlidir, kucukten
+// buyuge:
+//   1. kodla.css --kodla-adim-suresi (bugun 380ms) — kareler arasi CSS
+//      gecis suresi.
+//   2. POZ_SIFIRLAMA_GECIKMESI (asagida, 400ms) — carpma/inis pozunun
+//      "durus"a donme gecikmesi. Bu, CSS gecisinin/animasyonunun BITMESINI
+//      beklemek zorunda; erken donerse pozun kendi animasyonu yarida
+//      kesilir.
+//   3. ADIM_SURESI (asagida, 450ms) — bu bilesenin bir sonraki adima
+//      gectigi JS tik suresi. Bu, CSS gecisinden UZUN olmak zorunda;
+//      kisaltilirsa Turna gecis bitmeden bir sonraki kareye ISINLANIR
+//      (transform hala eski konuma dogru animasyon oynatirken React yeni
+//      --kare-x/--kare-y degerini yazar, gecis yarida kesilip yeniden
+//      baslar — akici yurume hissi bozulur).
+// Uc deger elle senkron tutuluyor (calisma zamaninda CSS degiskenini okuyup
+// eslemek yerine): React'in ilk render'i ile DOM'a yazilmis CSS custom
+// property'nin okunabilir olmasi arasinda senkron bir an yok, bu da "once
+// oku, sonra zamanlayiciyi kur" akisini kirilgan yapardi. Bu ucunu
+// DEGISTIRIRKEN sirayi (1 < 2 < 3) koruyun; kodla.css'teki degisken de
+// yanindaki yorumda bu dosyaya isaret eder.
 const ADIM_SURESI = 450;
+const POZ_SIFIRLAMA_GECIKMESI = 400;
 
 // Cocuk bu kadar sure hicbir sey yapmazsa demo sessizce tekrarlanir.
 const BOSTA_SURESI = 12000;
@@ -44,7 +65,7 @@ const BOSTA_SURESI = 12000;
  * seyin oldugunu gormeli) ama bolumu BITIRMEMELI (yoksa cocugun ilk
  * deneyimi, kendisi hic dokunmadan "kazanilmis" bir bolum olur). Komut
  * setindeki her komutu tek basina calistirip bu iki sarti saglayan ilkini
- * doner. Harita boyle bir komut sunmuyorsa (ornegin tek adimda hem yurüyup
+ * doner. Harita boyle bir komut sunmuyorsa (ornegin tek adimda hem yuruyup
  * hem bitirmeyen hicbir yon yoksa) null doner; cagiran taraf bu durumda
  * demoyu hic gostermez. Yanlis bir sey gostermek, hic gostermemekten kotu.
  */
@@ -59,6 +80,12 @@ function demoKomutuSec(seti: KomutSeti, harita: Harita): Komut | null {
 
 type Durum = {
   program: Komut[];
+  // Programdaki hangi blogun EN SON EKLENEN blok oldugu (ProgramSeridi'nin
+  // giris animasyonu icin). Konuma gore turetilmez (program.length - 1):
+  // son blogu silince onceki blok konum olarak "son" olur ama YENI EKLENMIS
+  // degildir; konuma gore turetmek geri alma sonrasi onceki bloga tekrar
+  // giris animasyonu oynatirdi.
+  sonEklenenSira: number | null;
   oynatma: { adimlar: Adim[]; sira: number } | null;
   vurgulanan: number | null;
   turna: { x: number; y: number; bakis: Yon };
@@ -93,6 +120,7 @@ export default function BolumEkrani({
 
   const [durum, setDurum] = useState<Durum>({
     program: [],
+    sonEklenenSira: null,
     oynatma: null,
     vurgulanan: null,
     turna: baslangicTurna,
@@ -101,7 +129,7 @@ export default function BolumEkrani({
     bitti: null,
   });
 
-  // Demo yalnizca ilk durakta ve ilk girişte oynar. Sahte animasyon degil:
+  // Demo yalnizca ilk durakta ve ilk giriste oynar. Sahte animasyon degil:
   // gercek arayuzu surer, cocuk tam olarak kendi yapacagi seyi gorur.
   // Ucuncu asama ("izliyor"), demo'nun kendi kosusunun bitmesini bekler ki
   // kontrol cocuga temiz bir tahtayla gecsin.
@@ -110,10 +138,15 @@ export default function BolumEkrani({
   useEffect(() => {
     if (ilkDurakDegil) return;
     if (demoGosterildiMi()) return;
-    demoGosterildi();
     // Haritada tek adimda hem yuruyup hem bitirmeyen bir komut yoksa
-    // (demoKomut null) demo yaniltici olurdu; sessizce atlanir.
+    // (demoKomut null) demo yaniltici olurdu; sessizce atlanir. Bayrak
+    // BUNDAN SONRA yazilir, once degil: bayrak tek bir global anahtar
+    // (kodla:demo), kursa gore ayrilmaz. Once yazip sonra cikarsak, ilk
+    // duragi gecerli bir demo komutu sunmayan bir kurs, bayragi kalici
+    // olarak "gosterildi" isaretler ve demo baska hicbir kursta bir daha
+    // hic oynamaz.
     if (demoKomut === null) return;
+    demoGosterildi();
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDemo("yon");
   }, [ilkDurakDegil, demoKomut]);
@@ -179,12 +212,20 @@ export default function BolumEkrani({
     if (durum.poz === "durus") return;
     const zamanlayici = setTimeout(() => {
       setDurum((onceki) => ({ ...onceki, poz: "durus" }));
-    }, 400);
+    }, POZ_SIFIRLAMA_GECIKMESI);
     return () => clearTimeout(zamanlayici);
   }, [durum.oynatma, durum.bitti, durum.poz]);
 
   function blokEklendi(komut: Komut) {
-    setDurum((onceki) => ({ ...onceki, program: blokEkle(onceki.program, komut) }));
+    setDurum((onceki) => {
+      const program = blokEkle(onceki.program, komut);
+      // Serit doluysa (EN_FAZLA_BLOK) blokEkle hicbir sey eklemez; boyle bir
+      // durumda "yeni" isaretini de degistirmiyoruz, cunku gercekten yeni
+      // bir blok yok.
+      const sonEklenenSira =
+        program.length > onceki.program.length ? program.length - 1 : onceki.sonEklenenSira;
+      return { ...onceki, program, sonEklenenSira };
+    });
   }
 
   function bastanBasla() {
@@ -227,10 +268,10 @@ export default function BolumEkrani({
       // bosta-tekrar etkilerinde demoKomut !== null iken "yon" yapilir.
       const secilenKomut = demoKomut!;
       const zamanlayici = setTimeout(() => {
-        setDurum((onceki) => ({
-          ...onceki,
-          program: blokEkle(onceki.program, secilenKomut),
-        }));
+        setDurum((onceki) => {
+          const program = blokEkle(onceki.program, secilenKomut);
+          return { ...onceki, program, sonEklenenSira: program.length - 1 };
+        });
         setDemo("calistir");
       }, 1400);
       return () => clearTimeout(zamanlayici);
@@ -253,6 +294,7 @@ export default function BolumEkrani({
     setDurum((onceki) => ({
       ...onceki,
       program: programiTemizle(),
+      sonEklenenSira: null,
       turna: baslangicTurna,
       poz: "durus",
       toplananlar: [],
@@ -306,21 +348,20 @@ export default function BolumEkrani({
         />
       </div>
 
-      <ProgramSeridi program={durum.program} vurgulanan={durum.vurgulanan} />
+      <ProgramSeridi
+        program={durum.program}
+        vurgulanan={durum.vurgulanan}
+        sonEklenenSira={durum.sonEklenenSira}
+      />
 
       <div className="bolumAltBar">
-        <div
-          className={`komutPaletiSarmalayici${
-            !calisiyor && demo === null && durum.program.length === 0 ? " nabiz" : ""
-          }`}
-        >
-          <KomutPaleti
-            seti={bolum.komutSeti}
-            kilitli={calisiyor || demo !== null}
-            onEkle={blokEklendi}
-            hayalet={demo === "yon" && demoKomut !== null ? komutAnahtari(demoKomut) : null}
-          />
-        </div>
+        <KomutPaleti
+          seti={bolum.komutSeti}
+          kilitli={calisiyor || demo !== null}
+          onEkle={blokEklendi}
+          hayalet={demo === "yon" && demoKomut !== null ? komutAnahtari(demoKomut) : null}
+          nabiz={!calisiyor && demo === null && durum.program.length === 0}
+        />
 
         <div className="bolumKontrolleri">
           <button
@@ -328,7 +369,9 @@ export default function BolumEkrani({
             className="kodlaYardimciDugme"
             aria-label="Son bloğu sil"
             disabled={calisiyor || durum.program.length === 0}
-            onClick={() => setDurum((o) => ({ ...o, program: sonBlokuSil(o.program) }))}
+            onClick={() =>
+              setDurum((o) => ({ ...o, program: sonBlokuSil(o.program), sonEklenenSira: null }))
+            }
           >
             <span aria-hidden="true">↩</span>
           </button>
@@ -337,7 +380,9 @@ export default function BolumEkrani({
             className="kodlaYardimciDugme"
             aria-label="Hepsini temizle"
             disabled={calisiyor || durum.program.length === 0}
-            onClick={() => setDurum((o) => ({ ...o, program: programiTemizle() }))}
+            onClick={() =>
+              setDurum((o) => ({ ...o, program: programiTemizle(), sonEklenenSira: null }))
+            }
           >
             <span aria-hidden="true">🗑</span>
           </button>

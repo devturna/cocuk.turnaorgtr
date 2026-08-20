@@ -56,7 +56,7 @@ belirgin biçimde daha iyi bir deneyim.
 | Faz | Kapsam | Durum |
 |---|---|---|
 | 4a | Kurs katmanı, göç haritası, labirent motoru, mutlak yönler, ilk beş durak | Tamamlandı |
-| 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, sessiz demo | Geliştiriliyor |
+| 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, sessiz demo, tek adımlık öğretici ilk durak | Tamamlandı (altı durak yayında) |
 | 4c | Döngü: üç aşamalı öğretim ve döngü durakları | Planlanıyor |
 | 4d | Ses katmanı | Planlanıyor |
 | 4e | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) | Planlanıyor |

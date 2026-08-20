@@ -31,7 +31,7 @@ test("demo bolumu cocuk adina kazanmaz, kosu bitince tahta tertemiz sifirlanir",
   await ilkPaletDugmesi.click({ force: true });
   await expect(page.locator(".programBloku")).toHaveCount(1);
 
-  // Demo kendi kosusunu calistirir; kosu bitince kontrol cocuga geçer ve
+  // Demo kendi kosusunu calistirir; kosu bitince kontrol cocuga gecer ve
   // tahta (program dahil) sifirlanir.
   await expect(page.locator(".programBloku")).toHaveCount(0, { timeout: 6000 });
 
@@ -43,7 +43,7 @@ test("demo bolumu cocuk adina kazanmaz, kosu bitince tahta tertemiz sifirlanir",
   );
   expect(ilerleme[KURS]?.[bolum.id]).toBeUndefined();
 
-  // Kontrol gercekten cocuga geçer: palet ve (program bos oldugu icin
+  // Kontrol gercekten cocuga gecer: palet ve (program bos oldugu icin
   // devre disi ama artik KILITLI degil) calistir dugmesi tekrar
   // kullanilabilir durumda.
   await expect(

@@ -210,8 +210,10 @@ döner ama bu bir komut değil, yalnızca animasyondur.
 
 `tema` alanı engelin ve zeminin neye benzeyeceğini seçer: Sultansazlığı'nda
 sazlık, Kapadokya'da peribacası, Ağrı'da kaya. Aynı motor, farklı görsel.
-Durak konumdan, tema görselden sorumludur; ikisi ayrı alan olduğu için on beş
-bölüm yedi takım çizimle karşılanır.
+Durak konumdan, tema görselden sorumludur; ikisi ayrı alan olduğu için
+planlanan (bkz. §8) on beş bölüm yedi takım çizimle karşılanabilir —
+bugün yayında olan altı bölüm de aynı yedi takımın bir alt kümesini
+kullanır.
 
 ## 6. Çalıştırma motoru
 
@@ -331,6 +333,15 @@ Boyama bölümünden gelen kurallar burada da geçerlidir, biri sıkılaştırı
 
 ## 8. İçerik: Turna'nın göç yolu
 
+> **Not (20 Ağustos 2026):** Aşağıdaki on beş duraklık tablo rotanın
+> NİHAİ HEDEFİDİR, bugünün durumu değil. Faz 4b itibarıyla yayında olan
+> rota yalnızca **altı** duraktır — bu tablodaki ilk beşi (Sultansazlığı,
+> Kapadokya, Tuz Gölü, Pamukkale, Efes) ve başlarına eklenen tek adımlık
+> öğretici durak Göksu Deltası'nı (bkz.
+> [kodlama-arayuz.md](kodlama-arayuz.md) §7) kapsar. Kalan dokuz durak
+> (Salda Gölü'nden itibaren) sonraki fazlarda (4c, 4d) eklenir; güncel
+> durum için [yol haritası](../yol-haritasi.md)'na bakın.
+
 Göç haritası ekranında Türkiye silueti ve üstünde duraklar bulunur.
 Tamamlanan duraklar arasında kesik çizgi bir uçuş yolu çizilir; çocuk
 ilerledikçe Turna'nın yolu haritada belirir. Durak konumları bölüm
@@ -358,8 +369,10 @@ Rota güneybatıdan kuzeydoğuya, gerçek turna göçünü izleyerek yuvaya var�
 
 Yedi tema kullanılır: `sazlik`, `peribacasi`, `beyaz`, `antiktas`, `su`,
 `kaya`, `cayir`. `beyaz` teması tuz, traverten, beyaz kum ve karı birlikte
-karşılar; aralarındaki fark zemin renginin tonundadır. On beş bölüm böylece
-yedi takım çizimle karşılanır.
+karşılar; aralarındaki fark zemin renginin tonundadır. Rota tamamlanınca
+(bkz. yukarıdaki not) on beş bölüm böylece yedi takım çizimle karşılanmış
+olacak; bugün yayında olan altı bölüm zaten bu yedi takımın bir alt
+kümesini kullanıyor.
 
 ### Zorluk eğrisi
 
@@ -450,11 +463,17 @@ Ayrıca harita bütünlüğü denetlenir: bütün satırlar eşit uzunlukta mı,
 yıldızın verildiğini doğrular. `e2e/tum-resimler.spec.ts` kalıbının aynısıdır:
 yeni bir bölüm eklendiğinde test onu otomatik kapsar.
 
-> **Not (19 Ağustos 2026):** Bu belgenin 7. bölümündeki arayüz tasarımı ve
-> 11. bölümündeki 4b-4d fazları
-> [kodlama-arayuz.md](kodlama-arayuz.md) ile değiştirilmiştir. Motor, veri
-> modeli, içerik ve denetim bölümleri geçerliliğini korur. Göç yolu, ilk
-> durağın tek adımlık öğretici bölüme ayrılmasıyla on altı durağa çıkar.
+> **Not (19 Ağustos 2026, 20 Ağustos 2026'da düzeltildi):** Bu belgenin 7.
+> bölümündeki arayüz tasarımı ve 11. bölümündeki 4b-4d fazları
+> [kodlama-arayuz.md](kodlama-arayuz.md) ile değiştirilmiştir. Motor ve
+> veri modeli bölümleri geçerliliğini korur. 8. bölümdeki (İçerik) on beş
+> duraklık rota tablosu ise bugünün durumu değil, ilerideki fazlar için
+> bir HEDEFTİR (bkz. o bölümün başındaki not) — Faz 4b'de yayında olan
+> rota **altı** duraktır. İlk yazım burada "göç yolu, ilk durağın tek
+> adımlık öğretici bölüme ayrılmasıyla on altı durağa çıkar" diyordu; bu
+> yanlıştı, çünkü henüz gerçekleşmemiş on beş duraklık hedefe "+1"
+> uyguluyordu (bkz. [kodlama-arayuz.md](kodlama-arayuz.md) §7'deki
+> düzeltme).
 
 ## 11. Fazlar
 

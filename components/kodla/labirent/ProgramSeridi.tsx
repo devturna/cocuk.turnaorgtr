@@ -9,15 +9,20 @@ import { KOMUT_ADLARI, KOMUT_IKONLARI } from "./komutGorunumu";
 export default function ProgramSeridi({
   program,
   vurgulanan,
+  sonEklenenSira,
 }: {
   program: Komut[];
   vurgulanan: number | null;
+  // Konuma gore (program.length - 1) TURETILMEZ: son blok silinince onceki
+  // blok konum olarak "son" olur ama yeni eklenmis degildir. Cagiran taraf
+  // gercekten eklenen blogun sirasini izler (bkz. BolumEkrani.tsx).
+  sonEklenenSira: number | null;
 }) {
   return (
     <div className="programSeridi" role="list" aria-label="Program">
       {program.map((komut, sira) => {
         const anahtar = komutAnahtari(komut);
-        const sonEklenen = sira === program.length - 1;
+        const sonEklenen = sira === sonEklenenSira;
         return (
           <span
             key={`${sira}-${anahtar}`}

@@ -110,6 +110,41 @@ test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page
   expect(beklenenCarpma).toBeGreaterThan(0);
   await expect(page.locator(".kodlaYolParcasi")).toHaveCount(beklenen.length);
   await expect(page.locator(".kodlaYolParcasi.carpma")).toHaveCount(beklenenCarpma);
+
+  // Sayim tek basina yeterli degil: dogru sayida ama yanlis yerde ok cizen
+  // bir regresyon da bu noktaya kadar gecerdi. Ilk parcanin GEOMETRISINI de
+  // dogruluyoruz: Sahne.tsx'teki ayni cizim formulunu (KARE=100 birim,
+  // carpma icin orta nokta + yon basina %32'lik kisa cizgi) burada
+  // BAGIMSIZCA yeniden hesaplayip DOM'daki gercek x1/y1/x2/y2 ile
+  // karsilastiriyoruz.
+  const ilkParca = beklenen[0];
+  const KARE = 100;
+  const beklenenKoordinat =
+    ilkParca.tur === "carpma"
+      ? (() => {
+          const orta = { x: ilkParca.kare.x * KARE + 50, y: ilkParca.kare.y * KARE + 50 };
+          const uc = KARE * 0.32;
+          return {
+            x1: orta.x,
+            y1: orta.y,
+            x2: orta.x + (ilkParca.yon === "sag" ? uc : ilkParca.yon === "sol" ? -uc : 0),
+            y2: orta.y + (ilkParca.yon === "asagi" ? uc : ilkParca.yon === "yukari" ? -uc : 0),
+          };
+        })()
+      : {
+          x1: ilkParca.baslangic.x * KARE + 50,
+          y1: ilkParca.baslangic.y * KARE + 50,
+          x2: ilkParca.bitis.x * KARE + 50,
+          y2: ilkParca.bitis.y * KARE + 50,
+        };
+
+  const gercekKoordinat = await page.locator(".kodlaYolParcasi").first().evaluate((oge) => ({
+    x1: Number(oge.getAttribute("x1")),
+    y1: Number(oge.getAttribute("y1")),
+    x2: Number(oge.getAttribute("x2")),
+    y2: Number(oge.getAttribute("y2")),
+  }));
+  expect(gercekKoordinat).toEqual(beklenenKoordinat);
 });
 
 test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
@@ -121,7 +156,19 @@ test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
   await expect(page.locator(".kodlaYolParcasi")).toHaveCount(1);
 });
 
-test("prefers-reduced-motion acikken gecis ve animasyon yok", async ({ browser }) => {
+// Onceki surum yalnizca .kodlaTurna'yi orneklerdi: kodla.css'teki
+// prefers-reduced-motion blogunda BUNUN disinda on bes ayri sinif/durum
+// daha var, ve bu fazda tam olarak orada dort ayri CSS ozgulluk hatasi
+// bulundu. Tek bir secici, sonrakinin de yakalanacagini garanti etmez; bu
+// yuzden burada kod.css'teki reduced-motion kurallarinin ETKILEDIGI HER
+// sinifi tek tek denetliyoruz. Bazi durumlar (poz-adim, poz-carpma, .dolu,
+// .programBloku.yeni, kutlama) yalnizca oyun surerken var olur; bu yuzden
+// test bir program kurup calistiriyor ve kazaniyor. Ulasilamayanlar test
+// sonunda ayrica belgeleniyor.
+test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda gecis ve animasyon yok", async ({
+  browser,
+}) => {
+  test.setTimeout(30000);
   const baglam = await browser.newContext({ reducedMotion: "reduce" });
   const sayfa = await baglam.newPage();
   await sayfa.addInitScript(() => {
@@ -131,15 +178,94 @@ test("prefers-reduced-motion acikken gecis ve animasyon yok", async ({ browser }
       // yok sayilir
     }
   });
-  await sayfa.goto(`/kodla/${KURS}/sultansazligi/`);
 
-  const turna = sayfa.locator(".kodlaTurna");
-  const stil = await turna.evaluate((oge) => {
-    const hesap = getComputedStyle(oge);
-    return { gecis: hesap.transitionDuration, animasyon: hesap.animationName };
-  });
-  expect(stil.gecis).toBe("0s");
-  expect(stil.animasyon).toBe("none");
+  // Efes hem toplanacak bir basak ("o") hem T'nin hemen saginda bir engel
+  // ("#") barindirir: tek bolumde hem carpma hem basak-toplama/kazanma
+  // durumlarina ulasilabiliyor.
+  const bolum = BOLUMLER.find((b) => b.id === "efes")!;
+  await sayfa.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  /** transitionDuration/animationName'i bir secici DOM'da BELIRIR belirmez
+   * (ayni tarayici tikinde) yakalar; ayri bir "bul, sonra oku" adimi state
+   * gecici oldugunda (orn. poz-carpma ~400ms surer) yarisamayi onler. */
+  async function anlikYakala(
+    secici: string,
+  ): Promise<{ gecis: string; animasyon: string; goruntu: string }> {
+    const tutamac = await sayfa.waitForFunction(
+      (sec) => {
+        const el = document.querySelector(sec);
+        if (!el) return null;
+        const s = getComputedStyle(el);
+        return { gecis: s.transitionDuration, animasyon: s.animationName, goruntu: s.display };
+      },
+      secici,
+      { timeout: 5000 },
+    );
+    // waitForFunction yalnizca predicate DOGRUYSA (null degilse) cozulur;
+    // bu noktada deger asla null degildir.
+    const deger = await tutamac.jsonValue();
+    return deger as { gecis: string; animasyon: string; goruntu: string };
+  }
+
+  function gecisYok(deger: { gecis: string }, secici: string) {
+    expect(deger.gecis, secici).toBe("0s");
+  }
+  function animasyonYok(deger: { animasyon: string }, secici: string) {
+    expect(deger.animasyon, secici).toBe("none");
+  }
+
+  // --- Kosuya gerek olmadan, sayfa acilir acilmaz erisilebilen durumlar ---
+  animasyonYok(await anlikYakala(".kodlaTurna"), ".kodlaTurna (animation)");
+  gecisYok(await anlikYakala(".kodlaTurna"), ".kodlaTurna (transition)");
+  // Baslangic hali zaten "bekliyor" + "poz-durus": kosu gerekmez.
+  animasyonYok(
+    await anlikYakala(".kodlaTurna.bekliyor.poz-durus"),
+    ".kodlaTurna.bekliyor.poz-durus",
+  );
+  gecisYok(await anlikYakala(".kodlaBasak"), ".kodlaBasak");
+  animasyonYok(await anlikYakala(".kodlaYuva"), ".kodlaYuva");
+  animasyonYok(await anlikYakala(".komutPaleti.nabiz"), ".komutPaleti.nabiz (program bos)");
+  for (const sec of [".komutDugmesi", ".kodlaYardimciDugme", ".calistirDugmesi"]) {
+    gecisYok(await anlikYakala(sec), sec);
+  }
+
+  // --- Carpma: tek bir komutla duvara surulmesini tetikler ---
+  await programiDiz(sayfa, ["git:sag"]);
+  animasyonYok(await anlikYakala(".kodlaYolParcasi"), ".kodlaYolParcasi");
+  await sayfa.getByRole("button", { name: "Çalıştır" }).click();
+  animasyonYok(await anlikYakala(".kodlaTurna.poz-carpma"), ".kodlaTurna.poz-carpma");
+  animasyonYok(await anlikYakala(".kodlaToz"), ".kodlaToz");
+
+  // Tahtayi kazanma denemesi icin sifirla.
+  await sayfa.getByRole("button", { name: "Turna'yı başa al" }).click();
+  await sayfa.getByRole("button", { name: "Hepsini temizle" }).click();
+  await expect(sayfa.locator(".programBloku")).toHaveCount(0);
+
+  // --- Kazanma: en kisa cozumle calistirip altin yildiz + kutlamaya ulas ---
+  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  await programiDiz(sayfa, yol.map(komutAnahtari));
+  const programBlokuDeger = await anlikYakala(".programBloku.yeni");
+  animasyonYok(programBlokuDeger, ".programBloku.yeni (animation)");
+  gecisYok(programBlokuDeger, ".programBloku.yeni (transition)");
+  animasyonYok(await anlikYakala(".calistirDugmesi.nabiz"), ".calistirDugmesi.nabiz (program dolu)");
+
+  await sayfa.getByRole("button", { name: "Çalıştır" }).click();
+  animasyonYok(await anlikYakala(".kodlaTurna.poz-adim"), ".kodlaTurna.poz-adim");
+  await expect(sayfa.getByText("Harika! En kısa yol!")).toBeVisible({ timeout: 15000 });
+
+  animasyonYok(await anlikYakala(".kodlaYuva.dolu"), ".kodlaYuva.dolu");
+  animasyonYok(await anlikYakala(".kodlaKutlamaYildiz.altin"), ".kodlaKutlamaYildiz.altin");
+  const konfeti = await anlikYakala(".kodlaKonfeti");
+  expect(konfeti.goruntu, ".kodlaKonfeti (display)").toBe("none");
+
+  // --- Bu testte ULASILAMAYAN reduced-motion bildirimleri ---
+  // .komutDugmesi.hayaletli::after, .calistirDugmesi.hayaletli::after:
+  // yalnizca sessiz demo surerken var olurlar; bu dosyadaki beforeEach
+  // demoyu KASITLI kapatir (diger testlerin kararli kalmasi icin, bkz.
+  // dosya basindaki yorum), demo'nun kendisi e2e/kodla-demo.spec.ts'te
+  // ayrica test edilir ama o dosya reducedMotion baglami kurmaz. Bu ikisi
+  // bu haliyle hicbir e2e testinde "reduced motion + hayalet" birlikte
+  // denetlenmiyor.
 
   await baglam.close();
 });

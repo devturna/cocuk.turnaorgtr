@@ -220,9 +220,11 @@ Oyun ekranının tasarım gerekçeleri ayrı belgede:
 | Dosya | Sorumluluk |
 |---|---|
 | `lib/kodla/labirent/onizleme.ts` | Programı haritaya çizilecek yol parçalarına çevirir |
+| `components/kodla/labirent/BolumEkrani.tsx` | Bölümü birleştiren kabuk: durum, oynatma döngüsü, demo, zamanlama sabitleri |
 | `components/kodla/labirent/Sahne.tsx` | Kareler, yol, Turna, toz, yuva |
 | `components/kodla/labirent/Simgeler.tsx` | Poz tabanlı çizim sözleşmesi |
 | `components/kodla/labirent/KomutPaleti.tsx` | Artı düzeninde komut düğmeleri |
+| `components/kodla/labirent/ProgramSeridi.tsx` | Çocuğun dizdiği bloklar: programın yapısı, ekleme/silme animasyonu |
 | `components/kodla/labirent/Konfeti.tsx` | Kutlama parçacıkları |
 
 ### Önizleme ile çalıştırma neden ayrışamaz?
@@ -240,8 +242,15 @@ SVG'nin `transform` **niteliği** CSS geçişiyle canlandırılamaz, CSS
 `--kare-x` / `--kare-y` özel değişkenleriyle veriliyor ve geçişi CSS
 yapıyor. Getirisi: ara kareleri tarayıcı üretir, React hiç render etmez.
 
-Bütün süreler `kodla.css`'teki oyun ekranı bölümünün başındaki
-değişkenlerde durur; "yürüme hızını değiştir" tek satırdır.
+Kareler arası geçiş süresi `kodla.css`'teki `--kodla-adim-suresi`
+değişkeninde durur, ama bu değeri tek başına değiştirmek "yürüme hızını
+değiştir"in tek satırlık bir işi olduğu anlamına gelmez — üç zamanlama
+sabiti birbirine bağlıdır ve sırayla küçükten büyüğe durmalıdır: CSS geçiş
+süresi < `BolumEkrani.tsx`'teki `POZ_SIFIRLAMA_GECIKMESI` (poz sıfırlama
+gecikmesi) < aynı dosyadaki `ADIM_SURESI` (bir sonraki adıma geçilen JS
+tik süresi). CSS geçişini JS tikinden uzun yaparsanız Turna geçişini
+bitirmeden bir sonraki kareye ışınlanır. Üçü de `BolumEkrani.tsx`'in
+başındaki yorumda anlatılır ve birlikte güncellenmelidir.
 
 ### Turna'nın çizimi nasıl değiştirilir?
 

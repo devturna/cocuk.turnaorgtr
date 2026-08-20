@@ -57,9 +57,10 @@ Bütün satırlar aynı uzunlukta olmalı.
   none }` sayesinde asla dokunmayı yutmaz, açık/tamamlanmış duraklar
   arasında da `GocHaritasi.tsx` her durağa açıkça bir `z-index` verir. Faz
   4a'da aynı anda yalnızca tek durak açık olduğu için bu her zaman
-  yeterlidir. Faz 4c'de on beş durağa çıkılınca ve aynı bölgede birden
-  fazla durak açılabilir hale gelince muhtemelen **kılavuz çizgi** (leader
-  line) gerekecek: işaret gerçek noktasından hafifçe kaydırılıp kısa bir
+  yeterlidir. İlerideki fazlarda durak sayısı arttıkça (nihai hedef için
+  bkz. [kodlama.md](tasarim/kodlama.md) §8) ve aynı bölgede birden fazla
+  durak açılabilir hale gelince muhtemelen **kılavuz çizgi** (leader line)
+  gerekecek: işaret gerçek noktasından hafifçe kaydırılıp kısa bir
   çizgiyle asıl noktaya bağlanır. O zaman bile koordinatın kendisi
   değişmez, yalnızca çizimi kaydırılır.
 - `harita.bakis`: `yukari`, `asagi`, `sol` veya `sag` olmalı.

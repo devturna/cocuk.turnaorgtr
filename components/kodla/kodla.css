@@ -88,7 +88,7 @@
 
 .gocDuragi.bitti { background: var(--vurgu); }
 
-/* Kilitli bir durak asla dokunmayi yutmaz: gercek koordinatlar aynı bolgede
+/* Kilitli bir durak asla dokunmayi yutmaz: gercek koordinatlar ayni bolgede
    yakin duraklari gorsel olarak ust uste getirebilir (bkz.
    docs/kodlama-bolumu-hazirlama.md), ama Faz 4a'da her an tek durak acik
    oldugu icin bu, dokunulabilir hedefi belirsizlestirmez. Acik/tamamlanmis
@@ -101,7 +101,14 @@
 }
 
 /* --- Hareket katmani ---
-   Butun sureler burada. "Yurume hizini degistir" tek satirdir. */
+   --kodla-adim-suresi, components/kodla/labirent/BolumEkrani.tsx'teki
+   ADIM_SURESI (450ms) ve POZ_SIFIRLAMA_GECIKMESI (400ms) ile SIRALI bir
+   uclu olusturur: bu deger < POZ_SIFIRLAMA_GECIKMESI < ADIM_SURESI olmali.
+   "Yurume hizini degistir tek satirdir" DOGRU DEGIL: bu degeri tek basina
+   buyutmek (ornegin 800ms'e) Turna'nin gecisini bir sonraki JS tikinden
+   once bitirmemesine yol acar, Turna kareler arasinda ISINLANIR gibi
+   gorunur. Uc degeri birlikte, BolumEkrani.tsx'teki yorumdaki siraya gore
+   guncelleyin. */
 :root {
   --kodla-adim-suresi: 380ms;
   --kodla-basma-suresi: 80ms;
@@ -118,7 +125,7 @@
   transform-origin: center;
 }
 
-/* Karaya inisteki ezilme-yaylanma: Turna'yi surüklenen bir resim olmaktan
+/* Karaya inisteki ezilme-yaylanma: Turna'yi suruklenen bir resim olmaktan
    cikarip yuruyen bir kusa ceviren tek detay. */
 .kodlaTurna.poz-adim {
   animation: kodlaYaylan var(--kodla-adim-suresi) ease-out;
@@ -140,14 +147,16 @@
   50% { scale: 1 1.03; }
 }
 
-/* Carpma: duvara dogru gidip geri gelme. Kirmizi yok, unlem yok. */
+/* Carpma: duvara dogru gidip geri gelme. Kirmizi yok, unlem yok.
+   --carp-x/--carp-y (Sahne.tsx, Turna'nin bakis yonunden turetilir) hangi
+   duvara carpildigini soyler; buyukluk (14px) sabit kalir, yon degisir. */
 .kodlaTurna.poz-carpma {
   animation: kodlaCarp 250ms ease-out;
 }
 
 @keyframes kodlaCarp {
   0% { translate: 0 0; }
-  40% { translate: 14px 0; }
+  40% { translate: calc(var(--carp-x) * 14px) calc(var(--carp-y) * 14px); }
   100% { translate: 0 0; }
 }
 
@@ -309,6 +318,7 @@
   border-radius: 12px;
   background: #fff;
   font-size: 26px;
+  transition: scale 140ms ease-out, background-color 140ms ease-out;
 }
 
 .programBloku.calisiyor {
@@ -316,7 +326,7 @@
   scale: 1.12;
 }
 
-/* Eklenen kutu paletten cubuga uçuyormus gibi girer: her dokunusun
+/* Eklenen kutu paletten cubuga ucuyormus gibi girer: her dokunusun
    haritada ve cubukta olmak uzere iki karsiligi olsun diye. */
 .programBloku.yeni {
   animation: kodlaKutuGel 220ms ease-out;
@@ -325,10 +335,6 @@
 @keyframes kodlaKutuGel {
   0% { opacity: 0; translate: 0 26px; scale: 0.7; }
   100% { opacity: 1; translate: 0 0; scale: 1; }
-}
-
-.programBloku {
-  transition: scale 140ms ease-out, background-color 140ms ease-out;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -436,6 +442,11 @@
 .kodlaKonfeti {
   position: fixed;
   inset: 0;
+  /* .kodlaKutlama'nin z-index'i 10: bu deger onun ustunde durmali, yoksa
+     konfeti %45 karartilmis perdenin ARKASINDAN gorunur (bu fazin en
+     gorunur ogesi soluklasir). pointer-events: none korunuyor: kutlama
+     katmanindaki baglantilar (Sonraki durak) dokunulabilir kalmali. */
+  z-index: 11;
   overflow: hidden;
   pointer-events: none;
 }

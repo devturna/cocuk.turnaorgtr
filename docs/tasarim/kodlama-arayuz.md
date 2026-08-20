@@ -146,10 +146,21 @@ Bütün hareket CSS'te tanımlıdır; süreler tek dosyada durur.
 | Yürürken | Kanat çırpma keyframe döngüsü, hareket bitince durur |
 | Kareye iniş | Hafif ezilme-yaylanma |
 | Beklerken | Çok yavaş alçalıp yükselme (nefes) |
-| Dönme | Geçişli, ani değil |
+| Dönme | Anında (bkz. not) |
 
 Ezilme-yaylanma tek başına karakteri "sürüklenen resim" olmaktan çıkarıp
 "yürüyen kuş" yapan detaydır.
+
+**Düzeltme (19 Ağustos 2026):** Bu satır ilk yazımda "Geçişli, ani değil"
+diyordu; bu, §8'deki varlık sözleşmesiyle çelişiyordu. Sol bakış, ayrı bir
+çizim yerine SAĞ pozun `scale(-1 1)` ile AYNALANMASIYLA elde ediliyor
+(bkz. §8, ve `Simgeler.tsx`'teki `YON_DONUSUMU`); bir aynalama CSS
+`transition` ile ara karelere bölünüp yumuşatılamaz (ara değerler
+anlamsız, yamuk bir kuş üretir), yalnızca anında uygulanabilir. Uygulama
+§8'i izleyerek doğru olanı yaptı; bu satır onu yansıtacak şekilde
+düzeltildi. Turna'nın yürüdüğü yöne dönmesi zaten bir komut değil, o
+karedeki pozun (yön ve adım) doğrudan seçilmesidir — dönen ayrı bir
+varlık değil, aynalanmış/döndürülmüş aynı Turna'dır.
 
 ### Diğer olaylar
 
@@ -185,9 +196,13 @@ okunur.
 
 Hedef kitle okumuyor. Yönerge metni yazmak çözüm değildir; göstermek çözümdür.
 
-- **İlk girişte sessiz demo:** hayalet bir parmak ➡'ye dokunur, haritada ok
-  çizilir, ▶'ye dokunur, Turna bir kare yürür. Her şey başa döner ve kontrol
-  çocuğa geçer. Yaklaşık altı saniye, tek kelime yok.
+- **İlk girişte sessiz demo:** hayalet bir parmak bir yön düğmesine dokunur,
+  haritada ok çizilir, ▶'ye dokunur, Turna bir kare yürür. Her şey başa
+  döner ve kontrol çocuğa geçer. Yaklaşık altı saniye, tek kelime yok.
+  **Hangi yön?** İlk yazımda burada sabit olarak ➡ yazıyordu; bu yanlıştı
+  (bkz. "Demo, öğretici duraktaki tek komutu neden bitirmiyor" altında).
+  Demo, Turna'yı GÖRÜLEBİLİR şekilde yürüten ama bölümü BİTİRMEYEN bir yön
+  seçer; öğretici durakta bu, hedefe giden yön DEĞİLDİR.
 - **Takılırsa tekrar:** 12 saniye hareketsizlikte demo sessizce bir daha
   oynar. Uyarı değil, hatırlatma.
 - **Yardım eden nabız atar:** program boşken D-pad, doluyken ▶ hafifçe nabız
@@ -197,10 +212,42 @@ Hedef kitle okumuyor. Yönerge metni yazmak çözüm değildir; göstermek çöz
 ### İlk durak feda edilir
 
 Mevcut ilk durak üç adımlıktır; öğretici bir bölüm için bu bile fazladır.
-İlk durak **tek adıma** iner: bir kez ➡, bir kez ▶, biter. Çocuğun ilk
-deneyimi "başardım" olmalıdır, "denedim" değil.
+İlk durak **tek adıma** iner: yeni bir öğretici durak (Göksu Deltası)
+baştan eklenir, Turna'yı bir tek yön komutuyla yuvaya götürür. Mevcut üç
+adımlık bölüm (Sultansazlığı) ikinci sıraya kayar. Çocuğun ilk deneyimi
+"başardım" olmalıdır, "denedim" değil.
 
-Mevcut üç adımlık bölüm ikinci sıraya kayar; göç yolu on altı durak olur.
+Bu, o an yayında olan durak sayısını bire çıkarır (beşten altıya, Faz 4a'nın
+ilk beş durağının başına eklenerek).
+
+**Düzeltme (19 Ağustos 2026):** Bu bölümün ilk yazımı "mevcut üç adımlık
+bölüm ikinci sıraya kayar; göç yolu on altı durak olur" diyordu. Bu
+yanlıştı ve yanlışlığın kaynağı bu belgedir, uygulama değil:
+[kodlama.md](kodlama.md) §8'deki on beş duraklık tablo henüz
+gerçekleşmemiş bir NİHAİ HEDEFTİR (bkz. o belgedeki not); "+1" hesabı bu
+henüz-var-olmayan sayıya uygulanmış, o hedefin bugünün durumu olmadığı
+gözden kaçırılmıştı. Doğrusu: Faz 4b'de yayında olan rota **altı**
+duraktır.
+
+### Demo, öğretici duraktaki tek komutu neden bitirmiyor
+
+§ boyunca "hayalet bir parmak ➡'ye dokunur ... Turna bir kare yürür" diye
+anlatılan demo, ilk yazımda kelimenin tam anlamıyla ➡ tuşuna basıyordu.
+Ama Göksu Deltası'nda Turna sağa bakarak başlar ve yuva tam bir kare
+sağındadır (bkz. `goksu-deltasi` haritası: `.T H` aynı satırda, `bakis:
+"sag"`); bölümün tek adımlık çözümü tam olarak `git:sag`'dır. Demo ➡'ye
+(yani `git:sag`'a) dokunsaydı, kendisi Turna'yı yuvaya ulaştırıp bölümü
+çocuk adına bitirirdi — bu da bu maddenin kendi hedefiyle ("çocuğun ilk
+deneyimi 'başardım' olmalı, kendisi hiç dokunmadan değil") doğrudan
+çelişirdi.
+
+Uygulama bunu doğru çözdü: `BolumEkrani.tsx`'teki `demoKomutuSec()`,
+komut setindeki her komutu tek başına deneyip Turna'yı GÖRÜLEBİLİR şekilde
+yürüten ama bölümü BİTİRMEYEN ilkini seçer (Göksu Deltası'nda bu, ➡ değil,
+yürüyüp boş bir kareye giden başka bir yön olur). Böyle bir komut yoksa
+demo hiç gösterilmez. Bu belge o davranışı anlatacak şekilde
+düzeltilmiştir; yukarıdaki "İlk girişte sessiz demo" maddesi belirli bir
+tuşu (➡) değil, bu seçim kuralını tarif eder.
 
 ## 8. Varlık sözleşmesi
 
@@ -268,8 +315,8 @@ Yol haritasındaki 4b-4d bu belgeyle değişir.
 
 | Faz | Kapsam |
 |---|---|
-| 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, dokunma geri bildirimi, sessiz demo, tek adımlık ilk durak |
-| 4c | Döngü: üç aşamalı öğretim, kucak arayüzü, döngü durakları |
+| 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, dokunma geri bildirimi, sessiz demo, tek adımlık ilk durak. Durum: tamamlandı (altı durak yayında). |
+| 4c | Döngü: üç aşamalı öğretim, kucak arayüzü, döngü durakları. Rota bu ve sonraki fazlarda genişler; [kodlama.md](kodlama.md) §8'deki on beş duraklık tablo bu genişlemenin **hedefidir**, bugünün durumu değil. |
 | 4d | Ses katmanı |
 | 4e | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) |
 
@@ -327,16 +374,17 @@ kod okunarak ve `npm run lint && npm run test && npm run kontrol && npm run e2e`
 8. [x] İlk durak tek adımlık — `turna-yolu.json`'daki ilk durak
    (`goksu-deltasi`) `idealAdim: 1` taşıyor ve bu, `npm run kontrol`
    tarafından çözücüyle denetleniyor.
-   - [ ] **"göç yolu on altı durak" kısmı doğrulanamadı ve gerçeğe
-     uymuyor.** `content/kodla/turna-yolu.json` şu an **altı** durak
-     taşıyor (`goksu-deltasi`, `sultansazligi`, `kapadokya`, `tuz-golu`,
-     `pamukkale`, `efes`) — bu sayı Görev 12'nin kendi talimatındaki
-     README güncellemesiyle de tutarlı ("altı durak"). Bu maddedeki "on
-     altı durak" hedefi muhtemelen sonraki fazlarda (döngü, ikinci
-     mekanik) eklenecek durakları içeren daha büyük bir kapsam
-     tahminiydi; Faz 4b kapsamında durak sayısını artırmak yoktu ve
-     artırılmadı. Bu alt madde bilerek işaretlenmedi; sayı ileride
-     güncellenmeli ya da bu belgeden çıkarılmalı.
+   - [x] **Düzeltildi (20 Ağustos 2026).** Bu maddede önceden "göç yolu on
+     altı durak olur" yazıyordu ve bu, o zamanki denetimde "doğrulanamadı
+     ve gerçeğe uymuyor" olarak işaretlenmişti. Kaynağı bulundu: §7'deki
+     "İlk durak feda edilir" bölümü, [kodlama.md](kodlama.md) §8'deki on
+     beş duraklık HEDEF tabloya "+1" uyguluyordu; o tablo henüz
+     gerçekleşmemiş bir hedef olduğu için hesap yanlıştı. §7 artık
+     düzeltildi ve gerçek sayıyı (altı) veriyor;
+     `content/kodla/turna-yolu.json` hâlâ **altı** durak taşıyor
+     (`goksu-deltasi`, `sultansazligi`, `kapadokya`, `tuz-golu`,
+     `pamukkale`, `efes`), README ve [yol haritası](../yol-haritasi.md) ile
+     tutarlı.
 9. [x] `prefers-reduced-motion` açıkken hiçbir geçiş ve konfeti yok —
    `e2e/kodla.spec.ts`'teki ilgili test `reducedMotion: "reduce"`
    bağlamında Turna'nın geçiş süresinin `0s`, animasyonunun `none`

@@ -2,7 +2,7 @@
 //
 // Turna'nin konumu ve donusu CSS ozel degiskenleriyle verilir; gecisi CSS
 // yapar. SVG'nin transform NITELIGI canlandirilamaz, CSS transform'u
-// canlandirilabilir - bu yuzden konum niteliğe degil stile yaziliyor.
+// canlandirilabilir - bu yuzden konum nitelige degil stile yaziliyor.
 import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
 import type { Yon } from "@/lib/kodla/labirent/komutlar";
 import type { YolParcasi } from "@/lib/kodla/labirent/onizleme";
@@ -16,6 +16,23 @@ import {
 } from "./Simgeler";
 
 const KARE = 100;
+
+// Carpma yonune gore surukleme: hem geri tepme (CSS keyframe kodlaCarp)
+// hem toz bulutu bu vektorle DUVARA DOGRU yon alir. Onceden ikisi de
+// sabit/varsayilan bir yone (recoil hep sag, toz hep sol) gidiyordu;
+// Turna nereye carparsa carpsin ayni goruntuyu veriyordu.
+const CARPMA_VEKTORU: Record<Yon, { x: number; y: number }> = {
+  yukari: { x: 0, y: -1 },
+  asagi: { x: 0, y: 1 },
+  sol: { x: -1, y: 0 },
+  sag: { x: 1, y: 0 },
+};
+
+// kodla.css'teki kodlaCarp keyframe'inin kullandigi 14px'lik surukleme
+// buyuklugu ile AYNI: SVG kullanici birimi burada css piksele esit (bkz.
+// .kodlaTurna'nin translate hesaplamasi), o yuzden ayni sayi toz grubunun
+// statik konumunu kaydirmak icin de kullanilabilir.
+const CARPMA_KAYMASI = 14;
 
 export default function Sahne({
   harita,
@@ -42,6 +59,7 @@ export default function Sahne({
 }) {
   const genislik = harita.genislik * KARE;
   const yukseklik = harita.yukseklik * KARE;
+  const carpVektoru = CARPMA_VEKTORU[turna.bakis];
 
   const kareler = [];
   for (let y = 0; y < harita.yukseklik; y++) {
@@ -177,19 +195,25 @@ export default function Sahne({
       {poz === "carpma" && (
         <g
           className="kodlaToz"
-          transform={`translate(${turna.x * KARE} ${turna.y * KARE})`}
+          transform={`translate(${turna.x * KARE + carpVektoru.x * CARPMA_KAYMASI} ${
+            turna.y * KARE + carpVektoru.y * CARPMA_KAYMASI
+          })`}
         >
           <TozSimgesi />
         </g>
       )}
 
-      {/* Konum ve donus stile yaziliyor; gecisi CSS yapiyor. */}
+      {/* Konum ve donus stile yaziliyor; gecisi CSS yapiyor. --carp-x/y,
+          kodlaCarp keyframe'ine hangi yone suruklenecegini soyler: Turna'nin
+          bakis yonu, yani carptigi duvarin yonu. */}
       <g
         className={`kodlaTurna poz-${poz}${bekliyor ? " bekliyor" : ""}`}
         style={
           {
             "--kare-x": turna.x,
             "--kare-y": turna.y,
+            "--carp-x": carpVektoru.x,
+            "--carp-y": carpVektoru.y,
           } as React.CSSProperties
         }
       >
