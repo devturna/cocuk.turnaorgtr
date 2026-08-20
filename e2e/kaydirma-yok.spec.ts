@@ -15,6 +15,12 @@ for (const ekran of EKRANLAR) {
     await page.setViewportSize({ width: ekran.genislik, height: ekran.yukseklik });
     await page.goto("/boyama/kedi/");
 
+    // Tam ekran duzeni bir useEffect icinde body'ye sinif ekleyerek kuruluyor;
+    // hydration bitmeden olcum yapmak, ust bar ve alt bilgi hala ekrandayken
+    // olcmek demektir. Yavas bir makinede bu yarisi kaybediyoruz (CI'da tam
+    // olarak bu oldu), o yuzden once kosulu bekliyoruz.
+    await expect(page.locator("body")).toHaveClass(/tamEkran/);
+
     // Sayfa icerigi ekrandan tasmamali.
     const tasma = await page.evaluate(() => ({
       dikey: document.documentElement.scrollHeight - window.innerHeight,

@@ -326,6 +326,12 @@ test("bolum ekraninda kaydirma yok ve dokunma hedefleri en az 64 piksel", async 
     await page.setViewportSize({ width: ekran.g, height: ekran.y });
     await page.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
 
+    // Tam ekran duzeni bir useEffect icinde body'ye sinif ekleyerek kuruluyor;
+    // hydration bitmeden olcum yapmak, ust bar ve alt bilgi hala ekrandayken
+    // olcmek demektir. Yavas bir makinede bu yarisi kaybediyoruz (CI'da tam
+    // olarak bu oldu), o yuzden once kosulu bekliyoruz.
+    await expect(page.locator("body")).toHaveClass(/tamEkran/);
+
     const tasma = await page.evaluate(() => ({
       dikey: document.documentElement.scrollHeight - window.innerHeight,
       yatay: document.documentElement.scrollWidth - window.innerWidth,
@@ -360,6 +366,12 @@ test("serit 20 bloga dolunca da sayfada tasma olmaz", async ({ page }) => {
     await dugme.click();
   }
   await expect(page.locator(".programBloku")).toHaveCount(EN_FAZLA_BLOK);
+
+  // Tam ekran duzeni bir useEffect icinde body'ye sinif ekleyerek kuruluyor;
+  // hydration bitmeden olcum yapmak, ust bar ve alt bilgi hala ekrandayken
+  // olcmek demektir. Yavas bir makinede bu yarisi kaybediyoruz (CI'da tam
+  // olarak bu oldu), o yuzden once kosulu bekliyoruz.
+  await expect(page.locator("body")).toHaveClass(/tamEkran/);
 
   const tasma = await page.evaluate(() => ({
     dikey: document.documentElement.scrollHeight - window.innerHeight,
