@@ -145,3 +145,66 @@ test("aspect-ratio ve container query olmadan da tuval gorunur", async ({ page }
   expect(kutu.height).toBeGreaterThan(200);
   expect(Math.abs(kutu.width - kutu.height)).toBeLessThanOrEqual(2);
 });
+
+// Asagidaki iki test, gercek kullanımda bildirilen iki hatayi kilitler.
+test("kutlama, parmak kalkmadan cikmaz", async ({ page }) => {
+  await page.goto("/ogren/yaz/");
+  await expect(page.locator("body")).toHaveClass(/tamEkran/);
+
+  const kutu = (await page.locator(".yaziTuvali").boundingBox())!;
+  const ekranNoktasi = (n: { x: number; y: number }) => ({
+    x: kutu.x + (n.x / 400) * kutu.width,
+    y: kutu.y + (n.y / 400) * kutu.height,
+  });
+
+  const noktalar = kontrolNoktalari(RAKAM_YOLLARI[0][0], EN_AZ_ARALIK);
+  const ilk = ekranNoktasi(noktalar[0]);
+  await page.mouse.move(ilk.x, ilk.y);
+  await page.mouse.down();
+  for (const nokta of noktalar.slice(1)) {
+    const e = ekranNoktasi(nokta);
+    await page.mouse.move(e.x, e.y, { steps: 6 });
+  }
+
+  // Rakam tamamlandi ama parmak hala tuvalde: kutlama cocugun hareketini
+  // ortasindan kesmemeli.
+  await expect(page.locator(".kutlama")).toBeHidden();
+
+  await page.mouse.up();
+  await expect(page.getByText("Aferin!")).toBeVisible();
+});
+
+test("sonraki rakama gecince onceki rakamin izi ekranda kalmaz", async ({ page }) => {
+  await page.goto("/ogren/yaz/");
+  await expect(page.locator("body")).toHaveClass(/tamEkran/);
+
+  const kutu = (await page.locator(".yaziTuvali").boundingBox())!;
+  const ekranNoktasi = (n: { x: number; y: number }) => ({
+    x: kutu.x + (n.x / 400) * kutu.width,
+    y: kutu.y + (n.y / 400) * kutu.height,
+  });
+
+  const noktalar = kontrolNoktalari(RAKAM_YOLLARI[0][0], EN_AZ_ARALIK);
+  const ilk = ekranNoktasi(noktalar[0]);
+  await page.mouse.move(ilk.x, ilk.y);
+  await page.mouse.down();
+  for (const nokta of noktalar.slice(1)) {
+    const e = ekranNoktasi(nokta);
+    await page.mouse.move(e.x, e.y, { steps: 6 });
+  }
+
+  const izUzunlugu = () =>
+    page.locator(".parmakIzi").evaluate((o) => (o.getAttribute("d") ?? "").length);
+  expect(await izUzunlugu()).toBeGreaterThan(0);
+
+  // Parmak kalkmadan sonraki rakama gecilirse (dokunmatikte ikinci parmak,
+  // farede pencere disinda birakma) iz DOM'da kaliyordu; React onu temizlemez
+  // cunku gordugu d prop'u hep "".
+  await page
+    .locator(".oyunAltBar")
+    .getByRole("button", { name: "Sonraki" })
+    .evaluate((d) => (d as HTMLButtonElement).click());
+
+  await expect(page.locator(".oyunBaslik h1")).toHaveText("Bir");
+  expect(await izUzunlugu()).toBe(0);
+});

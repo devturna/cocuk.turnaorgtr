@@ -48,6 +48,10 @@ export default function YazOyunu() {
   // Kutlama kapatilabilir olmali; yoksa butun ekrani orttugu icin cocuk
   // bolume geri donemez, "Sonraki"ye basmak zorunda kalir.
   const [kutlamaKapatildi, setKutlamaKapatildi] = useState(false);
+  // Cocuk hala ciziyorken kutlama acilirsa, hareketin ortasinda ekrani
+  // ortuyor ve "birden bir sey cikti" hissi veriyor. Parmak kalkana kadar
+  // bekletiyoruz; yildiz yine de aninda kazaniliyor.
+  const [cizimSuruyor, setCizimSuruyor] = useState(false);
 
   const rakam = RAKAMLAR[oyun.sira].rakam;
   const vuruslar = RAKAM_YOLLARI[rakam];
@@ -96,6 +100,7 @@ export default function YazOyunu() {
         kontroller={oyun.kontroller}
         durum={oyun.izleme}
         parmakHareketi={parmakHareketi}
+        cizimDurumu={setCizimSuruyor}
         bitti={bitti}
       />
 
@@ -112,7 +117,7 @@ export default function YazOyunu() {
         </button>
       </div>
 
-      {bitti && !kutlamaKapatildi && (
+      {bitti && !cizimSuruyor && !kutlamaKapatildi && (
         // Kutlamanin disina dokununca kapanir; cizim tamamlanmis olarak kalir.
         <div
           className="kutlama"

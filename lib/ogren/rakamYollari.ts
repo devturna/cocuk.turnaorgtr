@@ -17,6 +17,12 @@ export const TUVAL_BOYU = 400;
 /**
  * Bir yayi noktalara boler. Acilar derece cinsindendir.
  *
+ * ACI YONU (bu yazili olmadigi icin dort rakam ters cizilmisti):
+ * SVG'de y asagi dogru buyudugu icin aci ARTTIKCA ekranda SAAT YONUNDE
+ * donulur. Yani -90 tepe, 0 sag, 90 alt, 180 sol.
+ * Soldan tepeye gitmek icin 180'den 270'e ARTMAK gerekir; 180'den 20'ye
+ * azalmak alttan dolasir ve yayi ters cevirir.
+ *
  * Bol nokta kullanmak cizimi yumusatir; kontrol noktalari zaten
  * kontrolNoktalari() ile seyreltildigi icin oyunun zorlugu degismez.
  */
@@ -51,7 +57,7 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   2: [
     {
       noktalar: [
-        ...yay(200, 130, 75, 65, 180, 20, 16),
+        ...yay(200, 130, 75, 65, 180, 340, 16),
         { x: 250, y: 190 },
         { x: 120, y: 335 },
         { x: 280, y: 335 },
@@ -63,7 +69,7 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   3: [
     {
       noktalar: [
-        ...yay(200, 130, 70, 65, 180, 90, 16),
+        ...yay(200, 130, 70, 65, 180, 450, 16),
         { x: 175, y: 200 },
         ...yay(200, 265, 75, 70, -90, 160, 16),
       ],
@@ -79,7 +85,7 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   // Bes: ust yatay cizgi ve dikey inis bir vurus, alt yay ikinci vurus.
   5: [
     { noktalar: [{ x: 275, y: 70 }, { x: 135, y: 70 }, { x: 130, y: 185 }] },
-    { noktalar: yay(200, 255, 80, 80, 200, 90, 20) },
+    { noktalar: yay(200, 255, 80, 80, 200, 465, 20) },
   ],
 
   // Alti: ustten inen egri, sonra alttaki halka.
@@ -101,7 +107,9 @@ export const RAKAM_YOLLARI: Record<number, Vurus[]> = {
   8: [
     {
       noktalar: [
-        ...yay(200, 135, 65, 65, -90, 270, 24),
+        // Ust halka ALTTAN baslayip alttan biter; o nokta alt halkanin
+        // tepesiyle ayni yerdir, boylece aralarinda duz bir cizgi olusmaz.
+        ...yay(200, 135, 65, 65, 90, 450, 24),
         ...yay(200, 268, 78, 68, -90, 270, 24),
       ],
     },

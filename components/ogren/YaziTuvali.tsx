@@ -16,6 +16,8 @@ type YaziTuvaliOzellikleri = {
   kontroller: Nokta[][];
   durum: IzlemeDurumu;
   parmakHareketi: (nokta: Nokta) => void;
+  /** Parmak tuvale indi mi kalkti mi. Kutlama, parmak kalkmadan cikmasin diye. */
+  cizimDurumu: (suruyor: boolean) => void;
   bitti: boolean;
 };
 
@@ -24,6 +26,7 @@ export default function YaziTuvali({
   kontroller,
   durum,
   parmakHareketi,
+  cizimDurumu,
   bitti,
 }: YaziTuvaliOzellikleri) {
   const alanRef = useRef<HTMLDivElement>(null);
@@ -50,6 +53,17 @@ export default function YaziTuvali({
     return () => gozlemci.disconnect();
   }, []);
 
+  // Rakam degisince (veya bastan baslanınca) parmak izini temizle.
+  //
+  // Iz React'in disinda, dogrudan DOM'a yaziliyor. React'in gordugu d prop'u
+  // her render'da sabit "" oldugu icin kendisi bir sey degistigini dusunmez
+  // ve izi asla silmez; temizlemezsek onceki rakamin izi ekranda kalir.
+  // kontroller her rakam degisiminde VE her "Bastan"da yeni bir dizi olur.
+  useEffect(() => {
+    cizilenNoktalar.current = [];
+    izRef.current?.setAttribute("d", "");
+  }, [kontroller]);
+
   /** Ekran koordinatini tuval koordinatina cevirir. */
   function tuvalNoktasi(olay: React.PointerEvent): Nokta {
     const cerceve = (olay.currentTarget as HTMLElement).getBoundingClientRect();
@@ -70,6 +84,7 @@ export default function YaziTuvali({
     cizilenNoktalar.current = [];
     izeEkle(nokta, true);
     olay.currentTarget.setPointerCapture?.(olay.pointerId);
+    cizimDurumu(true);
     parmakHareketi(nokta);
   }
 
@@ -85,6 +100,7 @@ export default function YaziTuvali({
     // karalamayla dolmasin. Tamamlanan kontrol noktalari korunur.
     cizilenNoktalar.current = [];
     izRef.current?.setAttribute("d", "");
+    cizimDurumu(false);
   }
 
   return (
