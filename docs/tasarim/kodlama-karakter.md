@@ -156,11 +156,12 @@ açıldığında seçim zaten yapılmıştır; orada `Escape` vazgeçmek demekti
 Göç haritasının köşesinde seçili kuşun 64 piksellik yuvarlağı durur.
 Dokunmak seçim kartlarını yeniden açar.
 
-## 6. Kodda adlandırma geçişi
+## 6. Kodda adlandırma geçişi (tamamlandı)
 
-Hareket eden şeyin adı şu an her yerde `turna`: `durum.turna`,
+Hareket eden şeyin adı önceden her yerde `turna` idi: `durum.turna`,
 `TurnaSimgesi`, `.kodlaTurna`. Flamingo seçiliyken `TurnaSimgesi` çizmek, bu
-deponun "kod ne yapıyorsa onu söyler" ilkesini çiğner.
+deponun "kod ne yapıyorsa onu söyler" ilkesini çiğniyordu; bu yüzden rol
+adlandıran isimler değiştirildi.
 
 | Eski | Yeni |
 |---|---|
@@ -169,8 +170,8 @@ deponun "kod ne yapıyorsa onu söyler" ilkesini çiğner.
 | `durum.turna` | `durum.karakter` |
 | `Adim.turna` | `Adim.karakter` |
 
-Beyaz kuşun **içerikteki kimliği** `turna` olarak kalır — o gerçekten bir
-turnadır. Değişen, türü değil rolü adlandıran isimlerdir.
+Beyaz kuşun **içerikteki kimliği** `turna` olarak kaldı — o gerçekten bir
+turnadır. Değişen, türü değil rolü adlandıran isimlerdi.
 
 Motorun kendisi (`calistir`, `cozucu`, `onizleme`) yalnızca alan adı
 düzeyinde etkilenir; mantığı değişmez.

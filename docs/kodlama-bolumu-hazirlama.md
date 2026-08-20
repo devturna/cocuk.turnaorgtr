@@ -140,8 +140,15 @@ biçiminde). `npm run kontrol` bu dosyayı da denetler: karakteri olmayan
 düşürür.
 
 `palet.kanat`, gövdenin gölgede kalan tonudur: aynı kuşun tüyü olarak
-okunmalı, gövdeden ayırt edilebilecek kadar da koyu olmalı. Turna'da
-`#c9c2b4`, flamingoda `#c96a8a`.
+okunmalı, gövdeden ayırt edilebilecek kadar da koyu olmalı.
+`karakterler.test.ts` bunu `kanat`/`govde` arasında en az 1.5:1 WCAG
+kontrast oranı olarak sınar. Bu, metin dışı elemanlar için WCAG'in
+önerdiği 3:1 eşiğinin altındadır — bugün hiçbir kuş 3:1'e ulaşmıyor
+(Turna ~1.57:1, Flamingo ~1.80:1); 3:1'e çıkmak iki kuşun da görünümünü
+değiştirmeyi gerektirir, bu yüzden test eşiği bugün gemiye çıkan en düşük
+değerin hemen altına, 1.5:1'e konmuştur — hedef gerçek bir gerilemeyi
+yakalamak, 3:1'i simüle etmek değil. Turna'da `#c9c2b4`, flamingoda
+`#c96a8a`.
 
 **Kursta tek karakter varsa seçim ekranı hiç açılmaz.** Seçecek bir şey
 yokken çocuğu kart ekranında durdurmanın anlamı yok; o tek kuş sessizce

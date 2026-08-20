@@ -161,7 +161,7 @@ type Bolum = {
   idealAdim: number;                     // en kisa cozumun uzunlugu
   ipucu: string;                         // ebeveyne tek cumle
   harita: {
-    bakis: "yukari" | "asagi" | "sol" | "sag";   // Turna'nin baslangic yonu
+    bakis: "yukari" | "asagi" | "sol" | "sag";   // karakterin baslangic yonu
     satirlar: string[];
   };
 };
