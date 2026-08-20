@@ -35,6 +35,16 @@ test.beforeEach(async ({ page }) => {
   );
 });
 
+/**
+ * "#rrggbb" -> "rgb(r, g, b)". getComputedStyle her zaman rgb() doner;
+ * beklenen renkleri katalogdan turetebilmek icin ceviriyoruz.
+ */
+function rgbYaz(hex: string): string {
+  const basamaklar = hex.replace("#", "");
+  const [k, y, m] = [0, 2, 4].map((i) => parseInt(basamaklar.slice(i, i + 2), 16));
+  return `rgb(${k}, ${y}, ${m})`;
+}
+
 /** Verilen komutlari paletten sirayla ekler. */
 async function programiDiz(page: Page, anahtarlar: string[]) {
   for (const anahtar of anahtarlar) {
@@ -511,9 +521,10 @@ test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabil
 // silinmisti. Bu invaryant tamamen CSS'e dayanir (kodla.css'teki
 // .karakterSecimi: position:fixed, inset:0, z-index:20, opak arkaplan);
 // GocHaritasi.tsx'teki durak <Link>'i DOM'dan hic kaldirmaz, yalnizca
-// gorsel/etkilesimsel olarak ustunu orter. z-index, position veya arkaplan
+// gorsel/etkilesimsel olarak ustunu orter. z-index veya position
 // gelecekte degistirilirse hicbir committed test bunu yakalamazdi. Kalici
-// hale getiriyoruz.
+// hale getiriyoruz. Arkaplanin opakligi tiklama denemesiyle DEGIL, testin
+// sonundaki ayri bir olcumle korunuyor (gerekcesi orada).
 //
 // Formulasyon: gercek bir tiklama denemesi kisa bir timeout ile yapiliyor
 // ve REDDETMESI bekleniyor. Playwright'in actionability kontrolu, hedef
@@ -541,6 +552,124 @@ test("secim yapilmadan durak tiklanamaz, diyalog acik ve url degismez kalir", as
   // OLMALI da: diyalog hala acik, url hala goc haritasinda.
   await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
   await expect(sayfa).toHaveURL(new RegExp(`/kodla/${KURS}/$`));
+
+  // Duzeltme turu 2 (review): yukaridaki tiklama denemesi yalnizca
+  // GEOMETRIYI olcer - Playwright "tiklanacak noktada baska bir eleman
+  // var mi" diye bakar, o elemanin gorunur olup olmadigina bakmaz.
+  // Arkaplani seffaflastiran bir gerileme testi YESIL birakirdi, oysa
+  // cocuk secim kartlarinin arkasindan haritayi gorurdu. Bu yuzden
+  // ortunun gercekten opak oldugunu ayrica dogruluyoruz: rgb(...) ya da
+  // alfasi 1 olan bir rgba(...) - "transparent" ve alfasi 1'den kucuk
+  // her sey reddedilir.
+  const ortuArkaplani = await sayfa
+    .locator(".karakterSecimi")
+    .evaluate((oge) => getComputedStyle(oge).backgroundColor);
+  const alfa = ortuArkaplani.startsWith("rgba(")
+    ? Number(ortuArkaplani.slice(5, -1).split(",")[3])
+    : ortuArkaplani.startsWith("rgb(")
+      ? 1
+      : 0;
+  expect(alfa, `secim ekraninin arkaplani opak degil: ${ortuArkaplani}`).toBe(1);
+
+  await baglam.close();
+});
+
+// Duzeltme turu 2 (review): yukaridaki test yalnizca FARE yolunu kapatir.
+// role="dialog" + aria-modal="true" bir sozdur, uygulama degil: odak
+// yonetimi yapilmazsa harita DOM'da durur, durak <Link>'leri sekme
+// sirasindan cikmaz ve Tab-Tab-Enter kus secmeden bir bolume girer.
+// Duzeltme iki parcali (bkz. GocHaritasi.tsx ve KarakterKartlari.tsx):
+// haritanin ustune `inert` konur ve acilista ilk karta odaklanilir.
+test("secim yapilmadan durak klavyeyle de acilamaz", async ({ browser }) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+
+  /** Odaktaki ogeyi, haritanin icindeyse isaretleyerek betimler. */
+  const odakBetimi = () =>
+    sayfa.evaluate(() => {
+      const oge = document.activeElement as HTMLElement | null;
+      if (!oge) return "(odak yok)";
+      const harita = oge.closest(".gocHaritasi") ? "HARITA:" : "";
+      const etiket = oge.getAttribute("aria-label") ?? "";
+      return `${harita}${oge.tagName}.${oge.className || "-"}${etiket ? `[${etiket}]` : ""}`;
+    });
+
+  // 1. Ileri ve geri sekmede odak bir kez bile haritanin icine girmemeli.
+  //    Sekiz basis, iki tam turdan fazlasini kapsar (ortu kapaliyken
+  //    odaklanabilir ogeler: iki kart, alt bilgi baglantisi, ust bar
+  //    logosu).
+  const zincir: string[] = [await odakBetimi()];
+  for (let i = 0; i < 8; i++) {
+    await sayfa.keyboard.press("Tab");
+    zincir.push(await odakBetimi());
+  }
+  for (let i = 0; i < 8; i++) {
+    await sayfa.keyboard.press("Shift+Tab");
+    zincir.push(await odakBetimi());
+  }
+  expect(
+    zincir.filter((betim) => betim.startsWith("HARITA:")),
+    `odak haritaya girdi. zincir: ${zincir.join(" -> ")}`,
+  ).toEqual([]);
+
+  // 2. Sekme sirasindan cikmak yetmez: durak baglantisi PROGRAMATIK
+  //    olarak da odak alamamali. Bu, sekme sirasindaki oge sayisindan
+  //    bagimsiz, dogrudan `inert`i olcen kontrol.
+  const durakOdaklandi = await sayfa.locator(".gocDuragi").first().evaluate((oge) => {
+    (oge as HTMLElement).focus();
+    return document.activeElement === oge;
+  });
+  expect(durakOdaklandi, "durak baglantisi hala odak alabiliyor").toBe(false);
+
+  // 3. Senaryonun kendisi: birkac Tab ve Enter. Bes basis kartlarin
+  //    basina geri doner (kart, kart, alt bilgi baglantisi, belge, logo,
+  //    kart). `inert` olmasaydi dongude madalyon ve durak da bulunurdu,
+  //    bes basis logoya duser ve Enter ana sayfaya giderdi; yedi basis
+  //    duraga duser ve Enter bolumu acardi. Iki halde de asagidaki url
+  //    beklentisi kirmiziya doner.
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+  for (let i = 0; i < 5; i++) await sayfa.keyboard.press("Tab");
+  await sayfa.keyboard.press("Enter");
+
+  // Enter bir KUS secmis olmali: adres degismedi, harita yerinde ve
+  // kayitta bir kus var. Klavyeyle gelen cocuk gecerli bir duruma varir.
+  await expect(sayfa).toHaveURL(new RegExp(`/kodla/${KURS}/$`));
+  await expect(diyalog).toBeHidden();
+  const secim = await sayfa.evaluate(() =>
+    JSON.parse(localStorage.getItem("kodla:karakter") ?? "{}"),
+  );
+  expect(KARAKTERLER.map((k) => k.id)).toContain(secim[KURS]);
+
+  await baglam.close();
+});
+
+// Escape: ilk giriste KAPATMAZ, madalyondan yeniden acildiginda kapatir.
+// Gerekce ekranin ne oldugunda: ilk giriste bu bir gecittir, arkasinda
+// gecerli bir durum yoktur - kapanirsa cocuk kussuz bir haritada kalirdi.
+// Madalyondan acildiginda ise secim zaten yapilmistir; vazgecmek gecerli
+// bir cevaptir ve cocugu bulundugu yerde birakir.
+test("Escape ilk giriste kapatmaz, madalyondan acilinca kapatir", async ({ browser }) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+  await sayfa.keyboard.press("Escape");
+  await expect(diyalog).toBeVisible();
+
+  await diyalog.getByRole("button", { name: "Turna" }).click();
+  await expect(diyalog).toBeHidden();
+
+  await sayfa.getByRole("button", { name: /Kuşu değiştir/ }).click();
+  await expect(diyalog).toBeVisible();
+  await sayfa.keyboard.press("Escape");
+  await expect(diyalog).toBeHidden();
+  // Vazgecmek secimi degistirmez.
+  await expect(sayfa.getByRole("button", { name: "Kuşu değiştir: Turna" })).toBeVisible();
 
   await baglam.close();
 });
@@ -579,7 +708,23 @@ test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ brow
         Math.min(kutu.width, kutu.height),
         `karakterKarti ${i} cok kucuk (${ekran.g}x${ekran.y})`,
       ).toBeGreaterThanOrEqual(64);
+      // "Kaydirma yok" kurali bu ekranda scrollHeight ile OLCULEMEZ:
+      // .karakterSecimi position:fixed'dir, yani ekrandan tasan icerik
+      // documentElement.scrollHeight'i buyutmez. Kaydirma cubugu da
+      // cikmaz; kart sessizce ustten/alttan kirpilir ve cocugun ikinci
+      // kusa ulasmasinin hicbir yolu kalmaz. kodla.css'teki kart blogunun
+      // yorumu tam olarak bu tehlikeyi anlatiyor ama hicbir test
+      // korumuyordu. Gercek soru "sayfa kaydiriliyor mu" degil, "kart
+      // GORUNUM ALANINDA mi" - onu soruyoruz.
+      await expect(
+        kartlar.nth(i),
+        `karakterKarti ${i} gorunum alanindan tasti (${ekran.g}x${ekran.y})`,
+      ).toBeInViewport({ ratio: 0.99 });
     }
+    await expect(
+      sayfa.locator(".karakterBaslik"),
+      `karakterBaslik gorunum alanindan tasti (${ekran.g}x${ekran.y})`,
+    ).toBeInViewport({ ratio: 0.99 });
 
     // Diyalog acikken varsayilan kusla eslesen bir madalyon da ekranda
     // olabilir; karti karakterKarti icinden seciyoruz (bkz. yukaridaki
@@ -605,12 +750,24 @@ test("secilen kus bolum ekraninda gercekten cizilir", async ({ browser }) => {
   // Govde rengi secilen karakterin paletiyle eslesmeli. Renk karsilastirmasi
   // kirilgan gorunur ama tam bu yuzden degerlidir: "flamingo sectim, hala
   // beyaz kus yuruyor" hatasini baska hicbir test yakalamaz.
-  const govdeRengi = await sayfa
-    .locator(".kodlaKarakter ellipse")
-    .first()
-    .evaluate((o) => getComputedStyle(o).fill);
-  console.log(`  govde rengi: ${govdeRengi}`);
-  expect(govdeRengi).toBe("rgb(242, 162, 184)");
+  //
+  // Iki incelik:
+  //
+  // 1. Beklenen renk KATALOGDAN turetilir, elle yazilmaz. Elle yazilan bir
+  //    hex, flamingo'nun paleti degisince testi "yanlis ama yesil" birakir
+  //    ya da alakasiz bir yerde kirmiziya dondururdu.
+  // 2. Beklenti yeniden denenen bir assertion olmali. Sunucuda uretilen
+  //    HTML zaten bir <ellipse> icerir ve VARSAYILAN (turna) rengiyle
+  //    gelir; flamingo paleti ancak hydration'dan sonra, bir useEffect ile
+  //    yerine oturur. locator.evaluate yalnizca ogenin DOM'a girmesini
+  //    bekler, hydration'i beklemez - yuklu bir makinede turna rengi
+  //    okunurdu. Bu depoda ayni yaris body.tamEkran ile bir kez yasandi
+  //    (bkz. yukaridaki iki yorum).
+  const flamingo = KARAKTERLER.find((k) => k.id === "flamingo")!;
+  await expect(sayfa.locator(".kodlaKarakter ellipse").first()).toHaveCSS(
+    "fill",
+    rgbYaz(flamingo.palet.govde),
+  );
 
   await baglam.close();
 });
