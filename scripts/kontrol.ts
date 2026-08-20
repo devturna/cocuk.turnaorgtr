@@ -377,6 +377,11 @@ function turkceIhlalleriBul(dosyaYolu: string): string[] {
 const turkceTaranacakDosyalar = [
   ...dosyalariTara(join(KOK, "lib", "kodla"), [".ts", ".tsx"]),
   ...dosyalariTara(join(KOK, "components", "kodla"), [".ts", ".tsx"]),
+  // app/kodla/**: kodlama bolumunun Next.js rota dosyalari
+  // ([kursId]/page.tsx gibi). Bunlar da lib/kodla ve components/kodla ile
+  // ayni kurala tabidir; unutulmalari bir yorumun sessizce sizmasina yol
+  // acardi.
+  ...dosyalariTara(join(KOK, "app", "kodla"), [".ts", ".tsx"]),
   join(KOK, "e2e", "kodla.spec.ts"),
   join(KOK, "e2e", "kodla-demo.spec.ts"),
 ];

@@ -243,10 +243,25 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
 
   // --- Kazanma: en kisa cozumle calistirip altin yildiz + kutlamaya ulas ---
   const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  expect(yol.length, "bu testin ikinci yarisi en az iki blok gerektirir").toBeGreaterThan(1);
   await programiDiz(sayfa, yol.map(komutAnahtari));
-  const programBlokuDeger = await anlikYakala(".programBloku.yeni");
-  animasyonYok(programBlokuDeger, ".programBloku.yeni (animation)");
-  gecisYok(programBlokuDeger, ".programBloku.yeni (transition)");
+
+  const yeniBlokDeger = await anlikYakala(".programBloku.yeni");
+  animasyonYok(yeniBlokDeger, ".programBloku.yeni (animation)");
+  gecisYok(yeniBlokDeger, ".programBloku.yeni (transition)");
+  // .yeni tasimayan bir .programBloku'yu AYRICA sorguluyoruz: kural
+  // ".programBloku, .programBloku.yeni { animation: none; transition:
+  // none; }" seklinde iki secicili tek bir listedir; yalnizca ".yeni"
+  // tasiyan ogeyi sorgulamak, biri ".programBloku.yeni" TEK BASINA
+  // kalacak sekilde daraltilsa bile testin yesil kalmasina yol acardi —
+  // oysa calisirken vurgulanan (.calisiyor tasiyan ama .yeni tasimayan)
+  // diger bloklar geri gecisi/animasyonu kaybederdi. `yol` en az iki
+  // komuttan olustugu icin (yukaridaki expect bunu garanti eder) burada
+  // hep en az bir ".yeni" tasimayan blok vardir.
+  const eskiBlokDeger = await anlikYakala(".programBloku:not(.yeni)");
+  animasyonYok(eskiBlokDeger, ".programBloku (yeni olmayan) (animation)");
+  gecisYok(eskiBlokDeger, ".programBloku (yeni olmayan) (transition)");
+
   animasyonYok(await anlikYakala(".calistirDugmesi.nabiz"), ".calistirDugmesi.nabiz (program dolu)");
 
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
