@@ -415,10 +415,19 @@
   text-align: center;
 }
 
+/* Kutlama UC katmanlidir; katmanlarin sirasi asagida .kodlaKonfeti'nde
+   anlatiliyor. .kodlaKutlama BILEREK z-index TASIMAZ: tasisaydi kendi
+   stacking context'ini kurar ve icindeki .kutlamaKutusu'nun z-index'i
+   o context'in DISINA (yani .kodlaKonfeti'yle ayni seviyeye) hic
+   CIKAMAZDI — bir alt dugumun z-index'i, atasinin kurdugu stacking
+   context'i asamaz, atasi ne kadar dusuk bir z-index tassa da. position:
+   fixed TEK BASINA (z-index'siz) yeni bir stacking context KURMAZ; scrim
+   yine de sayfanin geri kalanindan yukarida cizilir cunku pozisyonlanmis
+   (auto z-index'li) ogeler DOM sirasina gore statik ogelerin ustune
+   cizilir ve bu <div> JSX'te en sonda gelir. */
 .kodlaKutlama {
   position: fixed;
   inset: 0;
-  z-index: 10;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -426,6 +435,12 @@
 }
 
 .kutlamaKutusu {
+  /* En ust katman: perde (scrim) en altta, konfeti perdenin ustunde,
+     bu kutu konfetinin de ustunde durur ki cocuk yildizi ve dugmeyi
+     her zaman hicbir seyin arkasinda kalmadan gorsun. position olmadan
+     z-index'in hicbir etkisi olmaz, bu yuzden ikisi birlikte verilir. */
+  position: relative;
+  z-index: 12;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -442,10 +457,23 @@
 .kodlaKonfeti {
   position: fixed;
   inset: 0;
-  /* .kodlaKutlama'nin z-index'i 10: bu deger onun ustunde durmali, yoksa
-     konfeti %45 karartilmis perdenin ARKASINDAN gorunur (bu fazin en
-     gorunur ogesi soluklasir). pointer-events: none korunuyor: kutlama
-     katmanindaki baglantilar (Sonraki durak) dokunulabilir kalmali. */
+  /* Kutlama UC katmanlidir, z-index'leri bu sirayla artar (kok/body
+     stacking context'inde, cunku hicbiri ayri bir alt-context'e
+     HAPSOLMUYOR — bkz. .kodlaKutlama'daki not):
+       1. .kodlaKutlama'nin kendi arka plani — karartilmis perde (scrim),
+          z-index'siz (auto), pozisyonlanmis oldugu ve DOM'da en sonda
+          geldigi icin sayfanin geri kalaninin USTUNDE ama asagidaki iki
+          katmanin ALTINDA kalir.
+       2. .kodlaKonfeti (z-index: 11, burasi) — perdenin USTUNDE olmali,
+          yoksa konfeti %45 karartilmis perdenin ARKASINDAN gorunur (bu
+          fazin en gorunur ogesi soluklasir).
+       3. .kutlamaKutusu (z-index: 12, .kodlaKutlama'nin ICINDE ama onun
+          DOM'daki KARDESI olan bu ogeyle ayni context'te rekabet eder) —
+          konfetinin de USTUNDE olmali, yoksa yagan parcaciklar yildizi
+          ve "Sonraki durak" baglantisini orter; cocugun o an gormesi ve
+          basmasi gereken tam olarak budur.
+     pointer-events: none korunuyor: kutlama katmanindaki baglantilar
+     (Sonraki durak) dokunulabilir kalmali. */
   z-index: 11;
   overflow: hidden;
   pointer-events: none;
