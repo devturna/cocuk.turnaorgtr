@@ -1,9 +1,14 @@
-// Kodlama bolumunde kazanilan yildizlar ve kilit durumu.
-// Boyama cizimleri gibi yalnizca tarayicida saklanir; hicbir yere gonderilmez.
+// Kodlama bolumunun tek yerel kayit modulu: yildizlar, deneme sayaci, demo
+// bayragi ve karakter secimi hep burada tutulur. Bolumun geri kalaninda
+// localStorage'a dokunulmaz; Boyama'daki lib/boyama/yerelKayit.ts ayni isi
+// gorur, bu dosya onun kodlama tarafindaki kardesidir.
+
+import { karakterBul, varsayilanKarakter, type Karakter } from "./karakterler";
 
 const ANAHTAR = "kodla:ilerleme";
 const DENEME_ANAHTARI = "kodla:denemeler";
 const DEMO_ANAHTARI = "kodla:demo";
+const KARAKTER_ANAHTARI = "kodla:karakter";
 
 export type YildizTuru = "yildiz" | "altin";
 
@@ -96,6 +101,7 @@ export function ilerlemeyiSil(): void {
     localStorage.removeItem(ANAHTAR);
     localStorage.removeItem(DENEME_ANAHTARI);
     localStorage.removeItem(DEMO_ANAHTARI);
+    localStorage.removeItem(KARAKTER_ANAHTARI);
   } catch {
     // Yok sayilir.
   }
@@ -119,4 +125,27 @@ export function demoGosterildi(): void {
   } catch {
     // Depolama kapali olabilir; demo her acilista oynar, oyun surer.
   }
+}
+
+/** Kurs basina secilen karakterin kimligi. */
+export function seciliKarakterId(kursId: string): string | undefined {
+  const secimler = nesneOku(KARAKTER_ANAHTARI) as unknown as Record<string, unknown>;
+  const deger = secimler[kursId];
+  return typeof deger === "string" ? deger : undefined;
+}
+
+export function karakterSec(kursId: string, karakterId: string): void {
+  const secimler = nesneOku(KARAKTER_ANAHTARI);
+  nesneYaz(KARAKTER_ANAHTARI, { ...secimler, [kursId]: karakterId });
+}
+
+/**
+ * Ekranda gosterilecek karakter.
+ *
+ * Secim yoksa, katalogda bulunmayan bir secim varsa (eski kayit ya da elle
+ * bozulmus veri) varsayilana duser: oyun her halukarda bir kusla acilir.
+ */
+export function seciliKarakter(kursId: string): Karakter | undefined {
+  const id = seciliKarakterId(kursId);
+  return (id ? karakterBul(kursId, id) : undefined) ?? varsayilanKarakter(kursId);
 }

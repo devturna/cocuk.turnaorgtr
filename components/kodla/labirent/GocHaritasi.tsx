@@ -5,7 +5,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { BolumVerisi } from "@/lib/kodla/bolumler";
-import { bolumAcikMi, bolumSonucu, type YildizTuru } from "@/lib/kodla/ilerleme";
+import { bolumAcikMi, bolumSonucu, type YildizTuru } from "@/lib/kodla/yerelKayit";
 import "../kodla.css";
 
 export default function GocHaritasi({

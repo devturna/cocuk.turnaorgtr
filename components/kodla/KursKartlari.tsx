@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { tumKurslar } from "@/lib/kodla/kurslar";
 import { kursBolumleri } from "@/lib/kodla/bolumler";
-import { kursYildizSayisi } from "@/lib/kodla/ilerleme";
+import { kursYildizSayisi } from "@/lib/kodla/yerelKayit";
 import "./kodla.css";
 
 export default function KursKartlari() {

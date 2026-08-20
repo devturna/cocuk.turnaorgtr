@@ -9,9 +9,12 @@ import {
   denemeArtir,
   denemeSayisi,
   ilerlemeyiSil,
+  karakterSec,
   kursYildizSayisi,
+  seciliKarakter,
+  seciliKarakterId,
   tumIlerleme,
-} from "./ilerleme";
+} from "./yerelKayit";
 
 const KURS = "turna-yolu";
 const SIRALI = ["sultansazligi", "kapadokya", "tuz-golu"];
@@ -119,5 +122,47 @@ describe("demo bayragi", () => {
     demoGosterildi();
     ilerlemeyiSil();
     expect(demoGosterildiMi()).toBe(false);
+  });
+});
+
+describe("karakter secimi", () => {
+  it("secim yapilmamissa tanimsizdir", () => {
+    expect(seciliKarakterId("turna-yolu")).toBeUndefined();
+  });
+
+  it("secilen karakter hatirlanir", () => {
+    karakterSec("turna-yolu", "flamingo");
+    expect(seciliKarakterId("turna-yolu")).toBe("flamingo");
+  });
+
+  it("kurslar birbirini etkilemez", () => {
+    karakterSec("turna-yolu", "flamingo");
+    expect(seciliKarakterId("baska-kurs")).toBeUndefined();
+  });
+
+  it("seciliKarakter, secim yokken varsayilani verir", () => {
+    expect(seciliKarakter("turna-yolu")?.id).toBe("turna");
+  });
+
+  it("seciliKarakter, secim varken onu verir", () => {
+    karakterSec("turna-yolu", "flamingo");
+    expect(seciliKarakter("turna-yolu")?.id).toBe("flamingo");
+  });
+
+  it("katalogda olmayan bir secim varsayilana duser", () => {
+    // Eski kayit ya da elle bozulmus veri oyunu kirmamali.
+    localStorage.setItem("kodla:karakter", JSON.stringify({ "turna-yolu": "devekusu" }));
+    expect(seciliKarakter("turna-yolu")?.id).toBe("turna");
+  });
+
+  it("bozuk kayit varsayilana duser", () => {
+    localStorage.setItem("kodla:karakter", "{bozuk");
+    expect(seciliKarakter("turna-yolu")?.id).toBe("turna");
+  });
+
+  it("ilerleme silinince karakter secimi de silinir", () => {
+    karakterSec("turna-yolu", "flamingo");
+    ilerlemeyiSil();
+    expect(seciliKarakterId("turna-yolu")).toBeUndefined();
   });
 });

@@ -26,7 +26,7 @@ import {
   demoGosterildiMi,
   denemeArtir,
   type YildizTuru,
-} from "@/lib/kodla/ilerleme";
+} from "@/lib/kodla/yerelKayit";
 import Sahne from "./Sahne";
 import KomutPaleti from "./KomutPaleti";
 import ProgramSeridi from "./ProgramSeridi";
