@@ -186,7 +186,7 @@ Dördüncü ana bölüm. Tasarım kararları ve gerekçeleri:
 | `lib/kodla/labirent/cozucu.ts` | En kısa çözüm (yalnızca denetimde kullanılır) |
 | `lib/kodla/labirent/temalar.ts` | Zemin ve engel çizimleri |
 | `lib/kodla/program.ts` | Blok listesi işlemleri |
-| `lib/kodla/yerelKayit.ts` | Yıldızlar, deneme sayacı, kilit kuralı |
+| `lib/kodla/yerelKayit.ts` | Yıldızlar, deneme sayacı, kilit kuralı, demo bayrağı, karakter seçimi |
 
 ### Motor neden adım listesi döndürüyor?
 
@@ -259,3 +259,18 @@ taşıyan bir sözleşmedir. Dışarıdan illüstrasyon geldiğinde yalnızca bu
 dosyanın gövdesi değişir; çağıran hiçbir bileşen poz ve yön dışında bir şey
 bilmez. Beklenen varlık listesi ve format şartları tasarım belgesinin
 "Varlık sözleşmesi" bölümündedir.
+
+### Karakter nasıl eklenir?
+
+`content/kodla/karakterler.json` içine, kursun listesine bir girdi eklemek
+yeterlidir: kimlik, ad, ebeveyne yazılmış tek cümle ve üç renkten oluşan
+palet. `npm run kontrol` paletin geçerliliğini ve bilginin doluluğunu
+denetler.
+
+Çizim karakteri yalnızca palet üzerinden tanır; `KarakterSimgesi` yön ve poz
+dışında hiçbir şey bilmez. İllüstrasyon geldiğinde `Simgeler.tsx`'in gövdesi
+değişir, çağıran hiçbir bileşen değişmez.
+
+**Durak ipuçları yere dairdir, kuşa değil.** İki kuş varken kuşa dair bir
+ipucu, çocukların yarısı için yanlış olur. Kuş bilgisi karakter kartında
+durur.

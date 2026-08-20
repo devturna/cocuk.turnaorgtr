@@ -223,15 +223,41 @@ Yedi görev:
 
 ## 11. Faz 4c tamamlanma ölçütleri
 
-1. Kursa ilk girişte iki kuş kartı çıkıyor ve seçim yapılmadan harita
-   kullanılamıyor
-2. Seçim hatırlanıyor; ikinci girişte sorulmuyor
-3. Göç haritasındaki madalyon seçimi yeniden açıyor
-4. Seçilen kuş bölüm ekranında gerçekten çiziliyor (renk testiyle doğrulanmış)
-5. Karakter seçimi kurs bazlı; yeni kurs eskisini bozmuyor
-6. Kodda hareket eden öğe `karakter` diye adlandırılmış; `turna` yalnızca
-   içerikteki kuşun kimliği
-7. İki durağın ipucu yere dair hale gelmiş; kuş bilgileri seçim ekranında
-8. Dokunma hedefleri en az 64 piksel, ekranda kaydırma yok
-9. `prefers-reduced-motion` açıkken seçim ekranında da animasyon yok
-10. Birim testleri, denetim ve uçtan uca testler geçiyor
+Görev 7'de tek tek doğrulanmış, işaretli olmayan madde yok (bkz.
+`.superpowers/sdd/2026-08-20-kodlama-faz4c/gorev-7-report.md`).
+
+- [x] 1. Kursa ilk girişte iki kuş kartı çıkıyor ve seçim yapılmadan harita
+      kullanılamıyor — `e2e/kodla.spec.ts`'teki "ilk giriste kus secimi
+      sorulur..." testi diyaloğun açıldığını doğruluyor; iki kart sayısı ve
+      diyalog açıkken durağa tıklanamadığı elle (Playwright ile, tek seferlik
+      bir denetim testiyle) doğrulandı — bkz. görev 7 raporu.
+- [x] 2. Seçim hatırlanıyor; ikinci girişte sorulmuyor — aynı testin
+      "Ikinci acilista sorulmaz" adımı.
+- [x] 3. Göç haritasındaki madalyon seçimi yeniden açıyor — aynı testin son
+      adımı.
+- [x] 4. Seçilen kuş bölüm ekranında gerçekten çiziliyor (renk testiyle
+      doğrulanmış) — "secilen kus bolum ekraninda gercekten cizilir" testi;
+      `Sahne.tsx`'te paleti geçici olarak varsayılana sabitleyip testin
+      kırmızıya döndüğü görüldü (görev 7 raporunda kanıtlı).
+- [x] 5. Karakter seçimi kurs bazlı; yeni kurs eskisini bozmuyor —
+      `lib/kodla/yerelKayit.test.ts`'teki "kurslar birbirini etkilemez" birim
+      testi.
+- [x] 6. Kodda hareket eden öğe `karakter` diye adlandırılmış; `turna`
+      yalnızca içerikteki kuşun kimliği — `components/` ve `lib/kodla/`
+      içinde `kodlaTurna`/`turnaKonumu`/`TurnaSimgesi` gibi bir kalıntı yok
+      (grep ile doğrulandı); `turna` yalnızca `karakterler.json` ve
+      testlerdeki içerik kimliği olarak geçiyor.
+- [x] 7. İki durağın ipucu yere dair hale gelmiş; kuş bilgileri seçim
+      ekranında — `content/kodla/turna-yolu.json`'daki altı ipucu da yere
+      dair (kuş göçüne değinen yok); kuş bilgisi yalnızca
+      `content/kodla/karakterler.json`'daki `bilgi` alanında.
+- [x] 8. Dokunma hedefleri en az 64 piksel, ekranda kaydırma yok — bölüm
+      ekranı için mevcut test, seçim ekranı için yeni eklenen "karakter
+      secim ekraninda dokunma hedefleri en az 64 piksel" testi (beş ekran
+      boyutunda `.karakterKarti` ve `.karakterMadalyonu`).
+- [x] 9. `prefers-reduced-motion` açıkken seçim ekranında da animasyon yok —
+      reduced-motion testi artık göç haritasını ve seçim ekranını da
+      ziyaret ediyor (Görev 7'ye yönlendirilen madde 2).
+- [x] 10. Birim testleri, denetim ve uçtan uca testler geçiyor — Adım 5'te
+       `npm run lint && npm run test && npm run kontrol && npm run e2e`
+       çalıştırıldı, sonuçlar görev 7 raporunda.

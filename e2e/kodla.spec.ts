@@ -14,8 +14,23 @@ const BOLUMLER = kursBolumleri(KURS);
 // icin demo devrede kalirsa programa beklenmedik bir blok karisir ve
 // sonuclar kararsizlasir. Demo'nun kendisi kodla-demo.spec.ts icinde ayrica
 // test ediliyor; burada sessizce kapatiyoruz.
+//
+// Ayni gerekce "Kiminle ucalim?" karakter secim ekrani icin de gecerli:
+// goc haritasina ilk giriste secim yapilmamissa diyalog acilir ve haritanin
+// USTUNU KAPLAR. Bu dosyadaki testlerin konusu secim ekrani degil (o,
+// asagidaki "ilk giriste kus secimi sorulur..." testinde ayrica dogrulanir);
+// digerleri haritayi/durak baglantilarini kullanabilsin diye secimi burada
+// onceden yapilmis sayiyoruz. kodla:karakter'in sekli { [kursId]: karakterId
+// } - karakterSec/seciliKarakterId bu duz haritayi okur (bkz.
+// lib/kodla/yerelKayit.ts).
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem("kodla:demo", "evet"));
+  await page.addInitScript(
+    ([kurs]) => {
+      localStorage.setItem("kodla:demo", "evet");
+      localStorage.setItem("kodla:karakter", JSON.stringify({ [kurs]: "turna" }));
+    },
+    [KURS],
+  );
 });
 
 /** Verilen komutlari paletten sirayla ekler. */
@@ -184,7 +199,6 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   // ("#") barindirir: tek bolumde hem carpma hem basak-toplama/kazanma
   // durumlarina ulasilabiliyor.
   const bolum = BOLUMLER.find((b) => b.id === "efes")!;
-  await sayfa.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   /** transitionDuration/animationName'i bir secici DOM'da BELIRIR belirmez
    * (ayni tarayici tikinde) yakalar; ayri bir "bul, sonra oku" adimi state
@@ -214,6 +228,26 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   function animasyonYok(deger: { animasyon: string }, secici: string) {
     expect(deger.animasyon, secici).toBe("none");
   }
+
+  // --- Karakter secim ekrani: bu baglam BILEREK kodla:karakter kurmaz, bu
+  // yuzden goc haritasina ilk giriste "Kiminle ucalim?" diyalogu acar.
+  // Gorev 5'te eklenen .karakterKarti ve .karakterMadalyonu gecisleri daha
+  // once hicbir e2e testinde reducedMotion baglaminda dogrulanmiyordu (bu
+  // test dogrudan bolum ekranina giderdi, haritaya hic ugramazdi) - burada
+  // haritayi da ziyaret ederek o boslugu kapatiyoruz.
+  await sayfa.goto(`/kodla/${KURS}/`);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+  await expect(diyalog).toBeVisible();
+  gecisYok(await anlikYakala(".karakterKarti"), ".karakterKarti");
+  // Diyalog acikken madalyon da varsayilan kusla ekranda olabilir
+  // (kartlar sorulurken bile secili-gorunen bir kus gosterilir); butonu
+  // KART icinden secmek icin araniyoruz, aksi halde "Turna" adi hem karta
+  // hem "Kusu degistir: Turna" madalyonuna eslesip strict mode'u kirar.
+  await diyalog.getByRole("button", { name: "Turna" }).click();
+  await expect(diyalog).toBeHidden();
+  gecisYok(await anlikYakala(".karakterMadalyonu"), ".karakterMadalyonu");
+
+  await sayfa.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // --- Kosuya gerek olmadan, sayfa acilir acilmaz erisilebilen durumlar ---
   animasyonYok(await anlikYakala(".kodlaKarakter"), ".kodlaKarakter (animation)");
@@ -403,4 +437,113 @@ test("cocuk uzun sure dokunmazsa demo yalnizca ilk durakta tekrar oynar", async 
   // 12sn zamanlayiciya karsi rahat bir pay birakiyoruz; yuklu bir makinede
   // 14sn'lik bir sinir kararsizliga yol acabilir.
   await expect(page.locator(".programBloku")).toHaveCount(1, { timeout: 18000 });
+});
+
+// --- Karakter secimi ---
+//
+// Yukaridaki testler beforeEach'te secimi onceden yapilmis sayarak
+// haritayi kullanir (bkz. dosya basindaki yorum); secim ekraninin KENDISI
+// burada, temiz bir tarayici baglaminda dogrulanir. browser.newContext()
+// kullanilmasinin nedeni: `page` fixture'ina addInitScript ile kurulan
+// beforeEach, yalnizca o fixture'in kullandigi baglama yazilir - Playwright
+// context'ler birbirinden izole depolama (localStorage) tasir, bu yuzden
+// browser.newContext() ile acilan taze bir baglam beforeEach'in
+// addInitScript'inden ETKILENMEZ ve kodla:karakter bos baslar. Bu, testin
+// yazilmadan once elle dogrulanmistir (bkz. gorev-7-report.md).
+test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabilir", async ({
+  browser,
+}) => {
+  // Temiz baglam: beforeEach'in secimi atlatan ayarindan etkilenmesin.
+  const baglam = await browser.newContext();
+  const sayfa = await baglam.newPage();
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+
+  await sayfa.getByRole("button", { name: "Flamingo" }).click();
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeHidden();
+
+  // Yonlendirilen madde 1: hicbir e2e testi haritadaki duraga TIKLAMIYORDU,
+  // yani secim ekraninin haritanin ustunu kapatmasi yalnizca tesadufen
+  // zararsizdi - acik/kilitli duraklarin gercekten tiklanabilir oldugunu
+  // hicbir test korumuyordu. Secim kapandiktan sonra ilk durak gercekten
+  // tiklanabilmeli ve bolum ekranina goturmeli.
+  await sayfa.getByRole("link", { name: /1\. durak/ }).click();
+  await expect(sayfa.getByRole("heading", { name: BOLUMLER[0].ad })).toBeVisible();
+
+  // Ikinci acilista sorulmaz.
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeHidden();
+
+  // Madalyon secimi yeniden acar.
+  await sayfa.getByRole("button", { name: /Kuşu değiştir/ }).click();
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+
+  await baglam.close();
+});
+
+// Diger dokunma hedefi testi ("bolum ekraninda kaydirma yok...") daima
+// beforeEach'in karakter secimini onceden yapmis sayan baglaminda calisir,
+// yani secim ekranina hic girmez. .karakterMadalyonu tam 64px (CSS'te sabit
+// genislik/yukseklik) - sinirda oldugu icin ayrica olculmesi gerekir;
+// .karakterKarti ise vw/vh'ye gore kuculebilen bir olcek tasir, dar/kisa
+// ekranlarda da 64px'in altina dusmedigini burada dogruluyoruz.
+test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ browser }) => {
+  for (const ekran of [
+    { g: 820, y: 1180 },
+    { g: 1180, y: 820 },
+    { g: 1024, y: 768 },
+    { g: 390, y: 844 },
+    { g: 844, y: 390 },
+  ]) {
+    const baglam = await browser.newContext({ viewport: { width: ekran.g, height: ekran.y } });
+    const sayfa = await baglam.newPage();
+    await sayfa.goto(`/kodla/${KURS}/`);
+    const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+    await expect(diyalog).toBeVisible();
+
+    const kartlar = sayfa.locator(".karakterKarti");
+    const adet = await kartlar.count();
+    expect(adet, `${ekran.g}x${ekran.y}`).toBeGreaterThan(0);
+    for (let i = 0; i < adet; i++) {
+      const kutu = (await kartlar.nth(i).boundingBox())!;
+      expect(
+        Math.min(kutu.width, kutu.height),
+        `karakterKarti ${i} cok kucuk (${ekran.g}x${ekran.y})`,
+      ).toBeGreaterThanOrEqual(64);
+    }
+
+    // Diyalog acikken varsayilan kusla eslesen bir madalyon da ekranda
+    // olabilir; karti karakterKarti icinden seciyoruz (bkz. yukaridaki
+    // reduced-motion testindeki ayni gerekce).
+    await diyalog.getByRole("button", { name: "Turna" }).click();
+    const madalyonKutu = (await sayfa.locator(".karakterMadalyonu").boundingBox())!;
+    expect(
+      Math.min(madalyonKutu.width, madalyonKutu.height),
+      `karakterMadalyonu cok kucuk (${ekran.g}x${ekran.y})`,
+    ).toBeGreaterThanOrEqual(64);
+
+    await baglam.close();
+  }
+});
+
+test("secilen kus bolum ekraninda gercekten cizilir", async ({ browser }) => {
+  const baglam = await browser.newContext();
+  const sayfa = await baglam.newPage();
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await sayfa.getByRole("button", { name: "Flamingo" }).click();
+  await sayfa.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
+
+  // Govde rengi secilen karakterin paletiyle eslesmeli. Renk karsilastirmasi
+  // kirilgan gorunur ama tam bu yuzden degerlidir: "flamingo sectim, hala
+  // beyaz kus yuruyor" hatasini baska hicbir test yakalamaz.
+  const govdeRengi = await sayfa
+    .locator(".kodlaKarakter ellipse")
+    .first()
+    .evaluate((o) => getComputedStyle(o).fill);
+  console.log(`  govde rengi: ${govdeRengi}`);
+  expect(govdeRengi).toBe("rgb(242, 162, 184)");
+
+  await baglam.close();
 });
