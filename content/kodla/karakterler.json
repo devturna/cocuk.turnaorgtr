@@ -4,13 +4,13 @@
       "id": "turna",
       "ad": "Turna",
       "bilgi": "Turnalar her ilkbahar Anadolu üzerinden kuzeye göç eder.",
-      "palet": { "govde": "#f4f1ea", "gaga": "#e08a2e", "bacak": "#33312e" }
+      "palet": { "govde": "#f4f1ea", "gaga": "#e08a2e", "bacak": "#33312e", "kanat": "#c9c2b4" }
     },
     {
       "id": "flamingo",
       "ad": "Flamingo",
       "bilgi": "Flamingolar Tuz Gölü'nde binlerce çift halinde ürer.",
-      "palet": { "govde": "#f2a2b8", "gaga": "#e8556d", "bacak": "#d4849a" }
+      "palet": { "govde": "#f2a2b8", "gaga": "#e8556d", "bacak": "#d4849a", "kanat": "#c96a8a" }
     }
   ]
 }

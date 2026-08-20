@@ -14,6 +14,8 @@ export type Karakter = {
     govde: string;
     gaga: string;
     bacak: string;
+    /** Kanat, govdenin golgede kalan tonudur; kusu govdeden ayirir. */
+    kanat: string;
   };
 };
 

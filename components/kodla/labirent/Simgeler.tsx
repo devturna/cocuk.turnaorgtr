@@ -10,15 +10,17 @@ import type { Yon } from "@/lib/kodla/labirent/komutlar";
 
 export type KarakterPozu = "durus" | "adim" | "carpma" | "kutlama";
 
-export type KarakterPaleti = { govde: string; gaga: string; bacak: string };
+export type KarakterPaleti = { govde: string; gaga: string; bacak: string; kanat: string };
 
-// Turna, karakter secilene kadarki (veya secim henuz okunamamisken) gorunen
-// varsayilan kustur; Sahne yeniden yazilana kadar da eski cagrilarin
-// derlenmesini saglar.
+// Sunucuda uretilen HTML'de ve secim daha okunmamisken gorunen kus:
+// katalogdaki "turna" girdisinin paleti. Ikisi AYNI kalmalidir, yoksa
+// sayfa once bir renkte cizilip effect calisinca digerine atlar. Bagi
+// tutan sey lib/kodla/karakterler.test.ts icindeki esitlik testidir.
 export const VARSAYILAN_PALET: KarakterPaleti = {
   govde: "#f4f1ea",
   gaga: "#e08a2e",
   bacak: "#33312e",
+  kanat: "#c9c2b4",
 };
 
 // Karakter saga bakacak sekilde cizilir; digerleri dondurulerek elde edilir.
@@ -30,16 +32,17 @@ const YON_DONUSUMU: Record<Yon, string> = {
   asagi: "translate(0 6)",
 };
 
-// Varsayilan degerler bilincli: Sahne bir sonraki gorevde yeniden yazilana
-// kadar eski cagri sekli ( <KarakterSimgesi /> ) de derlenmeye devam etsin diye.
+// Uc alan da zorunlu: cizim karakteri yalnizca palet uzerinden tanir ve
+// sessizce varsayilana dusen bir cagri, "flamingo sectim ama beyaz kus
+// yuruyor" hatasini derleyiciden gizler.
 export function KarakterSimgesi({
-  yon = "sag",
-  poz = "durus",
-  palet = VARSAYILAN_PALET,
+  yon,
+  poz,
+  palet,
 }: {
-  yon?: Yon;
-  poz?: KarakterPozu;
-  palet?: KarakterPaleti;
+  yon: Yon;
+  poz: KarakterPozu;
+  palet: KarakterPaleti;
 }) {
   // Bacak ve kanat pozisyonu poza gore degisir; govde ayni kalir.
   const bacakSol = poz === "adim" ? "M40 73 L34 88" : "M40 73 L38 88";
@@ -55,7 +58,7 @@ export function KarakterSimgesi({
   return (
     <g transform={YON_DONUSUMU[yon]}>
       <ellipse cx="46" cy="58" rx="26" ry="16" fill={palet.govde} stroke="#33312e" strokeWidth="4" />
-      <path d={kanat} fill="none" stroke="#c9c2b4" strokeWidth="5" strokeLinecap="round" />
+      <path d={kanat} fill="none" stroke={palet.kanat} strokeWidth="5" strokeLinecap="round" />
       <path d={`M62 50 L${bas.x - 2} ${bas.y + 4}`} stroke="#33312e" strokeWidth="4" fill="none" />
       <circle cx={bas.x} cy={bas.y} r="9" fill={palet.govde} stroke="#33312e" strokeWidth="4" />
       <path d={`M${bas.x + 8} ${bas.y} L${bas.x + 22} ${bas.y + 3}`} stroke={palet.gaga} strokeWidth="5" fill="none" strokeLinecap="round" />

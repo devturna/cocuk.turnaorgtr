@@ -210,7 +210,7 @@ for (const kurs of kurslar) {
     gorulenKarakterler.add(String(karakter.id));
 
     const palet = karakter.palet as Record<string, unknown> | undefined;
-    for (const alan of ["govde", "gaga", "bacak"]) {
+    for (const alan of ["govde", "gaga", "bacak", "kanat"]) {
       const renk = palet?.[alan];
       if (typeof renk !== "string" || !/^#[0-9a-f]{6}$/i.test(renk)) {
         hatalar.push(`karakter ${kimlik}: palet.${alan} "#rrggbb" biciminde olmali`);
