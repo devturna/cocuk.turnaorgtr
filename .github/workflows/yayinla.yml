@@ -28,11 +28,10 @@ on:
 env:
   NEXT_PUBLIC_TEMEL_YOL: /cocuk.turnaorgtr
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
+# Izinler is basina veriliyor, is akisi basina degil: bu is akisi HER dalda
+# kosuyor ve testleri kosan `insa` isinin depoyu okumaktan baska bir seye
+# ihtiyaci yok. `pages: write` ile `id-token: write` yalnizca gercekten
+# yayinlayan `yayinla` isinde duruyor - o da yalnizca main'de calisiyor.
 concurrency:
   # Grup dal basina ayri olmali. Tek bir "pages" grubu olsaydi bir dala
   # push, main'in suren yayinini iptal ederdi.
@@ -42,6 +41,8 @@ concurrency:
 jobs:
   insa:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -57,9 +58,9 @@ jobs:
       - run: npx playwright test
 
       # Yayin hazirligi yalnizca main'de: dallarda derleme cikisini
-      # yuklemenin anlami yok.
-      - if: github.ref == 'refs/heads/main'
-        uses: actions/configure-pages@v5
+      # yuklemenin anlami yok. Yalnizca yukleme burada: configure-pages
+      # Pages API'sine YAZAR (pages: write ister), o yuzden asagida,
+      # yayinla isinde duruyor. Artifact yuklemek ek izin istemez.
       - if: github.ref == 'refs/heads/main'
         uses: actions/upload-pages-artifact@v3
         with:
@@ -70,9 +71,14 @@ jobs:
     # Yayin kararini dal verir: yalnizca main yayina cikar.
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      - uses: actions/configure-pages@v5
       - id: deploy
         uses: actions/deploy-pages@v4
