@@ -65,6 +65,7 @@ Teknik bilgi gerektirmeyen iki yöntem:
    | `ogren:yildizlar` | Harfler ve Sayılar bölümünde tamamlanan harf/sayılar |
    | `kodla:ilerleme` | Kodlama bölümünde kazanılan yıldızlar (kurs ve durak bazında) |
    | `kodla:denemeler` | Bir duraktaki deneme sayısı (kilit açma kuralı için, geçici) |
+   | `kodla:karakter` | Kodlama bölümünde seçilen kuş (kurs bazında) |
 
    Hepsinin içeriği bu kadardır. İsim, tarih, kimlik numarası gibi hiçbir
    bilgi yoktur.
@@ -76,7 +77,7 @@ https://github.com/devturna/cocuk.turnaorgtr
 
 Verilerin saklanmasıyla ilgili kod her bölüm için ayrı, küçük bir
 dosyadadır: boyama için `lib/boyama/yerelKayit.ts`, Harfler ve Sayılar için
-`lib/ogren/yildiz.ts`, Kodlama için `lib/kodla/ilerleme.ts`. Yazılımcı
+`lib/ogren/yildiz.ts`, Kodlama için `lib/kodla/yerelKayit.ts`. Yazılımcı
 olmasanız bile dosyaların kısalığı fikir verir.
 
 ## Çizimleri nasıl silerim?
