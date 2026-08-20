@@ -252,7 +252,7 @@ tik süresi). CSS geçişini JS tikinden uzun yaparsanız Turna geçişini
 bitirmeden bir sonraki kareye ışınlanır. Üçü de `BolumEkrani.tsx`'in
 başındaki yorumda anlatılır ve birlikte güncellenmelidir.
 
-### Turna'nın çizimi nasıl değiştirilir?
+### Karakterin çizimi nasıl değiştirilir?
 
 `Simgeler.tsx` dört yön ve dört poz (`durus`, `adim`, `carpma`, `kutlama`)
 taşıyan bir sözleşmedir. Dışarıdan illüstrasyon geldiğinde yalnızca bu
@@ -263,9 +263,13 @@ bilmez. Beklenen varlık listesi ve format şartları tasarım belgesinin
 ### Karakter nasıl eklenir?
 
 `content/kodla/karakterler.json` içine, kursun listesine bir girdi eklemek
-yeterlidir: kimlik, ad, ebeveyne yazılmış tek cümle ve üç renkten oluşan
-palet. `npm run kontrol` paletin geçerliliğini ve bilginin doluluğunu
-denetler.
+yeterlidir: kimlik, ad, ebeveyne yazılmış tek cümle ve dört renkten oluşan
+palet (`govde`, `gaga`, `bacak`, `kanat`). `npm run kontrol` paletin
+geçerliliğini ve bilginin doluluğunu denetler.
+
+Bir kursta tek karakter varsa seçim ekranı hiç açılmaz; iki veya daha
+fazlası varsa seçim yapılana kadar harita kullanılamaz (kural:
+`secimSorulmaliMi`, `lib/kodla/yerelKayit.ts`).
 
 Çizim karakteri yalnızca palet üzerinden tanır; `KarakterSimgesi` yön ve poz
 dışında hiçbir şey bilmez. İllüstrasyon geldiğinde `Simgeler.tsx`'in gövdesi

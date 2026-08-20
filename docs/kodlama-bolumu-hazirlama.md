@@ -134,9 +134,20 @@ içindeki `"yayinda"` kurslarla `KURS_BOLUMLERI` kaydı burada karşılaştırı
 Yeni bir kurs, kendi kuş seçeneklerini de getirmelidir:
 `content/kodla/karakterler.json` içine kurs kimliğiyle eşleşen bir anahtar
 altında en az bir karakter eklenir (`id`, `ad`, `bilgi`, `palet.govde`,
-`palet.gaga`, `palet.bacak` — renkler `"#rrggbb"` biçiminde). `npm run
-kontrol` bu dosyayı da denetler: karakteri olmayan `"yayinda"` bir kurs,
-eksik/boş bir alan veya geçersiz bir renk denetimi düşürür.
+`palet.gaga`, `palet.bacak`, `palet.kanat` — renkler `"#rrggbb"`
+biçiminde). `npm run kontrol` bu dosyayı da denetler: karakteri olmayan
+`"yayinda"` bir kurs, eksik/boş bir alan veya geçersiz bir renk denetimi
+düşürür.
+
+`palet.kanat`, gövdenin gölgede kalan tonudur: aynı kuşun tüyü olarak
+okunmalı, gövdeden ayırt edilebilecek kadar da koyu olmalı. Turna'da
+`#c9c2b4`, flamingoda `#c96a8a`.
+
+**Kursta tek karakter varsa seçim ekranı hiç açılmaz.** Seçecek bir şey
+yokken çocuğu kart ekranında durdurmanın anlamı yok; o tek kuş sessizce
+geçerli sayılır. Kural `secimSorulmaliMi` içinde yaşar
+(`lib/kodla/yerelKayit.ts`) ve `yerelKayit.test.ts` ile korunur. İki veya
+daha fazla kuş varsa seçim sorulur ve seçilene kadar harita kullanılamaz.
 
 Kuşa dair bilgi (adı, göç öyküsü, vb.) burada, karakter kartında durur —
 durak `ipucu`sine asla sızmaz, çünkü `ipucu` yere dairdir (bkz. §3). Aynı

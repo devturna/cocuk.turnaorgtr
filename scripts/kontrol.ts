@@ -316,7 +316,7 @@ for (const kurs of kurslar) {
 
     const enKisa = enKisaCozum(harita, bolum.komutSeti as KomutSeti);
     if (enKisa === null) {
-      hatalar.push(`${bolumId}: bu bolumun cozumu yok, Turna hedefe ulasamiyor`);
+      hatalar.push(`${bolumId}: bu bolumun cozumu yok, karakter hedefe ulasamiyor`);
       continue;
     }
     if (bolum.idealAdim !== enKisa) {

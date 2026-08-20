@@ -106,16 +106,18 @@ lib/kodla/
     calistir.ts                  program + harita → adım listesi
     cozucu.ts                    en kısa çözüm (yalnızca denetimde kullanılır)
     temalar.ts                   zemin ve engel çizimleri
+  karakterler.ts                 kurs başına kuş kataloğu ve paletleri
 
 components/kodla/
   KursKartlari.tsx
   labirent/
-    GocHaritasi.tsx              Türkiye haritası ve duraklar
+    GocHaritasi.tsx              Türkiye haritası, duraklar ve karakter madalyonu
+    KarakterKartlari.tsx         "Kiminle uçalım?" seçim ekranı
     BolumEkrani.tsx              bölümü birleştiren kabuk
-    Sahne.tsx                    kareli harita, Turna, başaklar
+    Sahne.tsx                    kareli harita, karakter, başaklar
     ProgramSeridi.tsx            bloklar, sürükle-sırala, silme
     KomutPaleti.tsx              dokunulunca blok ekleyen düğmeler
-    Simgeler.tsx                 Turna, yuva ve başak SVG bileşenleri
+    Simgeler.tsx                 karakter, yuva ve başak SVG bileşenleri (paleti dışarıdan alır)
     komutGorunumu.ts             komutun ikonu ve okunabilir adı (palet ve şerit ortak kaynağı)
   kodla.css
 
@@ -184,7 +186,7 @@ gözüyle görür.
   "tema": "sazlik",
   "durak": { "x": 46, "y": 58 },
   "idealAdim": 5,
-  "ipucu": "Turnalar her ilkbahar Sultansazligi'nda dinlenir.",
+  "ipucu": "Sultansazligi Kayseri'de sazliklar ve gollerden olusan bir kus cennetidir.",
   "harita": {
     "bakis": "sag",
     "satirlar": [
@@ -200,13 +202,19 @@ gözüyle görür.
 |---|---|
 | `.` | boş kare |
 | `#` | engel |
-| `T` | Turna'nın başlangıç karesi (her haritada tam bir tane) |
+| `T` | karakterin başlangıç karesi (her haritada tam bir tane) |
 | `H` | yuva, hedef (her haritada tam bir tane) |
 | `o` | toplanacak başak (sıfır veya daha fazla) |
 
-`bakis` yalnızca `donusler` komut setinde anlamlıdır; orada Turna'nın
-başlangıçta hangi yöne baktığını verir. `yonler` setinde Turna yürüdüğü yöne
-döner ama bu bir komut değil, yalnızca animasyondur.
+`ipucu` **yere dairdir, kuşa değil.** Örnekteki cümlenin Sultansazlığı'nı
+anlatıp turnadan hiç söz etmemesi bilinçlidir: aynı duraktan çocuğun
+seçtiği her kuş geçer, kuşa özgü bir gerçek çocukların yarısı için yanlış
+olur. Kuş bilgisi karakter kartında durur — bkz.
+[kodlama-karakter.md](kodlama-karakter.md) §7.
+
+`bakis` yalnızca `donusler` komut setinde anlamlıdır; orada karakterin
+başlangıçta hangi yöne baktığını verir. `yonler` setinde karakter yürüdüğü
+yöne döner ama bu bir komut değil, yalnızca animasyondur.
 
 `tema` alanı engelin ve zeminin neye benzeyeceğini seçer: Sultansazlığı'nda
 sazlık, Kapadokya'da peribacası, Ağrı'da kaya. Aynı motor, farklı görsel.
@@ -223,7 +231,7 @@ kullanır.
 calistir(program: Komut[], harita: Harita): Sonuc
 
 type Adim = {
-  turna: { x: number; y: number; bakis: Yon };
+  karakter: { x: number; y: number; bakis: Yon };
   olay: "yurudu" | "dondu" | "carpti" | "topladi" | "vardi";
 };
 
@@ -398,16 +406,22 @@ kalmamalıdır; bu, başarısızlık hissinden kaçınma kararının devamıdır
 
 ### Kültür bağı ebeveyn üzerinden kurulur
 
-Her durakta ebeveyne tek cümle vardır ("Turnalar her ilkbahar
-Sultansazlığı'nda dinlenir", "Turna semahı bu kuşun uçuşunu taklit eder").
-Çocuğa metin gösterilmez; kültür, yanındaki büyüğün anlatacağı şeydir.
+Her durakta ebeveyne tek cümle vardır ("Sultansazlığı Kayseri'de sazlıklar
+ve göllerden oluşan bir kuş cennetidir"). Çocuğa metin gösterilmez; kültür,
+yanındaki büyüğün anlatacağı şeydir.
+
+Bu cümle **yere dairdir, kuşa değil.** Karakter seçimi geldiğinden beri aynı
+duraktan turna da flamingo da geçiyor; kuşa özgü bir gerçek, o kuşu
+seçmeyen çocuk için yanlış olurdu. Kuş bilgileri
+`content/kodla/karakterler.json` içindeki `bilgi` alanında, seçim ekranında
+durur — bkz. [kodlama-karakter.md](kodlama-karakter.md) §7.
 
 Bu yaklaşım Harfler ve Sayılar bölümündeki "sesi ebeveyn söyler" kararıyla
 aynı çizgidedir.
 
 ### Görseller
 
-Turna, yuva ve başak sahnenin kendi SVG'si içinde yaşayan React bileşenleridir
+Karakter, yuva ve başak sahnenin kendi SVG'si içinde yaşayan React bileşenleridir
 (`components/kodla/labirent/Simgeler.tsx`); tema zeminleri ve engel çizimleri
 `lib/kodla/labirent/temalar.ts` içinde veri olarak durur. Ayrı dosya olmamalarının
 nedeni: sahnenin `<svg>`i içinde ek dosya isteği doğurmazlar ve renklerini

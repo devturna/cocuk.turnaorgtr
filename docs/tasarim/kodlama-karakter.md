@@ -54,6 +54,7 @@ type Karakter = {
     govde: string;   // "#f4f1ea"
     gaga: string;
     bacak: string;
+    kanat: string;   // govdenin golgede kalan tonu
   };
 };
 ```
@@ -68,13 +69,13 @@ kayıttır:
       "id": "turna",
       "ad": "Turna",
       "bilgi": "Turnalar her ilkbahar Anadolu üzerinden kuzeye göç eder.",
-      "palet": { "govde": "#f4f1ea", "gaga": "#e08a2e", "bacak": "#33312e" }
+      "palet": { "govde": "#f4f1ea", "gaga": "#e08a2e", "bacak": "#33312e", "kanat": "#c9c2b4" }
     },
     {
       "id": "flamingo",
       "ad": "Flamingo",
       "bilgi": "Flamingolar Tuz Gölü'nde binlerce çift halinde ürer.",
-      "palet": { "govde": "#f2a2b8", "gaga": "#e8556d", "bacak": "#d4849a" }
+      "palet": { "govde": "#f2a2b8", "gaga": "#e8556d", "bacak": "#d4849a", "kanat": "#c96a8a" }
     }
   ]
 }
@@ -88,6 +89,11 @@ arayüzdür.
 
 İllüstrasyonlar geldiğinde bu alan dosya yollarına dönüşür ve çağıran kod
 değişmez — `KarakterSimgesi` yön ve poz dışında hiçbir şey bilmez.
+
+Çizimdeki **her** renkli parça paletten gelmelidir. Kanat başlangıçta
+sabit bir turna beji ile çizilmişti; pembe flamingo bej bir kanat taşıyordu
+ve "bir karakteri diğerinden ayıran şey renktir" ilkesi kendi çiziminde
+çiğneniyordu. `palet.kanat` bu yüzden dördüncü alan olarak eklendi.
 
 ### Kayıt
 
@@ -132,6 +138,18 @@ KURS KARTI  →   KİMİNLE UÇALIM?      →   GÖÇ HARİTASI
 
 Kartlarda kuşun çizimi, adı ve ebeveyne yazılmış tek cümlelik bilgisi
 bulunur. Çocuk yazıyı okumaz; kuşa bakar ve seçer.
+
+### Seçim bir geçittir
+
+Seçim yapılana kadar haritaya erişilemez. Bunu sağlayan şey yalnızca
+opak örtü değildir — örtü fareyi durdurur, klavyeyi durdurmaz. Kartlar
+açıkken haritanın tamamı `inert` olur (odak ve erişilebilirlik ağacı
+kapanır) ve açılışta ilk karta odaklanılır.
+
+`Escape` **ilk girişte kapatmaz**: arkasında geçerli bir durum yoktur,
+kapanırsa çocuk kuşsuz bir haritada kalırdı. Madalyondan yeniden
+açıldığında seçim zaten yapılmıştır; orada `Escape` vazgeçmek demektir ve
+çocuğu bulunduğu yerde bırakır.
 
 ### Madalyon
 

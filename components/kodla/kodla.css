@@ -553,9 +553,18 @@
   50% { box-shadow: 0 0 0 10px rgba(245, 166, 35, 0); }
 }
 
-/* Bu blok dosyadaki son prefers-reduced-motion kurali olarak tutulur: ayni
-   secicilere ayni ozellikleri veren erken kurallarla ayni ozguculukte
-   oldugu icin sirada en sonda olmasi kazanmasini garantiler. */
+/* KURAL: bir prefers-reduced-motion bildirimi, iptal ettigi animation/
+   transition bildiriminden SONRA gelmelidir. Ozgulluk esitse kazanan
+   siradaki sonuncudur; bu blok .komutDugmesi.hayaletli::after,
+   .calistirDugmesi.hayaletli::after ve .nabiz kurallarindan sonra
+   geldigi icin kazanir.
+   (Onceki metin "bu blok dosyanin EN SONUNCU reduced-motion kurali
+   olarak tutulur" diyordu. Karakter secimi blogu sonradan altina
+   eklendi ve cumle yalan oldu -- oysa dosyanin sonu hicbir zaman
+   gerekli degildi, gerekli olan yalnizca ilgili kurallardan sonra
+   gelmekti. Yeni bir blok eklerken uyulacak sey budur: her blogun
+   kendi reduced-motion iptali kendi kurallarindan sonra gelsin.
+   Onceki fazda tam olarak burada dort ayri ozgulluk hatasi bulundu.) */
 @media (prefers-reduced-motion: reduce) {
   .komutDugmesi.hayaletli::after,
   .calistirDugmesi.hayaletli::after,

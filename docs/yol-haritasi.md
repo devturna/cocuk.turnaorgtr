@@ -57,7 +57,7 @@ belirgin biçimde daha iyi bir deneyim.
 |---|---|---|
 | 4a | Kurs katmanı, göç haritası, labirent motoru, mutlak yönler, ilk beş durak | Tamamlandı |
 | 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, sessiz demo, tek adımlık öğretici ilk durak | Tamamlandı (altı durak yayında) |
-| 4c | Karakter seçimi: çocuk hangi kuşla uçacağını seçer | Geliştiriliyor |
+| 4c | Karakter seçimi: çocuk hangi kuşla uçacağını seçer | Tamamlandı (turna ve flamingo yayında) |
 | 4d | Döngü: üç aşamalı öğretim ve döngü durakları | Planlanıyor |
 | 4e | Ses katmanı | Planlanıyor |
 | 4f | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) | Planlanıyor |
