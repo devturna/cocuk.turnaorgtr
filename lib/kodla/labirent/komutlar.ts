@@ -1,7 +1,7 @@
 // Labirent bolumunde kullanilan komutlar.
 //
 // Iki komut seti vardir. "yonler" seti mutlak yon verir (yukari git);
-// "donusler" seti Turna'nin baktigi yone gore calisir (ileri, saga don).
+// "donusler" seti karakterin baktigi yone gore calisir (ileri, saga don).
 // Ilk bolumler mutlak setle oynanir: bu yasta zihinsel dondurme henuz
 // oturmamistir. Gerekcesi docs/tasarim/kodlama.md icinde.
 

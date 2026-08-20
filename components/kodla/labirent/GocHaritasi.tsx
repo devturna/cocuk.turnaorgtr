@@ -2,10 +2,13 @@
 
 // Kursun bolum secim ekrani: Turkiye silueti ve uzerinde duraklar.
 // Tamamlanan duraklar arasina kesik cizgi bir ucus yolu cizilir.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { BolumVerisi } from "@/lib/kodla/bolumler";
-import { bolumAcikMi, bolumSonucu, type YildizTuru } from "@/lib/kodla/ilerleme";
+import { kursKarakterleri, varsayilanKarakter } from "@/lib/kodla/karakterler";
+import { bolumAcikMi, bolumSonucu, karakterSec, secimSorulmaliMi, seciliKarakter, type YildizTuru } from "@/lib/kodla/yerelKayit";
+import { KarakterSimgesi } from "./Simgeler";
+import KarakterKartlari from "./KarakterKartlari";
 import "../kodla.css";
 
 export default function GocHaritasi({
@@ -26,6 +29,68 @@ export default function GocHaritasi({
   const [acilanlar, setAcilanlar] = useState<Record<string, boolean>>(() =>
     bolumler.length > 0 ? { [bolumler[0].id]: true } : {},
   );
+
+  // useMemo sart: kursKarakterleri bilinmeyen bir kurs icin her cagrida
+  // YENI bir bos dizi doner; asagidaki etkinin bagimlilik listesinde ham
+  // cagri dursaydi bu sonsuz donguye girerdi.
+  const karakterler = useMemo(() => kursKarakterleri(kursId), [kursId]);
+  // Sunucuda uretilen HTML varsayilan kusu gosterir; secim ekrani ancak
+  // tarayicida, gercekten secim yapilmamissa acilir. Boylece harita
+  // "once kartlar acik sonra kapali" diye zipzalmaz.
+  const [karakter, setKarakter] = useState(() => varsayilanKarakter(kursId));
+  const [secimAcik, setSecimAcik] = useState(false);
+  // Ilk giriste secim ZORUNLUDUR: arkada gecerli bir durum yok, Escape ile
+  // kapatan cocuk kussuz bir haritada kalirdi. Madalyondan yeniden
+  // acildiginda secim zaten var; orada vazgecmek gecerli bir cevaptir.
+  const [secimZorunlu, setSecimZorunlu] = useState(false);
+
+  // Kapanis turu (review): diyalog kapaninca odak <body>'ye dusmemeli -
+  // duserse klavye kullanan cocuk belgenin basindan yeniden sekmelemek
+  // zorunda kalir. Standart sozlesme odagi CAGIRANA geri verir; madalyondan
+  // yeniden acilan yolda cagiran odur. Ilk giriste geri donulecek bir
+  // cagiran yoktur (secim karttan yapilir, madalyona hic tiklanmamistir);
+  // orada odagi ilk duraga koyuyoruz - cocugun bir sonraki dogal adimi
+  // zaten oraya gitmektir, madalyon ise yalnizca "kusu degistir" gibi
+  // ikincil bir eylemi tekrar sunar.
+  const madalyonRef = useRef<HTMLButtonElement>(null);
+  const haritaRef = useRef<HTMLDivElement>(null);
+  // Kapanisin hangi yoldan geldigini (ilk giris mi, yeniden acilis mi)
+  // asagidaki [secimAcik] etkisi calisana kadar tasir. null: henuz bir
+  // kapanis olmadi (ilk mount'ta odak tasinmamali).
+  const kapanisIlkGirisRef = useRef<boolean | null>(null);
+
+  useEffect(() => {
+    if (secimAcik) return;
+    const ilkGiristi = kapanisIlkGirisRef.current;
+    if (ilkGiristi === null) return;
+    kapanisIlkGirisRef.current = null;
+    if (ilkGiristi) {
+      haritaRef.current?.querySelector<HTMLAnchorElement>("a.gocDuragi")?.focus();
+    } else {
+      madalyonRef.current?.focus();
+    }
+  }, [secimAcik]);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setKarakter(seciliKarakter(kursId));
+    const sorulmali = secimSorulmaliMi(kursId, karakterler);
+    setSecimAcik(sorulmali);
+    setSecimZorunlu(sorulmali);
+  }, [kursId, karakterler]);
+
+  function karakteriSec(karakterId: string) {
+    kapanisIlkGirisRef.current = secimZorunlu;
+    karakterSec(kursId, karakterId);
+    setKarakter(seciliKarakter(kursId));
+    setSecimAcik(false);
+    setSecimZorunlu(false);
+  }
+
+  function secimiKapat() {
+    kapanisIlkGirisRef.current = secimZorunlu;
+    setSecimAcik(false);
+  }
 
   // Ilerleme yalnizca tarayicida bulunur; sayfa sunucuda uretilirken okunamaz.
   useEffect(() => {
@@ -50,9 +115,33 @@ export default function GocHaritasi({
 
   return (
     <div className="gocEkrani">
-      <h1>{kursAdi}</h1>
+      {/*
+        Secim ekrani acikken arkasindaki her sey `inert` olur. Ustunu
+        opak bir ortuyle kapatmak yalnizca FAREYI durdurur; durak
+        <Link>'leri DOM'da kalir ve sekme sirasindan cikmaz, yani
+        klavyeyle Tab-Tab-Enter kus secmeden bir bolume girerdi. `inert`
+        hem odagi hem erisilebilirlik agacini kapatir; React 19 bunu duz
+        bir ozellik olarak geciriyor (bkz. e2e'deki "secim yapilmadan
+        durak klavyeyle de acilamaz" testi).
+      */}
+      <h1 inert={secimAcik}>{kursAdi}</h1>
 
-      <div className="gocHaritasi">
+      {karakter && (
+        <button
+          type="button"
+          ref={madalyonRef}
+          inert={secimAcik}
+          className="karakterMadalyonu"
+          aria-label={`Kuşu değiştir: ${karakter.ad}`}
+          onClick={() => setSecimAcik(true)}
+        >
+          <svg viewBox="0 0 100 100" aria-hidden="true">
+            <KarakterSimgesi yon="sag" poz="durus" palet={karakter.palet} />
+          </svg>
+        </button>
+      )}
+
+      <div className="gocHaritasi" ref={haritaRef} inert={secimAcik}>
         {/*
           Silueti dogrudan basiyoruz. Icerik kullanicidan gelmiyor: depoya
           commit edilmis tek bir dosya derleme aninda okunuyor. Boyama
@@ -116,6 +205,15 @@ export default function GocHaritasi({
           );
         })}
       </div>
+
+      {secimAcik && (
+        <KarakterKartlari
+          karakterler={karakterler}
+          onSec={karakteriSec}
+          kapatilabilir={!secimZorunlu}
+          onKapat={secimiKapat}
+        />
+      )}
     </div>
   );
 }

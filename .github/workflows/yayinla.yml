@@ -1,4 +1,9 @@
-# main dalina her push'ta testleri calistirip siteyi GitHub Pages'e yayinlar.
+# HER dala push'ta testleri calistirir; siteyi YALNIZCA main'den yayinlar.
+#
+# Testler neden her dalda kosuyor: bir sorun ancak main'e girdiginde ortaya
+# ciktiginda, yayin kirilarak ogreniliyor. Nitekim bir kez oyle oldu ve
+# hatanin sebebi yavas makinedeki bir yaristi; lokalde uretmek mumkun
+# degildi. Dalda kosan test bunu birlestirmeden once yakalar.
 #
 # YAYIN ADRESI: https://devturna.github.io/cocuk.turnaorgtr/
 # Proje sayfasi oldugu icin site alt yolda duruyor ve butun baglantilarin bu
@@ -11,28 +16,33 @@
 #   3. DNS'te alt alan adi icin devturna.github.io'ya CNAME kaydi olustur.
 #   4. Repo Settings > Pages > Custom domain alanina alan adini yaz.
 # Ikisi ayni anda calismaz: on ek varken alan adinda, yokken github.io'da kirilir.
-name: Yayinla
+name: Testler ve yayin
 
 on:
+  # Butun dallar: testler her yerde kossun. pull_request'i ayrica
+  # eklemiyoruz, yoksa ayni commit icin iki kosu birden olusur.
   push:
-    branches: [main]
+    branches: ["**"]
   workflow_dispatch:
 
 env:
   NEXT_PUBLIC_TEMEL_YOL: /cocuk.turnaorgtr
 
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
+# Izinler is basina veriliyor, is akisi basina degil: bu is akisi HER dalda
+# kosuyor ve testleri kosan `insa` isinin depoyu okumaktan baska bir seye
+# ihtiyaci yok. `pages: write` ile `id-token: write` yalnizca gercekten
+# yayinlayan `yayinla` isinde duruyor - o da yalnizca main'de calisiyor.
 concurrency:
-  group: pages
+  # Grup dal basina ayri olmali. Tek bir "pages" grubu olsaydi bir dala
+  # push, main'in suren yayinini iptal ederdi.
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
   insa:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -46,17 +56,29 @@ jobs:
       - run: npm run build
       - run: npx playwright install --with-deps chromium
       - run: npx playwright test
-      - uses: actions/configure-pages@v5
-      - uses: actions/upload-pages-artifact@v3
+
+      # Yayin hazirligi yalnizca main'de: dallarda derleme cikisini
+      # yuklemenin anlami yok. Yalnizca yukleme burada: configure-pages
+      # Pages API'sine YAZAR (pages: write ister), o yuzden asagida,
+      # yayinla isinde duruyor. Artifact yuklemek ek izin istemez.
+      - if: github.ref == 'refs/heads/main'
+        uses: actions/upload-pages-artifact@v3
         with:
           path: out
 
   yayinla:
     needs: insa
+    # Yayin kararini dal verir: yalnizca main yayina cikar.
+    if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     environment:
       name: github-pages
       url: ${{ steps.deploy.outputs.page_url }}
     steps:
+      - uses: actions/configure-pages@v5
       - id: deploy
         uses: actions/deploy-pages@v4

@@ -3,7 +3,7 @@
 // Yalnizca "npm run kontrol" kullanir: cozulemeyen ya da idealAdim degeri
 // yanlis olan bir bolum depoya girmesin diye. Siteye dahil edilmez.
 //
-// Genislik oncelikli arama (BFS) yapilir. Durum = Turna'nin karesi + baktigi
+// Genislik oncelikli arama (BFS) yapilir. Durum = karakterin karesi + baktigi
 // yon + hangi basaklarin toplandigi. Carpma hic denenmez: carpan bir komut
 // durumu degistirmedigi icin en kisa cozumde asla bulunmaz.
 import {

@@ -1,16 +1,29 @@
 // Sahnedeki cizimler ve dis dunyaya verdigimiz sozlesme.
 //
 // Her simge 0-100 birimlik bir kutuya cizilir; sahne translate ile
-// yerlestirir. Turna dort yon ve dort poz tasir: yurume dongusu "durus" ile
-// "adim" pozlarinin degismesiyle olusur.
+// yerlestirir. Karakter dort yon ve dort poz tasir: yurume dongusu "durus"
+// ile "adim" pozlarinin degismesiyle olusur.
 //
 // Illustrator ciktisi geldiginde yalnizca bu dosyanin govdesi degisir.
 // Cagiran bilesenler poz ve yon disinda hicbir sey bilmez.
 import type { Yon } from "@/lib/kodla/labirent/komutlar";
 
-export type TurnaPozu = "durus" | "adim" | "carpma" | "kutlama";
+export type KarakterPozu = "durus" | "adim" | "carpma" | "kutlama";
 
-// Turna saga bakacak sekilde cizilir; digerleri dondurulerek elde edilir.
+export type KarakterPaleti = { govde: string; gaga: string; bacak: string; kanat: string };
+
+// Sunucuda uretilen HTML'de ve secim daha okunmamisken gorunen kus:
+// katalogdaki "turna" girdisinin paleti. Ikisi AYNI kalmalidir, yoksa
+// sayfa once bir renkte cizilip effect calisinca digerine atlar. Bagi
+// tutan sey lib/kodla/karakterler.test.ts icindeki esitlik testidir.
+export const VARSAYILAN_PALET: KarakterPaleti = {
+  govde: "#f4f1ea",
+  gaga: "#e08a2e",
+  bacak: "#33312e",
+  kanat: "#c9c2b4",
+};
+
+// Karakter saga bakacak sekilde cizilir; digerleri dondurulerek elde edilir.
 // Sola bakarken ters donmemesi icin dondurme degil aynalama kullanilir.
 const YON_DONUSUMU: Record<Yon, string> = {
   sag: "",
@@ -19,14 +32,17 @@ const YON_DONUSUMU: Record<Yon, string> = {
   asagi: "translate(0 6)",
 };
 
-// Varsayilan degerler bilincli: Sahne bir sonraki gorevde yeniden yazilana
-// kadar eski cagri sekli ( <TurnaSimgesi /> ) de derlenmeye devam etsin diye.
-export function TurnaSimgesi({
-  yon = "sag",
-  poz = "durus",
+// Uc alan da zorunlu: cizim karakteri yalnizca palet uzerinden tanir ve
+// sessizce varsayilana dusen bir cagri, "flamingo sectim ama beyaz kus
+// yuruyor" hatasini derleyiciden gizler.
+export function KarakterSimgesi({
+  yon,
+  poz,
+  palet,
 }: {
-  yon?: Yon;
-  poz?: TurnaPozu;
+  yon: Yon;
+  poz: KarakterPozu;
+  palet: KarakterPaleti;
 }) {
   // Bacak ve kanat pozisyonu poza gore degisir; govde ayni kalir.
   const bacakSol = poz === "adim" ? "M40 73 L34 88" : "M40 73 L38 88";
@@ -41,14 +57,14 @@ export function TurnaSimgesi({
 
   return (
     <g transform={YON_DONUSUMU[yon]}>
-      <ellipse cx="46" cy="58" rx="26" ry="16" fill="#f4f1ea" stroke="#33312e" strokeWidth="4" />
-      <path d={kanat} fill="none" stroke="#c9c2b4" strokeWidth="5" strokeLinecap="round" />
+      <ellipse cx="46" cy="58" rx="26" ry="16" fill={palet.govde} stroke="#33312e" strokeWidth="4" />
+      <path d={kanat} fill="none" stroke={palet.kanat} strokeWidth="5" strokeLinecap="round" />
       <path d={`M62 50 L${bas.x - 2} ${bas.y + 4}`} stroke="#33312e" strokeWidth="4" fill="none" />
-      <circle cx={bas.x} cy={bas.y} r="9" fill="#f4f1ea" stroke="#33312e" strokeWidth="4" />
-      <path d={`M${bas.x + 8} ${bas.y} L${bas.x + 22} ${bas.y + 3}`} stroke="#e08a2e" strokeWidth="5" fill="none" strokeLinecap="round" />
+      <circle cx={bas.x} cy={bas.y} r="9" fill={palet.govde} stroke="#33312e" strokeWidth="4" />
+      <path d={`M${bas.x + 8} ${bas.y} L${bas.x + 22} ${bas.y + 3}`} stroke={palet.gaga} strokeWidth="5" fill="none" strokeLinecap="round" />
       <circle cx={bas.x + 2} cy={bas.y - 2} r="2" fill="#33312e" />
-      <path d={bacakSol} stroke="#33312e" strokeWidth="4" fill="none" strokeLinecap="round" />
-      <path d={bacakSag} stroke="#33312e" strokeWidth="4" fill="none" strokeLinecap="round" />
+      <path d={bacakSol} stroke={palet.bacak} strokeWidth="4" fill="none" strokeLinecap="round" />
+      <path d={bacakSag} stroke={palet.bacak} strokeWidth="4" fill="none" strokeLinecap="round" />
     </g>
   );
 }

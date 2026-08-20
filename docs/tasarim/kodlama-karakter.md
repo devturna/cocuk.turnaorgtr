@@ -54,6 +54,7 @@ type Karakter = {
     govde: string;   // "#f4f1ea"
     gaga: string;
     bacak: string;
+    kanat: string;   // govdenin golgede kalan tonu
   };
 };
 ```
@@ -68,13 +69,13 @@ kayıttır:
       "id": "turna",
       "ad": "Turna",
       "bilgi": "Turnalar her ilkbahar Anadolu üzerinden kuzeye göç eder.",
-      "palet": { "govde": "#f4f1ea", "gaga": "#e08a2e", "bacak": "#33312e" }
+      "palet": { "govde": "#f4f1ea", "gaga": "#e08a2e", "bacak": "#33312e", "kanat": "#c9c2b4" }
     },
     {
       "id": "flamingo",
       "ad": "Flamingo",
       "bilgi": "Flamingolar Tuz Gölü'nde binlerce çift halinde ürer.",
-      "palet": { "govde": "#f2a2b8", "gaga": "#e8556d", "bacak": "#d4849a" }
+      "palet": { "govde": "#f2a2b8", "gaga": "#e8556d", "bacak": "#d4849a", "kanat": "#c96a8a" }
     }
   ]
 }
@@ -88,6 +89,11 @@ arayüzdür.
 
 İllüstrasyonlar geldiğinde bu alan dosya yollarına dönüşür ve çağıran kod
 değişmez — `KarakterSimgesi` yön ve poz dışında hiçbir şey bilmez.
+
+Çizimdeki **her** renkli parça paletten gelmelidir. Kanat başlangıçta
+sabit bir turna beji ile çizilmişti; pembe flamingo bej bir kanat taşıyordu
+ve "bir karakteri diğerinden ayıran şey renktir" ilkesi kendi çiziminde
+çiğneniyordu. `palet.kanat` bu yüzden dördüncü alan olarak eklendi.
 
 ### Kayıt
 
@@ -133,16 +139,29 @@ KURS KARTI  →   KİMİNLE UÇALIM?      →   GÖÇ HARİTASI
 Kartlarda kuşun çizimi, adı ve ebeveyne yazılmış tek cümlelik bilgisi
 bulunur. Çocuk yazıyı okumaz; kuşa bakar ve seçer.
 
+### Seçim bir geçittir
+
+Seçim yapılana kadar haritaya erişilemez. Bunu sağlayan şey yalnızca
+opak örtü değildir — örtü fareyi durdurur, klavyeyi durdurmaz. Kartlar
+açıkken haritanın tamamı `inert` olur (odak ve erişilebilirlik ağacı
+kapanır) ve açılışta ilk karta odaklanılır.
+
+`Escape` **ilk girişte kapatmaz**: arkasında geçerli bir durum yoktur,
+kapanırsa çocuk kuşsuz bir haritada kalırdı. Madalyondan yeniden
+açıldığında seçim zaten yapılmıştır; orada `Escape` vazgeçmek demektir ve
+çocuğu bulunduğu yerde bırakır.
+
 ### Madalyon
 
 Göç haritasının köşesinde seçili kuşun 64 piksellik yuvarlağı durur.
 Dokunmak seçim kartlarını yeniden açar.
 
-## 6. Kodda adlandırma geçişi
+## 6. Kodda adlandırma geçişi (tamamlandı)
 
-Hareket eden şeyin adı şu an her yerde `turna`: `durum.turna`,
+Hareket eden şeyin adı önceden her yerde `turna` idi: `durum.turna`,
 `TurnaSimgesi`, `.kodlaTurna`. Flamingo seçiliyken `TurnaSimgesi` çizmek, bu
-deponun "kod ne yapıyorsa onu söyler" ilkesini çiğner.
+deponun "kod ne yapıyorsa onu söyler" ilkesini çiğniyordu; bu yüzden rol
+adlandıran isimler değiştirildi.
 
 | Eski | Yeni |
 |---|---|
@@ -151,8 +170,8 @@ deponun "kod ne yapıyorsa onu söyler" ilkesini çiğner.
 | `durum.turna` | `durum.karakter` |
 | `Adim.turna` | `Adim.karakter` |
 
-Beyaz kuşun **içerikteki kimliği** `turna` olarak kalır — o gerçekten bir
-turnadır. Değişen, türü değil rolü adlandıran isimlerdir.
+Beyaz kuşun **içerikteki kimliği** `turna` olarak kaldı — o gerçekten bir
+turnadır. Değişen, türü değil rolü adlandıran isimlerdi.
 
 Motorun kendisi (`calistir`, `cozucu`, `onizleme`) yalnızca alan adı
 düzeyinde etkilenir; mantığı değişmez.
@@ -223,15 +242,48 @@ Yedi görev:
 
 ## 11. Faz 4c tamamlanma ölçütleri
 
-1. Kursa ilk girişte iki kuş kartı çıkıyor ve seçim yapılmadan harita
-   kullanılamıyor
-2. Seçim hatırlanıyor; ikinci girişte sorulmuyor
-3. Göç haritasındaki madalyon seçimi yeniden açıyor
-4. Seçilen kuş bölüm ekranında gerçekten çiziliyor (renk testiyle doğrulanmış)
-5. Karakter seçimi kurs bazlı; yeni kurs eskisini bozmuyor
-6. Kodda hareket eden öğe `karakter` diye adlandırılmış; `turna` yalnızca
-   içerikteki kuşun kimliği
-7. İki durağın ipucu yere dair hale gelmiş; kuş bilgileri seçim ekranında
-8. Dokunma hedefleri en az 64 piksel, ekranda kaydırma yok
-9. `prefers-reduced-motion` açıkken seçim ekranında da animasyon yok
-10. Birim testleri, denetim ve uçtan uca testler geçiyor
+Görev 7'de tek tek doğrulanmış, işaretli olmayan madde yok (bkz.
+`.superpowers/sdd/2026-08-20-kodlama-faz4c/gorev-7-report.md`).
+
+- [x] 1. Kursa ilk girişte iki kuş kartı çıkıyor ve seçim yapılmadan harita
+      kullanılamıyor — `e2e/kodla.spec.ts`'teki "ilk giriste kus secimi
+      sorulur..." testi diyaloğun açıldığını doğruluyor; kart sayısı
+      katalogla (`kursKarakterleri(KURS).length`) karşılaştırılarak
+      "karakter secim ekraninda dokunma hedefleri en az 64 piksel" testinde
+      doğrulanıyor; "secim yapilmadan durak tiklanamaz, diyalog acik ve url
+      degismez kalir" testi ise diyalog açıkken durağa tıklama denemesinin
+      reddettiğini, diyaloğun açık kaldığını ve URL'nin değişmediğini
+      doğruluyor — bu son test CSS'teki `.karakterSecimi` kuralı geçici
+      olarak zayıflatılıp (z-index kaldırılıp arkaplan şeffaf yapılarak)
+      kırmızıya döndüğü kanıtlanmış bir testtir (bkz. görev 7 raporu,
+      "Düzeltme turu 1").
+- [x] 2. Seçim hatırlanıyor; ikinci girişte sorulmuyor — aynı testin
+      "Ikinci acilista sorulmaz" adımı.
+- [x] 3. Göç haritasındaki madalyon seçimi yeniden açıyor — aynı testin son
+      adımı.
+- [x] 4. Seçilen kuş bölüm ekranında gerçekten çiziliyor (renk testiyle
+      doğrulanmış) — "secilen kus bolum ekraninda gercekten cizilir" testi;
+      `Sahne.tsx`'te paleti geçici olarak varsayılana sabitleyip testin
+      kırmızıya döndüğü görüldü (görev 7 raporunda kanıtlı).
+- [x] 5. Karakter seçimi kurs bazlı; yeni kurs eskisini bozmuyor —
+      `lib/kodla/yerelKayit.test.ts`'teki "kurslar birbirini etkilemez" birim
+      testi.
+- [x] 6. Kodda hareket eden öğe `karakter` diye adlandırılmış; `turna`
+      yalnızca içerikteki kuşun kimliği — `components/` ve `lib/kodla/`
+      içinde `kodlaTurna`/`turnaKonumu`/`TurnaSimgesi` gibi bir kalıntı yok
+      (grep ile doğrulandı); `turna` yalnızca `karakterler.json` ve
+      testlerdeki içerik kimliği olarak geçiyor.
+- [x] 7. İki durağın ipucu yere dair hale gelmiş; kuş bilgileri seçim
+      ekranında — `content/kodla/turna-yolu.json`'daki altı ipucu da yere
+      dair (kuş göçüne değinen yok); kuş bilgisi yalnızca
+      `content/kodla/karakterler.json`'daki `bilgi` alanında.
+- [x] 8. Dokunma hedefleri en az 64 piksel, ekranda kaydırma yok — bölüm
+      ekranı için mevcut test, seçim ekranı için yeni eklenen "karakter
+      secim ekraninda dokunma hedefleri en az 64 piksel" testi (beş ekran
+      boyutunda `.karakterKarti` ve `.karakterMadalyonu`).
+- [x] 9. `prefers-reduced-motion` açıkken seçim ekranında da animasyon yok —
+      reduced-motion testi artık göç haritasını ve seçim ekranını da
+      ziyaret ediyor (Görev 7'ye yönlendirilen madde 2).
+- [x] 10. Birim testleri, denetim ve uçtan uca testler geçiyor — Adım 5'te
+       `npm run lint && npm run test && npm run kontrol && npm run e2e`
+       çalıştırıldı, sonuçlar görev 7 raporunda.

@@ -1,5 +1,6 @@
 import { test, expect, type Page } from "@playwright/test";
 import { kursBolumleri, bolumHaritasi } from "../lib/kodla/bolumler";
+import { kursKarakterleri } from "../lib/kodla/karakterler";
 import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
 import { onizlemeYolu } from "../lib/kodla/labirent/onizleme";
@@ -8,15 +9,41 @@ import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 
 const KURS = "turna-yolu";
 const BOLUMLER = kursBolumleri(KURS);
+const KARAKTERLER = kursKarakterleri(KURS);
 
 // Sozsuz ilk temas demosu ilk durakta kendi kendine bir blok ekleyip
 // calistiriyor (Gorev 9). Bu dosyadaki testler paleti kendileri surdugu
 // icin demo devrede kalirsa programa beklenmedik bir blok karisir ve
 // sonuclar kararsizlasir. Demo'nun kendisi kodla-demo.spec.ts icinde ayrica
 // test ediliyor; burada sessizce kapatiyoruz.
+//
+// Ayni gerekce "Kiminle ucalim?" karakter secim ekrani icin de gecerli:
+// goc haritasina ilk giriste secim yapilmamissa diyalog acilir ve haritanin
+// USTUNU KAPLAR. Bu dosyadaki testlerin konusu secim ekrani degil (o,
+// asagidaki "ilk giriste kus secimi sorulur..." testinde ayrica dogrulanir);
+// digerleri haritayi/durak baglantilarini kullanabilsin diye secimi burada
+// onceden yapilmis sayiyoruz. kodla:karakter'in sekli { [kursId]: karakterId
+// } - karakterSec/seciliKarakterId bu duz haritayi okur (bkz.
+// lib/kodla/yerelKayit.ts).
 test.beforeEach(async ({ page }) => {
-  await page.addInitScript(() => localStorage.setItem("kodla:demo", "evet"));
+  await page.addInitScript(
+    ([kurs]) => {
+      localStorage.setItem("kodla:demo", "evet");
+      localStorage.setItem("kodla:karakter", JSON.stringify({ [kurs]: "turna" }));
+    },
+    [KURS],
+  );
 });
+
+/**
+ * "#rrggbb" -> "rgb(r, g, b)". getComputedStyle her zaman rgb() doner;
+ * beklenen renkleri katalogdan turetebilmek icin ceviriyoruz.
+ */
+function rgbYaz(hex: string): string {
+  const basamaklar = hex.replace("#", "");
+  const [k, y, m] = [0, 2, 4].map((i) => parseInt(basamaklar.slice(i, i + 2), 16));
+  return `rgb(${k}, ${y}, ${m})`;
+}
 
 /** Verilen komutlari paletten sirayla ekler. */
 async function programiDiz(page: Page, anahtarlar: string[]) {
@@ -61,7 +88,7 @@ test("fazladan blokla bitirmek normal yildiz verir ve cezalandirmaz", async ({ p
   const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
-  // Sona fazladan blok: Turna hedefe varinca kalan bloklar calistirilmaz,
+  // Sona fazladan blok: karakter hedefe varinca kalan bloklar calistirilmaz,
   // ama program uzunlugu idealAdim'i astigi icin altin yildiz verilmez.
   await programiDiz(page, [...yol.map(komutAnahtari), "git:sol"]);
   await page.getByRole("button", { name: "Çalıştır" }).click();
@@ -93,7 +120,7 @@ test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // Once bir carpma ekliyoruz ki onizlemenin carpmayi da cizdigi gorulsun.
-  // Kapadokya'da Turna (1,2)'de "sag" bakarak baslar ve hemen saginda
+  // Kapadokya'da karakter (1,2)'de "sag" bakarak baslar ve hemen saginda
   // (2,2) bir engel var: "git:sag" harita kenarina degil gercek bir
   // engele carpar. (Sultansazligi'nda ayni amacla denenen "git:yukari"
   // bos bir kareye yuruyordu; carpma hic uretmiyordu ve testin carpma
@@ -156,7 +183,8 @@ test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
   await expect(page.locator(".kodlaYolParcasi")).toHaveCount(1);
 });
 
-// Onceki surum yalnizca .kodlaTurna'yi orneklerdi: kodla.css'teki
+// Onceki surum yalnizca .kodlaTurna'yi orneklerdi (bu sinif daha sonra
+// .kodlaKarakter olarak adlandirildi): kodla.css'teki
 // prefers-reduced-motion blogunda BUNUN disinda on bes ayri sinif/durum
 // daha var, ve bu fazda tam olarak orada dort ayri CSS ozgulluk hatasi
 // bulundu. Tek bir secici, sonrakinin de yakalanacagini garanti etmez; bu
@@ -183,7 +211,6 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   // ("#") barindirir: tek bolumde hem carpma hem basak-toplama/kazanma
   // durumlarina ulasilabiliyor.
   const bolum = BOLUMLER.find((b) => b.id === "efes")!;
-  await sayfa.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   /** transitionDuration/animationName'i bir secici DOM'da BELIRIR belirmez
    * (ayni tarayici tikinde) yakalar; ayri bir "bul, sonra oku" adimi state
@@ -214,13 +241,33 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
     expect(deger.animasyon, secici).toBe("none");
   }
 
+  // --- Karakter secim ekrani: bu baglam BILEREK kodla:karakter kurmaz, bu
+  // yuzden goc haritasina ilk giriste "Kiminle ucalim?" diyalogu acar.
+  // Gorev 5'te eklenen .karakterKarti ve .karakterMadalyonu gecisleri daha
+  // once hicbir e2e testinde reducedMotion baglaminda dogrulanmiyordu (bu
+  // test dogrudan bolum ekranina giderdi, haritaya hic ugramazdi) - burada
+  // haritayi da ziyaret ederek o boslugu kapatiyoruz.
+  await sayfa.goto(`/kodla/${KURS}/`);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+  await expect(diyalog).toBeVisible();
+  gecisYok(await anlikYakala(".karakterKarti"), ".karakterKarti");
+  // Diyalog acikken madalyon da varsayilan kusla ekranda olabilir
+  // (kartlar sorulurken bile secili-gorunen bir kus gosterilir); butonu
+  // KART icinden secmek icin araniyoruz, aksi halde "Turna" adi hem karta
+  // hem "Kusu degistir: Turna" madalyonuna eslesip strict mode'u kirar.
+  await diyalog.getByRole("button", { name: "Turna" }).click();
+  await expect(diyalog).toBeHidden();
+  gecisYok(await anlikYakala(".karakterMadalyonu"), ".karakterMadalyonu");
+
+  await sayfa.goto(`/kodla/${KURS}/${bolum.id}/`);
+
   // --- Kosuya gerek olmadan, sayfa acilir acilmaz erisilebilen durumlar ---
-  animasyonYok(await anlikYakala(".kodlaTurna"), ".kodlaTurna (animation)");
-  gecisYok(await anlikYakala(".kodlaTurna"), ".kodlaTurna (transition)");
+  animasyonYok(await anlikYakala(".kodlaKarakter"), ".kodlaKarakter (animation)");
+  gecisYok(await anlikYakala(".kodlaKarakter"), ".kodlaKarakter (transition)");
   // Baslangic hali zaten "bekliyor" + "poz-durus": kosu gerekmez.
   animasyonYok(
-    await anlikYakala(".kodlaTurna.bekliyor.poz-durus"),
-    ".kodlaTurna.bekliyor.poz-durus",
+    await anlikYakala(".kodlaKarakter.bekliyor.poz-durus"),
+    ".kodlaKarakter.bekliyor.poz-durus",
   );
   gecisYok(await anlikYakala(".kodlaBasak"), ".kodlaBasak");
   animasyonYok(await anlikYakala(".kodlaYuva"), ".kodlaYuva");
@@ -233,11 +280,11 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   await programiDiz(sayfa, ["git:sag"]);
   animasyonYok(await anlikYakala(".kodlaYolParcasi"), ".kodlaYolParcasi");
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
-  animasyonYok(await anlikYakala(".kodlaTurna.poz-carpma"), ".kodlaTurna.poz-carpma");
+  animasyonYok(await anlikYakala(".kodlaKarakter.poz-carpma"), ".kodlaKarakter.poz-carpma");
   animasyonYok(await anlikYakala(".kodlaToz"), ".kodlaToz");
 
   // Tahtayi kazanma denemesi icin sifirla.
-  await sayfa.getByRole("button", { name: "Turna'yı başa al" }).click();
+  await sayfa.getByRole("button", { name: "Kuşu başa al" }).click();
   await sayfa.getByRole("button", { name: "Hepsini temizle" }).click();
   await expect(sayfa.locator(".programBloku")).toHaveCount(0);
 
@@ -265,7 +312,7 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   animasyonYok(await anlikYakala(".calistirDugmesi.nabiz"), ".calistirDugmesi.nabiz (program dolu)");
 
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
-  animasyonYok(await anlikYakala(".kodlaTurna.poz-adim"), ".kodlaTurna.poz-adim");
+  animasyonYok(await anlikYakala(".kodlaKarakter.poz-adim"), ".kodlaKarakter.poz-adim");
   await expect(sayfa.getByText("Harika! En kısa yol!")).toBeVisible({ timeout: 15000 });
 
   animasyonYok(await anlikYakala(".kodlaYuva.dolu"), ".kodlaYuva.dolu");
@@ -402,4 +449,463 @@ test("cocuk uzun sure dokunmazsa demo yalnizca ilk durakta tekrar oynar", async 
   // 12sn zamanlayiciya karsi rahat bir pay birakiyoruz; yuklu bir makinede
   // 14sn'lik bir sinir kararsizliga yol acabilir.
   await expect(page.locator(".programBloku")).toHaveCount(1, { timeout: 18000 });
+});
+
+// --- Karakter secimi ---
+//
+// Yukaridaki testler beforeEach'te secimi onceden yapilmis sayarak
+// haritayi kullanir (bkz. dosya basindaki yorum); secim ekraninin KENDISI
+// burada, temiz bir tarayici baglaminda dogrulanir. browser.newContext()
+// kullanilmasinin nedeni: `page` fixture'ina addInitScript ile kurulan
+// beforeEach, yalnizca o fixture'in kullandigi baglama yazilir - Playwright
+// context'ler birbirinden izole depolama (localStorage) tasir, bu yuzden
+// browser.newContext() ile acilan taze bir baglam beforeEach'in
+// addInitScript'inden ETKILENMEZ ve kodla:karakter bos baslar. Bu, testin
+// yazilmadan once elle dogrulanmistir (bkz. gorev-7-report.md).
+//
+// Bu bolumdeki her test kendi temiz baglamini `temizBaglamAc` ile acar.
+// Sozsuz ilk temas demosu (dosya basindaki yorumda anlatilan, 12sn bosta
+// kalinca kendiliginden calisan demo) beforeEach'te KASITLI kapatiliyordu;
+// ayni gerekce burada da gecerli - demo bu testlerin konusu degil, kendi
+// dosyasinda (kodla-demo.spec.ts) test ediliyor - bu yuzden temiz
+// baglamlarda da demo bayragini onceden kapatiyoruz.
+async function temizBaglamAc(
+  browser: import("@playwright/test").Browser,
+  secenekler?: Parameters<import("@playwright/test").Browser["newContext"]>[0],
+) {
+  const baglam = await browser.newContext(secenekler);
+  const sayfa = await baglam.newPage();
+  await sayfa.addInitScript(() => {
+    try {
+      localStorage.setItem("kodla:demo", "evet");
+    } catch {
+      // yok sayilir
+    }
+  });
+  return { baglam, sayfa };
+}
+
+test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabilir", async ({
+  browser,
+}) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+
+  await sayfa.getByRole("button", { name: "Flamingo" }).click();
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeHidden();
+
+  // Kapanis turu (review): diyalog kapaninca odak bir yere KONULMALI, yoksa
+  // <body>'ye duser ve klavye kullanan cocuk belgenin basindan yeniden
+  // sekmelemek zorunda kalir. Ilk giriste geri donulecek bir "cagiran" yok
+  // (madalyona tiklanmadi, secim karttan yapildi) - odagi ilk duraga
+  // koymayi sectik: cocugun bir sonraki dogal adimi zaten oraya gitmek,
+  // madalyon ise yalnizca "kusu degistir" gibi ikincil bir eylem.
+  await expect(sayfa.getByRole("link", { name: /1\. durak/ })).toBeFocused();
+
+  // Yonlendirilen madde 1: hicbir e2e testi haritadaki duraga TIKLAMIYORDU,
+  // yani secim ekraninin haritanin ustunu kapatmasi yalnizca tesadufen
+  // zararsizdi - acik/kilitli duraklarin gercekten tiklanabilir oldugunu
+  // hicbir test korumuyordu. Secim kapandiktan sonra ilk durak gercekten
+  // tiklanabilmeli ve bolum ekranina goturmeli.
+  await sayfa.getByRole("link", { name: /1\. durak/ }).click();
+  await expect(sayfa.getByRole("heading", { name: BOLUMLER[0].ad })).toBeVisible();
+
+  // Ikinci acilista sorulmaz.
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeHidden();
+
+  // Madalyon secimi yeniden acar.
+  await sayfa.getByRole("button", { name: /Kuşu değiştir/ }).click();
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+
+  await baglam.close();
+});
+
+// Duzeltme turu 1 (review): §11 madde 1'in "secim yapilmadan harita
+// kullanilamiyor" yarisi daha once HICBIR kalici teste baglanmamisti -
+// yalnizca elle, bir kerelik bir denemeyle dogrulanip test dosyasi
+// silinmisti. Bu invaryant tamamen CSS'e dayanir (kodla.css'teki
+// .karakterSecimi: position:fixed, inset:0, z-index:20, opak arkaplan);
+// GocHaritasi.tsx'teki durak <Link>'i DOM'dan hic kaldirmaz, yalnizca
+// gorsel/etkilesimsel olarak ustunu orter. z-index veya position
+// gelecekte degistirilirse hicbir committed test bunu yakalamazdi. Kalici
+// hale getiriyoruz. Arkaplanin opakligi tiklama denemesiyle DEGIL, testin
+// sonundaki ayri bir olcumle korunuyor (gerekcesi orada).
+//
+// Formulasyon: gercek bir tiklama denemesi kisa bir timeout ile yapiliyor
+// ve REDDETMESI bekleniyor. Playwright'in actionability kontrolu, hedef
+// baska bir eleman tarafindan kapatildigi surece asla "tiklanabilir" hale
+// gelmeyecegi icin click() suresiz beklerdi; bu yuzden kisa bir timeout
+// (2000ms) veriyoruz ki test suitesi gereksiz uzamasin. force:true KULLANMA
+// - o, actionability kontrolunu tamamen atlar ve tam da test etmek
+// istedigimiz "gercekten tiklanamiyor" durumunu gizler. Bu formulasyon
+// tercih edildi cunku ne zamanlayiciya ne animasyona bagli - tek kararsizlik
+// kaynagi olabilecek sey sayfanin ilk yuklenmesidir, o da yukaridaki
+// `toBeVisible()` beklemesiyle zaten senkronize ediliyor.
+test("secim yapilmadan durak tiklanamaz, diyalog acik ve url degismez kalir", async ({
+  browser,
+}) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+
+  await expect(
+    sayfa.getByRole("link", { name: /1\. durak/ }).click({ timeout: 2000 }),
+  ).rejects.toThrow();
+
+  // Tiklama denemesi basarisiz olmus OLMALI ama sayfa hicbir yere gitmemis
+  // OLMALI da: diyalog hala acik, url hala goc haritasinda.
+  await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
+  await expect(sayfa).toHaveURL(new RegExp(`/kodla/${KURS}/$`));
+
+  // Duzeltme turu 2 (review): yukaridaki tiklama denemesi yalnizca
+  // GEOMETRIYI olcer - Playwright "tiklanacak noktada baska bir eleman
+  // var mi" diye bakar, o elemanin gorunur olup olmadigina bakmaz.
+  // Arkaplani seffaflastiran bir gerileme testi YESIL birakirdi, oysa
+  // cocuk secim kartlarinin arkasindan haritayi gorurdu. Bu yuzden
+  // ortunun gercekten opak oldugunu ayrica dogruluyoruz: rgb(...) ya da
+  // alfasi 1 olan bir rgba(...) - "transparent" ve alfasi 1'den kucuk
+  // her sey reddedilir.
+  const ortuArkaplani = await sayfa
+    .locator(".karakterSecimi")
+    .evaluate((oge) => getComputedStyle(oge).backgroundColor);
+  const alfa = ortuArkaplani.startsWith("rgba(")
+    ? Number(ortuArkaplani.slice(5, -1).split(",")[3])
+    : ortuArkaplani.startsWith("rgb(")
+      ? 1
+      : 0;
+  expect(alfa, `secim ekraninin arkaplani opak degil: ${ortuArkaplani}`).toBe(1);
+
+  await baglam.close();
+});
+
+// Duzeltme turu 2 (review): yukaridaki test yalnizca FARE yolunu kapatir.
+// role="dialog" + aria-modal="true" bir sozdur, uygulama degil: odak
+// yonetimi yapilmazsa harita DOM'da durur, durak <Link>'leri sekme
+// sirasindan cikmaz ve Tab-Tab-Enter kus secmeden bir bolume girer.
+// Duzeltme iki parcali (bkz. GocHaritasi.tsx ve KarakterKartlari.tsx):
+// haritanin ustune `inert` konur ve acilista ilk karta odaklanilir.
+test("secim yapilmadan durak klavyeyle de acilamaz", async ({ browser }) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+  const kartlar = sayfa.locator(".karakterKarti");
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+
+  /** Odaktaki ogeyi, haritanin icindeyse isaretleyerek betimler. */
+  const odakBetimi = () =>
+    sayfa.evaluate(() => {
+      const oge = document.activeElement as HTMLElement | null;
+      if (!oge) return "(odak yok)";
+      const harita = oge.closest(".gocHaritasi") ? "HARITA:" : "";
+      const etiket = oge.getAttribute("aria-label") ?? "";
+      return `${harita}${oge.tagName}.${oge.className || "-"}${etiket ? `[${etiket}]` : ""}`;
+    });
+
+  // 1. Ileri ve geri sekmede odak bir kez bile haritanin icine girmemeli.
+  //    Sekiz basis, iki tam turdan fazlasini kapsar (ortu kapaliyken
+  //    odaklanabilir ogeler: iki kart, alt bilgi baglantisi, ust bar
+  //    logosu).
+  const zincir: string[] = [await odakBetimi()];
+  for (let i = 0; i < 8; i++) {
+    await sayfa.keyboard.press("Tab");
+    zincir.push(await odakBetimi());
+  }
+  for (let i = 0; i < 8; i++) {
+    await sayfa.keyboard.press("Shift+Tab");
+    zincir.push(await odakBetimi());
+  }
+  expect(
+    zincir.filter((betim) => betim.startsWith("HARITA:")),
+    `odak haritaya girdi. zincir: ${zincir.join(" -> ")}`,
+  ).toEqual([]);
+
+  // 2. Sekme sirasindan cikmak yetmez: durak baglantisi PROGRAMATIK
+  //    olarak da odak alamamali. Bu, sekme sirasindaki oge sayisindan
+  //    bagimsiz, dogrudan `inert`i olcen kontrol.
+  //    Duzeltme turu (review, madde 4): asagidaki .focus() denemesi
+  //    yalnizca ilk durak bir <a> OLDUGU icin anlamli - o her zaman
+  //    aciktir (bkz. dosya basi), ama bu garanti gelecekte degisebilir.
+  //    Kilitli bir ilk durak <div> olarak render edilir (bkz.
+  //    GocHaritasi.tsx) ve <div>.focus() sessizce hicbir sey yapmaz -
+  //    o zaman asagidaki expect, `inert` hic uygulanmasa da YANLISLIKLA
+  //    yesile donerdi. Once elemanin gercekten odaklanabilir bir <a>
+  //    oldugunu dogruluyoruz, sonra focus() denemesinin etkisiz oldugunu.
+  const ilkDurak = sayfa.locator(".gocDuragi").first();
+  const ilkDurakEtiketi = await ilkDurak.evaluate((oge) => oge.tagName);
+  expect(
+    ilkDurakEtiketi,
+    "ilk durak <a> degil - asagidaki focus() denemesi anlamsiz olurdu",
+  ).toBe("A");
+  const durakOdaklandi = await ilkDurak.evaluate((oge) => {
+    (oge as HTMLElement).focus();
+    return document.activeElement === oge;
+  });
+  expect(durakOdaklandi, "durak baglantisi hala odak alabiliyor").toBe(false);
+
+  // 3. Senaryonun kendisi: karti sekmeyle yeniden bulup Enter'a basmak.
+  //    Duzeltme turu (review, madde 3): sabit bir Tab sayisi yerine, odak
+  //    PROGRAMATIK olarak ilk karta geri donene kadar SINIRLI sayida Tab
+  //    basiyoruz ve yol boyunca haritaya hic girmemis olmasini
+  //    dogruluyoruz. Sabit sayi kirilgandi: karakterler.json'a ucuncu bir
+  //    kus eklenmesi, alt bilgiye/ust bara yeni bir baglanti eklenmesi,
+  //    diyaloga bir kapatma dugmesi eklenmesi ya da bu ekranin
+  //    body.tamEkran'a gecmesi (bkz. kodla.spec.ts'teki diger testler)
+  //    zincirin uzunlugunu degistirir ve testi YANLISLIKLA kirmiziya
+  //    dondururdu - hicbiri gercek bir gerileme degil. Onemli olan tek
+  //    sey, hangi yoldan olursa olsun odagin haritaya HIC UGRAMADAN
+  //    kartlara donmesidir.
+  //
+  //    `inert` kaldirilirsa gercek zincir (odak ilk karttan baslar):
+  //    kart, kart, alt bilgi baglantisi, belge (body'ye sarar), logo,
+  //    madalyon (5. Tab), durak (6. Tab) - asagidaki ilk expect tam bu
+  //    HARITA:... girdisini yakalayip kirmiziya doner (bkz. rapor).
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+  // Mount effect'in odagi ilk karta tasimasini BEKLEMEDEN sekmeye
+  // baslamak, yavas bir flush'ta butun zinciri bir kaydirirdi; bu
+  // assertion hem o yarisi giderir hem de "acilista ilk karta odaklan"
+  // davranisina kendi basina, dolayli olmayan bir test kazandirir.
+  await expect(kartlar.first()).toBeFocused();
+
+  const EN_FAZLA_SEKME = 20;
+  const izlenenZincir: string[] = [];
+  let ilkKartaDondu = false;
+  for (let i = 0; i < EN_FAZLA_SEKME; i++) {
+    await sayfa.keyboard.press("Tab");
+    const betim = await odakBetimi();
+    izlenenZincir.push(betim);
+    if (betim.startsWith("HARITA:")) break;
+    if (await kartlar.first().evaluate((oge) => oge === document.activeElement)) {
+      ilkKartaDondu = true;
+      break;
+    }
+  }
+  expect(
+    izlenenZincir.filter((betim) => betim.startsWith("HARITA:")),
+    `odak haritaya girdi. zincir: ${izlenenZincir.join(" -> ")}`,
+  ).toEqual([]);
+  expect(
+    ilkKartaDondu,
+    `odak ${EN_FAZLA_SEKME} basista ilk karta donmedi. zincir: ${izlenenZincir.join(" -> ")}`,
+  ).toBe(true);
+  await sayfa.keyboard.press("Enter");
+
+  // Enter bir KUS secmis olmali: adres degismedi, harita yerinde ve
+  // kayitta bir kus var. Klavyeyle gelen cocuk gecerli bir duruma varir.
+  await expect(sayfa).toHaveURL(new RegExp(`/kodla/${KURS}/$`));
+  await expect(diyalog).toBeHidden();
+  const secim = await sayfa.evaluate(() =>
+    JSON.parse(localStorage.getItem("kodla:karakter") ?? "{}"),
+  );
+  expect(KARAKTERLER.map((k) => k.id)).toContain(secim[KURS]);
+
+  await baglam.close();
+});
+
+// Escape: ilk giriste KAPATMAZ, madalyondan yeniden acildiginda kapatir.
+// Gerekce ekranin ne oldugunda: ilk giriste bu bir gecittir, arkasinda
+// gecerli bir durum yoktur - kapanirsa cocuk kussuz bir haritada kalirdi.
+// Madalyondan acildiginda ise secim zaten yapilmistir; vazgecmek gecerli
+// bir cevaptir ve cocugu bulundugu yerde birakir.
+test("Escape ilk giriste kapatmaz, madalyondan acilinca kapatir", async ({ browser }) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+  await sayfa.keyboard.press("Escape");
+  await expect(diyalog).toBeVisible();
+
+  await diyalog.getByRole("button", { name: "Turna" }).click();
+  await expect(diyalog).toBeHidden();
+  // Kapanis turu (review): ilk giriste cagiran yok, odak ilk duraga gider.
+  await expect(sayfa.getByRole("link", { name: /1\. durak/ })).toBeFocused();
+
+  await sayfa.getByRole("button", { name: /Kuşu değiştir/ }).click();
+  await expect(diyalog).toBeVisible();
+  await sayfa.keyboard.press("Escape");
+  await expect(diyalog).toBeHidden();
+  // Vazgecmek secimi degistirmez.
+  await expect(sayfa.getByRole("button", { name: "Kuşu değiştir: Turna" })).toBeVisible();
+  // Kapanis turu (review): odak standart sozlesmeye gore CAGIRANA doner -
+  // burada madalyon, cunku bu yol madalyona tiklanarak acilmisti. Odak
+  // <body>'de kalsaydi klavye kullanan cocuk belgenin basindan yeniden
+  // sekmelemek zorunda kalirdi.
+  await expect(sayfa.getByRole("button", { name: "Kuşu değiştir: Turna" })).toBeFocused();
+
+  await baglam.close();
+});
+
+// Duzeltme turu (review, "kapanis rotusu"): Escape'i .karakterSecimi
+// DIV'ine (yani diyalogun kendisine) baglamak, yalnizca odak diyalogun
+// ICINDEYKEN calisir. Ortuye (bosluga) dokunmak odagi <body>'ye tasir -
+// klavye olayi artik diyalogun altindan gecmez, cunku <body> diyalogun
+// ATASI degil (kardesi/ustu), bubbling ona hic ugramaz. Tablet gercek
+// senaryosunu simule ediyoruz: tiklama diyalogun kendi YUZEYINE (baslik
+// metni - odaklanabilir degil) dusuyor, boylece hem "yuzeye tiklamak
+// kapatmaz" hem de "odak <body>'ye dustukten sonra da Escape calisir"
+// ayni testte dogrulanmis oluyor.
+test("diyalogun yuzeyine tiklamak kapatmaz, odak body'ye dusse de Escape calisir", async ({
+  browser,
+}) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+  await diyalog.getByRole("button", { name: "Turna" }).click();
+  await expect(diyalog).toBeHidden();
+
+  // Madalyondan yeniden ac: bu yolda Escape kapatabilir olmali.
+  await sayfa.getByRole("button", { name: /Kuşu değiştir/ }).click();
+  await expect(diyalog).toBeVisible();
+
+  // Baslik metnine tikla: odaklanabilir bir oge degil, dolayisiyla
+  // tarayici odagi <body>'ye dusurur - ama bu diyalogun KENDI YUZEYI,
+  // ortu degil, kapatmamali.
+  await sayfa.locator(".karakterBaslik").click();
+  await expect(diyalog).toBeVisible();
+  const odakBodyMi = await sayfa.evaluate(() => document.activeElement === document.body);
+  expect(odakBodyMi, "baslik tiklamasi odagi body'ye tasimadi, senaryo kurulamadi").toBe(true);
+
+  // Odak body'deyken Escape hala calismali (document seviyesinde dinleniyor).
+  await sayfa.keyboard.press("Escape");
+  await expect(diyalog).toBeHidden();
+
+  await baglam.close();
+});
+
+// Ayni duzeltme turu: tabletin Escape tusu yok, kapatma dugmesi de yok -
+// madalyon yolunda "vazgecmek" ancak ortuye (bosluga) dokunarak mumkun
+// olmali. Ilk giriste ise ortu HICBIR SEY yapmamali (secim zorunlu).
+test("bos ortuye dokunmak madalyon yolunda kapatir, ilk giriste hicbir sey yapmaz", async ({
+  browser,
+}) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+  const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await expect(diyalog).toBeVisible();
+
+  // Ilk giriste ortuye dokunmak hicbir sey yapmamali: secim zorunlu,
+  // arkada gecerli bir durum yok. Diyalogun kendi kutusunun sol-ust kosesi
+  // - baslik/kartlardan uzak, guvenle "ortu" sayilabilecek bir nokta.
+  await sayfa.locator(".karakterSecimi").click({ position: { x: 10, y: 10 } });
+  await expect(diyalog).toBeVisible();
+
+  await diyalog.getByRole("button", { name: "Turna" }).click();
+  await expect(diyalog).toBeHidden();
+
+  // Madalyondan yeniden ac: bu yolda ortuye dokunmak vazgecmek demektir.
+  await sayfa.getByRole("button", { name: /Kuşu değiştir/ }).click();
+  await expect(diyalog).toBeVisible();
+  await sayfa.locator(".karakterSecimi").click({ position: { x: 10, y: 10 } });
+  await expect(diyalog).toBeHidden();
+  // Vazgecmek secimi degistirmez.
+  await expect(sayfa.getByRole("button", { name: "Kuşu değiştir: Turna" })).toBeVisible();
+
+  await baglam.close();
+});
+
+// Diger dokunma hedefi testi ("bolum ekraninda kaydirma yok...") daima
+// beforeEach'in karakter secimini onceden yapmis sayan baglaminda calisir,
+// yani secim ekranina hic girmez. .karakterMadalyonu tam 64px (CSS'te sabit
+// genislik/yukseklik) - sinirda oldugu icin ayrica olculmesi gerekir;
+// .karakterKarti ise vw/vh'ye gore kuculebilen bir olcek tasir, dar/kisa
+// ekranlarda da 64px'in altina dusmedigini burada dogruluyoruz.
+test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ browser }) => {
+  for (const ekran of [
+    { g: 820, y: 1180 },
+    { g: 1180, y: 820 },
+    { g: 1024, y: 768 },
+    { g: 390, y: 844 },
+    { g: 844, y: 390 },
+  ]) {
+    const { baglam, sayfa } = await temizBaglamAc(browser, {
+      viewport: { width: ekran.g, height: ekran.y },
+    });
+    await sayfa.goto(`/kodla/${KURS}/`);
+    const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
+    await expect(diyalog).toBeVisible();
+
+    // Duzeltme turu 1 (review): kart sayisi yalnizca >0 degil, katalogdaki
+    // karakter sayisiyla TAM eslesmeli - katalogdaki listeden turetiliyor
+    // (KARAKTERLER.length), 2 olarak sabitlenmiyor; yarin uculu bir kurs
+    // eklenirse test kendiliginden yeni beklentiye uyar.
+    const kartlar = sayfa.locator(".karakterKarti");
+    await expect(kartlar, `${ekran.g}x${ekran.y}`).toHaveCount(KARAKTERLER.length);
+    const adet = await kartlar.count();
+    for (let i = 0; i < adet; i++) {
+      const kutu = (await kartlar.nth(i).boundingBox())!;
+      expect(
+        Math.min(kutu.width, kutu.height),
+        `karakterKarti ${i} cok kucuk (${ekran.g}x${ekran.y})`,
+      ).toBeGreaterThanOrEqual(64);
+      // "Kaydirma yok" kurali bu ekranda scrollHeight ile OLCULEMEZ:
+      // .karakterSecimi position:fixed'dir, yani ekrandan tasan icerik
+      // documentElement.scrollHeight'i buyutmez. Kaydirma cubugu da
+      // cikmaz; kart sessizce ustten/alttan kirpilir ve cocugun ikinci
+      // kusa ulasmasinin hicbir yolu kalmaz. kodla.css'teki kart blogunun
+      // yorumu tam olarak bu tehlikeyi anlatiyor ama hicbir test
+      // korumuyordu. Gercek soru "sayfa kaydiriliyor mu" degil, "kart
+      // GORUNUM ALANINDA mi" - onu soruyoruz.
+      await expect(
+        kartlar.nth(i),
+        `karakterKarti ${i} gorunum alanindan tasti (${ekran.g}x${ekran.y})`,
+      ).toBeInViewport({ ratio: 0.99 });
+    }
+    await expect(
+      sayfa.locator(".karakterBaslik"),
+      `karakterBaslik gorunum alanindan tasti (${ekran.g}x${ekran.y})`,
+    ).toBeInViewport({ ratio: 0.99 });
+
+    // Diyalog acikken varsayilan kusla eslesen bir madalyon da ekranda
+    // olabilir; karti karakterKarti icinden seciyoruz (bkz. yukaridaki
+    // reduced-motion testindeki ayni gerekce).
+    await diyalog.getByRole("button", { name: "Turna" }).click();
+    const madalyonKutu = (await sayfa.locator(".karakterMadalyonu").boundingBox())!;
+    expect(
+      Math.min(madalyonKutu.width, madalyonKutu.height),
+      `karakterMadalyonu cok kucuk (${ekran.g}x${ekran.y})`,
+    ).toBeGreaterThanOrEqual(64);
+
+    await baglam.close();
+  }
+});
+
+test("secilen kus bolum ekraninda gercekten cizilir", async ({ browser }) => {
+  const { baglam, sayfa } = await temizBaglamAc(browser);
+
+  await sayfa.goto(`/kodla/${KURS}/`);
+  await sayfa.getByRole("button", { name: "Flamingo" }).click();
+  await sayfa.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
+
+  // Govde rengi secilen karakterin paletiyle eslesmeli. Renk karsilastirmasi
+  // kirilgan gorunur ama tam bu yuzden degerlidir: "flamingo sectim, hala
+  // beyaz kus yuruyor" hatasini baska hicbir test yakalamaz.
+  //
+  // Iki incelik:
+  //
+  // 1. Beklenen renk KATALOGDAN turetilir, elle yazilmaz. Elle yazilan bir
+  //    hex, flamingo'nun paleti degisince testi "yanlis ama yesil" birakir
+  //    ya da alakasiz bir yerde kirmiziya dondururdu.
+  // 2. Beklenti yeniden denenen bir assertion olmali. Sunucuda uretilen
+  //    HTML zaten bir <ellipse> icerir ve VARSAYILAN (turna) rengiyle
+  //    gelir; flamingo paleti ancak hydration'dan sonra, bir useEffect ile
+  //    yerine oturur. locator.evaluate yalnizca ogenin DOM'a girmesini
+  //    bekler, hydration'i beklemez - yuklu bir makinede turna rengi
+  //    okunurdu. Bu depoda ayni yaris body.tamEkran ile bir kez yasandi
+  //    (bkz. yukaridaki iki yorum).
+  const flamingo = KARAKTERLER.find((k) => k.id === "flamingo")!;
+  await expect(sayfa.locator(".kodlaKarakter ellipse").first()).toHaveCSS(
+    "fill",
+    rgbYaz(flamingo.palet.govde),
+  );
+
+  await baglam.close();
 });

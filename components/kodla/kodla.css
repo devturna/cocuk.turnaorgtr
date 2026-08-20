@@ -47,6 +47,7 @@
 /* --- Goc haritasi --- */
 
 .gocEkrani {
+  position: relative;
   padding: 16px 16px 40px;
   text-align: center;
 }
@@ -105,8 +106,8 @@
    ADIM_SURESI (450ms) ve POZ_SIFIRLAMA_GECIKMESI (400ms) ile SIRALI bir
    uclu olusturur: bu deger < POZ_SIFIRLAMA_GECIKMESI < ADIM_SURESI olmali.
    "Yurume hizini degistir tek satirdir" DOGRU DEGIL: bu degeri tek basina
-   buyutmek (ornegin 800ms'e) Turna'nin gecisini bir sonraki JS tikinden
-   once bitirmemesine yol acar, Turna kareler arasinda ISINLANIR gibi
+   buyutmek (ornegin 800ms'e) karakterin gecisini bir sonraki JS tikinden
+   once bitirmemesine yol acar, karakter kareler arasinda ISINLANIR gibi
    gorunur. Uc degeri birlikte, BolumEkrani.tsx'teki yorumdaki siraya gore
    guncelleyin. */
 :root {
@@ -114,20 +115,20 @@
   --kodla-basma-suresi: 80ms;
 }
 
-.kodlaTurna {
+.kodlaKarakter {
   /* Kare koordinati piksel degil, viewBox birimi; SVG'de 1 kare = 100 birim. */
   transform: translate(calc(var(--kare-x) * 100px), calc(var(--kare-y) * 100px));
   transition: transform var(--kodla-adim-suresi) ease-in-out;
   /* scale/translate keyframe'leri elemanin kendi kutusuna gore olcelsin diye;
-     varsayilan view-box kutusu harita merkezine gore olceklerdi ve Turna
+     varsayilan view-box kutusu harita merkezine gore olceklerdi ve karakter
      kenardayken yaylanirken yana kayardi. */
   transform-box: fill-box;
   transform-origin: center;
 }
 
-/* Karaya inisteki ezilme-yaylanma: Turna'yi suruklenen bir resim olmaktan
+/* Karaya inisteki ezilme-yaylanma: karakteri suruklenen bir resim olmaktan
    cikarip yuruyen bir kusa ceviren tek detay. */
-.kodlaTurna.poz-adim {
+.kodlaKarakter.poz-adim {
   animation: kodlaYaylan var(--kodla-adim-suresi) ease-out;
 }
 
@@ -138,7 +139,7 @@
 }
 
 /* Nefes yalnizca beklerken: yururken nefesle yaylanma cakisir. */
-.kodlaTurna.bekliyor.poz-durus {
+.kodlaKarakter.bekliyor.poz-durus {
   animation: kodlaNefes 3.2s ease-in-out infinite;
 }
 
@@ -148,9 +149,9 @@
 }
 
 /* Carpma: duvara dogru gidip geri gelme. Kirmizi yok, unlem yok.
-   --carp-x/--carp-y (Sahne.tsx, Turna'nin bakis yonunden turetilir) hangi
+   --carp-x/--carp-y (Sahne.tsx, karakterin bakis yonunden turetilir) hangi
    duvara carpildigini soyler; buyukluk (14px) sabit kalir, yon degisir. */
-.kodlaTurna.poz-carpma {
+.kodlaKarakter.poz-carpma {
   animation: kodlaCarp 250ms ease-out;
 }
 
@@ -204,14 +205,14 @@
 
 /* Hareket duyarliligi olan cocuk oyundan mahrum kalmaz: her sey aninda olur. */
 @media (prefers-reduced-motion: reduce) {
-  .kodlaTurna,
+  .kodlaKarakter,
   .kodlaBasak {
     transition: none;
   }
-  .kodlaTurna,
-  .kodlaTurna.poz-adim,
-  .kodlaTurna.bekliyor.poz-durus,
-  .kodlaTurna.poz-carpma,
+  .kodlaKarakter,
+  .kodlaKarakter.poz-adim,
+  .kodlaKarakter.bekliyor.poz-durus,
+  .kodlaKarakter.poz-carpma,
   .kodlaToz,
   .kodlaYuva,
   .kodlaYuva.dolu {
@@ -552,13 +553,128 @@
   50% { box-shadow: 0 0 0 10px rgba(245, 166, 35, 0); }
 }
 
-/* Bu blok dosyadaki son prefers-reduced-motion kurali olarak tutulur: ayni
-   secicilere ayni ozellikleri veren erken kurallarla ayni ozguculukte
-   oldugu icin sirada en sonda olmasi kazanmasini garantiler. */
+/* KURAL: bir prefers-reduced-motion bildirimi, iptal ettigi animation/
+   transition bildiriminden SONRA gelmelidir. Ozgulluk esitse kazanan
+   siradaki sonuncudur; bu blok .komutDugmesi.hayaletli::after,
+   .calistirDugmesi.hayaletli::after ve .nabiz kurallarindan sonra
+   geldigi icin kazanir.
+   (Onceki metin "bu blok dosyanin EN SONUNCU reduced-motion kurali
+   olarak tutulur" diyordu. Karakter secimi blogu sonradan altina
+   eklendi ve cumle yalan oldu -- oysa dosyanin sonu hicbir zaman
+   gerekli degildi, gerekli olan yalnizca ilgili kurallardan sonra
+   gelmekti. Yeni bir blok eklerken uyulacak sey budur: her blogun
+   kendi reduced-motion iptali kendi kurallarindan sonra gelsin.
+   Onceki fazda tam olarak burada dort ayri ozgulluk hatasi bulundu.) */
 @media (prefers-reduced-motion: reduce) {
   .komutDugmesi.hayaletli::after,
   .calistirDugmesi.hayaletli::after,
   .nabiz {
     animation: none;
+  }
+}
+
+/* --- Karakter secimi --- */
+
+.karakterSecimi {
+  position: fixed;
+  inset: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 16px;
+  background: var(--arkaplan);
+}
+
+.karakterBaslik {
+  margin: 0;
+  font-size: 28px;
+}
+
+.karakterKartlari {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 20px;
+}
+
+/* Genislik hem sabit bir ust sinira (240px) hem de gorunum genisligine
+   (vw) baglidir: dar bir telefon ekraninda kartlar kucularak yan yana
+   kalir, satira sarmaz. Sarsalardi iki kart alt alta ~600px yukseklik
+   isteyip kisa bir yatay telefon ekraninda (ornek: 844x390) cocugu
+   ikinci kustan koparirdi -- kaydirma da yok, cikis da yok. Sabit
+   min-height YOK: kart, kucule kucule scaled cizime ve metne gore
+   kendi yuksekligini bulur. */
+.karakterKarti {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: min(240px, 40vw);
+  padding: 16px;
+  border: 4px solid var(--kenar);
+  border-radius: 24px;
+  background: #fff;
+  color: var(--metin);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+/* Uc sinirli (140px), yukseklige (vh) ve genislige (vw) gore kuculur.
+   vh terimi kisa yatay ekranlarda (dusuk yukseklik) cizimi kuculterek
+   karti sigdirir; vw terimi dar dikey ekranlarda cizimin kartin kendi
+   ic genisligini (yukaridaki min(240px, 40vw)'den kucuk olabilir) asmasini
+   engeller. */
+.karakterCizim {
+  width: min(140px, 24vh, 30vw);
+  height: min(140px, 24vh, 30vw);
+}
+
+.karakterAd {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.karakterBilgi {
+  font-size: 14px;
+  color: #6c6862;
+  text-align: center;
+}
+
+/* Madalyon: secili kus her zaman gorunur ve dokunulabilir. */
+.karakterMadalyonu {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 64px;
+  height: 64px;
+  padding: 4px;
+  border: 4px solid var(--kenar);
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+}
+
+.karakterMadalyonu svg {
+  width: 100%;
+  height: 100%;
+}
+
+.karakterKarti:active,
+.karakterMadalyonu:active {
+  scale: 0.96;
+}
+
+.karakterKarti,
+.karakterMadalyonu {
+  transition: scale var(--kodla-basma-suresi) ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .karakterKarti,
+  .karakterMadalyonu {
+    transition: none;
   }
 }

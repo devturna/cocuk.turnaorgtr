@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
+import { kursKarakterleri } from "./karakterler";
 import {
   EN_FAZLA_DENEME,
   bolumAcikMi,
@@ -9,9 +10,13 @@ import {
   denemeArtir,
   denemeSayisi,
   ilerlemeyiSil,
+  karakterSec,
   kursYildizSayisi,
+  secimSorulmaliMi,
+  seciliKarakter,
+  seciliKarakterId,
   tumIlerleme,
-} from "./ilerleme";
+} from "./yerelKayit";
 
 const KURS = "turna-yolu";
 const SIRALI = ["sultansazligi", "kapadokya", "tuz-golu"];
@@ -119,5 +124,84 @@ describe("demo bayragi", () => {
     demoGosterildi();
     ilerlemeyiSil();
     expect(demoGosterildiMi()).toBe(false);
+  });
+});
+
+describe("karakter secimi", () => {
+  it("secim yapilmamissa tanimsizdir", () => {
+    expect(seciliKarakterId("turna-yolu")).toBeUndefined();
+  });
+
+  it("secilen karakter hatirlanir", () => {
+    karakterSec("turna-yolu", "flamingo");
+    expect(seciliKarakterId("turna-yolu")).toBe("flamingo");
+  });
+
+  it("kurslar birbirini etkilemez", () => {
+    // Yazilmamis bir kursun `undefined` okumasi yetmez: karakterSec butun
+    // kaydi yeni bir nesneyle DEGISTIRSE bile o beklenti tutardi. Gercek
+    // soru, ikinci kursun secimi birincisini silip silmedigi.
+    karakterSec("turna-yolu", "flamingo");
+    karakterSec("baska-kurs", "turna");
+    expect(seciliKarakterId("turna-yolu")).toBe("flamingo");
+    expect(seciliKarakterId("baska-kurs")).toBe("turna");
+  });
+
+  it("seciliKarakter, secim yokken varsayilani verir", () => {
+    expect(seciliKarakter("turna-yolu")?.id).toBe("turna");
+  });
+
+  it("seciliKarakter, secim varken onu verir", () => {
+    karakterSec("turna-yolu", "flamingo");
+    expect(seciliKarakter("turna-yolu")?.id).toBe("flamingo");
+  });
+
+  it("katalogda olmayan bir secim varsayilana duser", () => {
+    // Eski kayit ya da elle bozulmus veri oyunu kirmamali.
+    localStorage.setItem("kodla:karakter", JSON.stringify({ "turna-yolu": "devekusu" }));
+    expect(seciliKarakter("turna-yolu")?.id).toBe("turna");
+  });
+
+  it("bozuk kayit varsayilana duser", () => {
+    localStorage.setItem("kodla:karakter", "{bozuk");
+    expect(seciliKarakter("turna-yolu")?.id).toBe("turna");
+  });
+
+  it("ilerleme silinince karakter secimi de silinir", () => {
+    karakterSec("turna-yolu", "flamingo");
+    ilerlemeyiSil();
+    expect(seciliKarakterId("turna-yolu")).toBeUndefined();
+  });
+});
+
+describe("secim sorulmali mi", () => {
+  const IKI_KUS = kursKarakterleri("turna-yolu");
+  const TEK_KUS = IKI_KUS.slice(0, 1);
+
+  it("secim yokken ve iki kus varken sorulur", () => {
+    expect(secimSorulmaliMi("turna-yolu", IKI_KUS)).toBe(true);
+  });
+
+  it("gecerli bir secim varken sorulmaz", () => {
+    karakterSec("turna-yolu", "flamingo");
+    expect(secimSorulmaliMi("turna-yolu", IKI_KUS)).toBe(false);
+  });
+
+  it("kayitli kus katalogdan cikarilmissa yeniden sorulur", () => {
+    // Yalnizca "kayit var mi" diye bakan bir kontrol burada YANILIR:
+    // kayit vardir ama karsiligi yoktur, seciliKarakter sessizce
+    // listedeki ilk kusa duser ve cocuk bir daha hic sorulmaz.
+    localStorage.setItem("kodla:karakter", JSON.stringify({ "turna-yolu": "devekusu" }));
+    expect(secimSorulmaliMi("turna-yolu", IKI_KUS)).toBe(true);
+  });
+
+  it("tek karakterli kursta hic sorulmaz", () => {
+    // Sececek bir sey yoksa kart ekrani cocugu bosuna durdurur; tek kus
+    // sessizce gecerli sayilir (bkz. docs/kodlama-bolumu-hazirlama.md §6).
+    expect(secimSorulmaliMi("turna-yolu", TEK_KUS)).toBe(false);
+  });
+
+  it("karakteri olmayan kursta hic sorulmaz", () => {
+    expect(secimSorulmaliMi("yok-boyle", [])).toBe(false);
   });
 });

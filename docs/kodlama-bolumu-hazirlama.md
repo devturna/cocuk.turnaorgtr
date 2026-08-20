@@ -66,7 +66,9 @@ Bütün satırlar aynı uzunlukta olmalı.
 - `harita.bakis`: `yukari`, `asagi`, `sol` veya `sag` olmalı.
 - `idealAdim`: en kısa çözümün adım sayısı. **Tahmin etme** — denetim
   script'i doğru değeri sana söyler.
-- `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle.
+- `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle. **Yere
+  dairdir, kuşa değil** — kurs birden fazla kuş sunuyorsa (bkz. §6) kuşa
+  dair bir ipucu, seçilmeyen kuşlar için yanlış olur.
 
 **Yeni bir kursun ilk durağı öğreticidir ve her zaman tek adımda
 (`idealAdim: 1`) bitmelidir.** Çocuğun bu bölümle ilk karşılaşması "denedim"
@@ -126,3 +128,36 @@ kaydına yeni kursun içerik dosyasını import edip bir girdi eklemen gerekir
 (`"turna-yolu"` girdisiyle aynı desen). Bu satır unutulursa `npm run kontrol`
 hatayla durur — sessizce geçmez — çünkü `content/kodla/kurslar.json`
 içindeki `"yayinda"` kurslarla `KURS_BOLUMLERI` kaydı burada karşılaştırılır.
+
+## 6. Yeni bir kursun karakterleri
+
+Yeni bir kurs, kendi kuş seçeneklerini de getirmelidir:
+`content/kodla/karakterler.json` içine kurs kimliğiyle eşleşen bir anahtar
+altında en az bir karakter eklenir (`id`, `ad`, `bilgi`, `palet.govde`,
+`palet.gaga`, `palet.bacak`, `palet.kanat` — renkler `"#rrggbb"`
+biçiminde). `npm run kontrol` bu dosyayı da denetler: karakteri olmayan
+`"yayinda"` bir kurs, eksik/boş bir alan veya geçersiz bir renk denetimi
+düşürür.
+
+`palet.kanat`, gövdenin gölgede kalan tonudur: aynı kuşun tüyü olarak
+okunmalı, gövdeden ayırt edilebilecek kadar da koyu olmalı.
+`karakterler.test.ts` bunu `kanat`/`govde` arasında en az 1.5:1 WCAG
+kontrast oranı olarak sınar. Bu, metin dışı elemanlar için WCAG'in
+önerdiği 3:1 eşiğinin altındadır — bugün hiçbir kuş 3:1'e ulaşmıyor
+(Turna ~1.57:1, Flamingo ~1.80:1); 3:1'e çıkmak iki kuşun da görünümünü
+değiştirmeyi gerektirir, bu yüzden test eşiği bugün gemiye çıkan en düşük
+değerin hemen altına, 1.5:1'e konmuştur — hedef gerçek bir gerilemeyi
+yakalamak, 3:1'i simüle etmek değil. Turna'da `#c9c2b4`, flamingoda
+`#c96a8a`.
+
+**Kursta tek karakter varsa seçim ekranı hiç açılmaz.** Seçecek bir şey
+yokken çocuğu kart ekranında durdurmanın anlamı yok; o tek kuş sessizce
+geçerli sayılır. Kural `secimSorulmaliMi` içinde yaşar
+(`lib/kodla/yerelKayit.ts`) ve `yerelKayit.test.ts` ile korunur. İki veya
+daha fazla kuş varsa seçim sorulur ve seçilene kadar harita kullanılamaz.
+
+Kuşa dair bilgi (adı, göç öyküsü, vb.) burada, karakter kartında durur —
+durak `ipucu`sine asla sızmaz, çünkü `ipucu` yere dairdir (bkz. §3). Aynı
+kursta birden fazla kuş varsa, her ikisi de aynı duraklardan geçer; bir
+durağın ipucu belirli bir kuşa özgü bir gerçek içeriyorsa, o kuşu seçmeyen
+çocuklar için ipucu yanlış olur.
