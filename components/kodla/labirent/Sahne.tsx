@@ -9,10 +9,11 @@ import type { YolParcasi } from "@/lib/kodla/labirent/onizleme";
 import type { Tema } from "@/lib/kodla/labirent/temalar";
 import {
   BasakSimgesi,
+  KarakterSimgesi,
   TozSimgesi,
-  TurnaSimgesi,
   YuvaSimgesi,
-  type TurnaPozu,
+  type KarakterPaleti,
+  type KarakterPozu,
 } from "./Simgeler";
 
 const KARE = 100;
@@ -39,6 +40,7 @@ export default function Sahne({
   tema,
   turna,
   poz,
+  palet,
   bekliyor,
   toplananlar,
   vardi,
@@ -49,7 +51,8 @@ export default function Sahne({
   harita: Harita;
   tema: Tema;
   turna: { x: number; y: number; bakis: Yon };
-  poz: TurnaPozu;
+  poz: KarakterPozu;
+  palet: KarakterPaleti;
   bekliyor: boolean;
   toplananlar: string[];
   vardi: boolean;
@@ -217,7 +220,7 @@ export default function Sahne({
           } as React.CSSProperties
         }
       >
-        <TurnaSimgesi yon={turna.bakis} poz={poz} />
+        <KarakterSimgesi yon={turna.bakis} poz={poz} palet={palet} />
       </g>
     </svg>
   );

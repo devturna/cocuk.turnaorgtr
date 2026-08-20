@@ -20,18 +20,20 @@ import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
 import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
 import { bolumHaritasi, bolumSiralamasi, type BolumVerisi } from "@/lib/kodla/bolumler";
+import { varsayilanKarakter } from "@/lib/kodla/karakterler";
 import {
   bolumSonucuKaydet,
   demoGosterildi,
   demoGosterildiMi,
   denemeArtir,
+  seciliKarakter,
   type YildizTuru,
 } from "@/lib/kodla/yerelKayit";
 import Sahne from "./Sahne";
 import KomutPaleti from "./KomutPaleti";
 import ProgramSeridi from "./ProgramSeridi";
 import Konfeti from "./Konfeti";
-import type { TurnaPozu } from "./Simgeler";
+import { VARSAYILAN_PALET, type KarakterPozu } from "./Simgeler";
 import "../kodla.css";
 
 // Uc zamanlama sabiti birbirine bagli ve SIRALARI onemlidir, kucukten
@@ -89,7 +91,7 @@ type Durum = {
   oynatma: { adimlar: Adim[]; sira: number } | null;
   vurgulanan: number | null;
   turna: { x: number; y: number; bakis: Yon };
-  poz: TurnaPozu;
+  poz: KarakterPozu;
   toplananlar: string[];
   bitti: YildizTuru | null;
 };
@@ -106,6 +108,16 @@ export default function BolumEkrani({
   const harita = bolumHaritasi(bolum);
   const tema = temaBul(bolum.tema);
   const baslangicTurna = { ...harita.baslangic, bakis: harita.bakis };
+
+  // Karakter yalnizca tarayicida secilir; sayfa sunucuda uretilirken
+  // localStorage yoktur. Bu yuzden once varsayilanla cizip, ekran acilinca
+  // secileni okuyoruz.
+  const [karakter, setKarakter] = useState(() => varsayilanKarakter(kursId));
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setKarakter(seciliKarakter(kursId));
+  }, [kursId]);
 
   // Demo yalnizca kursun ilk duraginda anlamli; sonrakilerde cocuk zaten
   // nasil oynandigini biliyor.
@@ -339,6 +351,7 @@ export default function BolumEkrani({
           tema={tema}
           turna={durum.turna}
           poz={durum.poz}
+          palet={karakter?.palet ?? VARSAYILAN_PALET}
           bekliyor={!calisiyor}
           yol={yol}
           calisan={durum.vurgulanan}
