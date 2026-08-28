@@ -1,28 +1,79 @@
 # Kodlama Bölümü Hazırlama
 
 Yeni bir durak eklemek kod yazmayı gerektirmez; `content/kodla/<kurs>.json`
-dosyasına bir girdi eklemek yeterlidir.
+dosyasına bir girdi eklemek yeterlidir. Bir durak, ortak bir yer (Sultansazlığı,
+Kapadokya...) etrafında dizilmiş **bir bulmaca dizisidir** — tek bir harita
+değil.
 
-## 1. Girdiyi yaz
+## 1. Bir durak kaç bulmaca tutar?
+
+Üç ile altı arası. Bir durak bir konuyu öğretir; o konuyu üç bulmacadan az
+anlatmak pekiştirmez, altıdan fazlası aynı yerde sıkar.
+
+Bulmacalar **kolaydan zora** dizilir. İlk bulmaca konuyu tek başına gösterir,
+sonrakiler üstüne bir şey ekler. Çocuk durağın ortasında bırakırsa kaldığı
+bulmacadan devam eder.
+
+Altın yıldız durağın **tamamı** ideal adımda çözüldüğünde verilir. Tek bir
+bulmacada fazla blok kullanmak altını kaçırır; bu bilinçlidir, yoksa altın
+yıldız durak uzadıkça kolaylaşırdı.
+
+Bu kural yeni içerik içindir. Bugün yayında olan altı duraktan dördü
+(Göksu Deltası, Tuz Gölü, Pamukkale, Efes) hâlâ **tek** bulmaca taşıyor —
+bu bir hata değil, bilinçli bir ara durumdur: bu duraklar sonraki fazda
+yeni konular (döngü, dönüş komutları) alacak ve o zaman 3-6 bulmacaya
+çıkacaklar. Yeni bir durak eklerken örnek aldığın yer bu dördü değil,
+**Sultansazlığı** (3 bulmaca) veya **Kapadokya** (4 bulmaca) olmalı.
+
+## 2. Girdiyi yaz
 
 ```json
 {
   "id": "van-golu",
   "ad": "Van Gölü",
   "mekanik": "labirent",
-  "komutSeti": "yonler",
   "tema": "su",
   "durak": { "x": 82, "y": 47 },
-  "idealAdim": 4,
   "ipucu": "Van Gölü Türkiye'nin en büyük gölüdür.",
-  "harita": {
-    "bakis": "sag",
-    "satirlar": [".....", ".T.oH", "....."]
-  }
+  "bulmacalar": [
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 1,
+      "harita": {
+        "bakis": "sag",
+        "satirlar": ["...", ".TH", "..."]
+      }
+    },
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 2,
+      "harita": {
+        "bakis": "sag",
+        "satirlar": ["....", ".T.H", "...."]
+      }
+    },
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 5,
+      "harita": {
+        "bakis": "sag",
+        "satirlar": ["...H", "....", "T..."]
+      }
+    }
+  ]
 }
 ```
 
-## 2. Harita işaretleri
+Üçüncü bulmaca ilk ikisinin üstüne bir şey ekler: artık tek yönde değil, hem
+yukarı hem sağa gitmek gerekiyor. Bu, §1'deki "kolaydan zora" kuralının
+somut hâlidir.
+
+`id`, `ad`, `mekanik`, `tema`, `durak`, `ipucu` **durak seviyesindedir** — o
+duraktaki bütün bulmacalar için tek bir kez yazılır. `komutSeti`,
+`idealAdim`, `harita` ise **bulmaca seviyesindedir** — dizideki her bulmaca
+kendi haritasını, kendi komut setini ve kendi ideal adım sayısını taşır.
+
+## 3. Harita işaretleri
 
 | İşaret | Anlamı |
 |---|---|
@@ -32,13 +83,15 @@ dosyasına bir girdi eklemek yeterlidir.
 | `H` | yuva, hedef (tam bir tane) |
 | `o` | toplanacak başak (istediğin kadar) |
 
-Bütün satırlar aynı uzunlukta olmalı.
+Bütün satırlar aynı uzunlukta olmalı. Bu tablo dizideki **her** bulmacanın
+kendi `harita` alanı için geçerlidir.
 
-## 3. Alanlar
+## 4. Alanlar
+
+### Durak seviyesinde (bir kez yazılır)
 
 - `id`, `ad`, `ipucu`: boş bırakılamayan metin alanları.
 - `mekanik`: bugün yalnızca `"labirent"` var.
-- `komutSeti`: `yonler` (mutlak yön) veya `donusler` (ileri + dön).
 - `tema`: `lib/kodla/labirent/temalar.ts` içinde tanımlı olmalı. Yeni bir
   tema eklemek istiyorsan oraya zemin rengi ve engel çizimi ekle.
 - `durak`: Türkiye haritasındaki yüzde konum (sol üst köşe 0,0; `x` ve `y`
@@ -63,36 +116,47 @@ Bütün satırlar aynı uzunlukta olmalı.
   gerekecek: işaret gerçek noktasından hafifçe kaydırılıp kısa bir
   çizgiyle asıl noktaya bağlanır. O zaman bile koordinatın kendisi
   değişmez, yalnızca çizimi kaydırılır.
+- `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle. **Yere
+  dairdir, kuşa değil** — kurs birden fazla kuş sunuyorsa (bkz. §7) kuşa
+  dair bir ipucu, seçilmeyen kuşlar için yanlış olur. Durakta birden fazla
+  bulmaca olsa da ipucu tektir; her bulmacada tekrar yazılmaz.
+
+### Bulmaca seviyesinde (dizideki her girdi için ayrı yazılır)
+
+- `komutSeti`: `yonler` (mutlak yön) veya `donusler` (ileri + dön).
 - `harita.bakis`: `yukari`, `asagi`, `sol` veya `sag` olmalı.
+- `harita.satirlar`: §3'teki işaretlerle yazılmış ızgara.
 - `idealAdim`: en kısa çözümün adım sayısı. **Tahmin etme** — denetim
   script'i doğru değeri sana söyler.
-- `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle. **Yere
-  dairdir, kuşa değil** — kurs birden fazla kuş sunuyorsa (bkz. §6) kuşa
-  dair bir ipucu, seçilmeyen kuşlar için yanlış olur.
 
-**Yeni bir kursun ilk durağı öğreticidir ve her zaman tek adımda
-(`idealAdim: 1`) bitmelidir.** Çocuğun bu bölümle ilk karşılaşması "denedim"
-değil "başardım" olmalı; üç adımlık bir çözüm bile ilk deneyim için fazladır.
-Bkz. `turna-yolu.json` içindeki `goksu-deltasi` (3×3 harita, Turna ortada,
-yuva hemen yanında, tek yön komutuyla biter).
+**Bir kursun ilk durağının ilk (ve bugün tek) bulmacası öğreticidir ve her
+zaman tek adımda (`idealAdim: 1`) bitmelidir.** Çocuğun bu bölümle ilk
+karşılaşması "denedim" değil "başardım" olmalı; üç adımlık bir çözüm bile
+ilk deneyim için fazladır. Bkz. `turna-yolu.json` içindeki `goksu-deltasi`
+(3×3 harita, Turna ortada, yuva hemen yanında, tek yön komutuyla biter).
 
-## 4. Denetle
+## 5. Denetle
 
 ```bash
 npm run kontrol
 ```
 
-`scripts/kontrol.ts` her kodlama bölümünü denetler ve şunlardan biri
-bulunursa bölümü reddeder (harita çözülemeden yapılamayan denetimler —
+`scripts/kontrol.ts` her kodlama durağını denetler ve şunlardan biri
+bulunursa durağı reddeder (harita çözülemeden yapılamayan denetimler —
 çözüm arama, `idealAdim` karşılaştırması — geçerli bir harita gerektirir,
 bu yüzden önce harita biçimi doğrulanır):
 
-- zorunlu alanlardan biri boş veya eksikse (`id`, `ad`, `mekanik`,
-  `komutSeti`, `tema`, `ipucu`),
+- durak seviyesindeki zorunlu alanlardan biri boş veya eksikse (`id`, `ad`,
+  `mekanik`, `tema`, `ipucu`),
 - `mekanik` `"labirent"` değilse,
-- `komutSeti` `yonler`/`donusler` dışında bir değerse,
 - `tema` `lib/kodla/labirent/temalar.ts` içinde tanımlı değilse,
-- `durak.x` veya `durak.y` 0-100 aralığının dışındaysa,
+- `durak.x` veya `durak.y` 0-100 aralığının dışındaysa ya da nokta
+  `turkiye.svg`'deki kara parçasının dışına düşüyorsa,
+- `bulmacalar` dizisi yoksa veya boşsa — bir durak en az bir bulmaca
+  taşımalı, üst sınır yoktur ama §1'deki 3-6 kuralı yeni içerik için
+  geçerlidir,
+- dizideki herhangi bir bulmacada `komutSeti` `yonler`/`donusler` dışında
+  bir değerse,
 - `harita.satirlar` bir dizi değilse veya `harita.bakis` geçerli bir yön
   değilse,
 - harita satırları eşit uzunlukta değilse, tam bir `T` veya tam bir `H`
@@ -102,7 +166,7 @@ bu yüzden önce harita biçimi doğrulanır):
   farklıysa — script doğrusunu yazar:
 
   ```
-  turna-yolu/van-golu: idealAdim 6 yazilmis ama en kisa cozum 4 adim
+  turna-yolu/van-golu bulmaca 3: idealAdim 6 yazilmis ama en kisa cozum 5 adim
   ```
 
 - en kısa çözüm `EN_FAZLA_BLOK` (20) bloktan uzunsa; program şeridi bu
@@ -114,10 +178,10 @@ Denetim geçtikten sonra:
 npm run e2e
 ```
 
-uçtan uca test yeni bölümü otomatik olarak oynar ve bitirilebildiğini
+uçtan uca test yeni durağı otomatik olarak oynar ve bitirilebildiğini
 doğrular.
 
-## 5. Yeni bir DURAK mı, yeni bir KURS mu?
+## 6. Yeni bir DURAK mı, yeni bir KURS mu?
 
 Yukarıdaki adımlar yalnızca **mevcut bir kursa durak eklemek** içindir ve
 kod yazmayı gerektirmez.
@@ -129,7 +193,7 @@ kaydına yeni kursun içerik dosyasını import edip bir girdi eklemen gerekir
 hatayla durur — sessizce geçmez — çünkü `content/kodla/kurslar.json`
 içindeki `"yayinda"` kurslarla `KURS_BOLUMLERI` kaydı burada karşılaştırılır.
 
-## 6. Yeni bir kursun karakterleri
+## 7. Yeni bir kursun karakterleri
 
 Yeni bir kurs, kendi kuş seçeneklerini de getirmelidir:
 `content/kodla/karakterler.json` içine kurs kimliğiyle eşleşen bir anahtar
@@ -157,7 +221,7 @@ geçerli sayılır. Kural `secimSorulmaliMi` içinde yaşar
 daha fazla kuş varsa seçim sorulur ve seçilene kadar harita kullanılamaz.
 
 Kuşa dair bilgi (adı, göç öyküsü, vb.) burada, karakter kartında durur —
-durak `ipucu`sine asla sızmaz, çünkü `ipucu` yere dairdir (bkz. §3). Aynı
+durak `ipucu`sine asla sızmaz, çünkü `ipucu` yere dairdir (bkz. §4). Aynı
 kursta birden fazla kuş varsa, her ikisi de aynı duraklardan geçer; bir
 durağın ipucu belirli bir kuşa özgü bir gerçek içeriyorsa, o kuşu seçmeyen
 çocuklar için ipucu yanlış olur.

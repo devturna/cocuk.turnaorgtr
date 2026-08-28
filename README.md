@@ -26,7 +26,7 @@ Bunu bize güvenerek kabul etmeniz gerekmiyor — kendiniz doğrulayabilirsiniz:
 | Boyama | Yayında |
 | Harfler ve Sayılar | Yaz oyunu yayında, diğer üç oyun geliştiriliyor |
 | Oyunlar | Planlanıyor (Faz 3) |
-| Kodlama | Faz 4c yayında (Turna'nın Yolu, altı durak, kuş seçimi, yol önizlemeli arayüz) |
+| Kodlama | Faz 4d geliştiriliyor (Turna'nın Yolu, altı durak — bazıları birden çok bulmacadan oluşan dizi durak, kuş seçimi, yol önizlemeli arayüz) |
 
 Ayrıntılar: [yol haritası](docs/yol-haritasi.md)
 

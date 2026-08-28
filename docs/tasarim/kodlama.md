@@ -151,19 +151,28 @@ type Kurs = {
   durum: "yayinda" | "yakinda";
 };
 
-type Bolum = {
-  id: string;                            // "kapadokya"
-  ad: string;                            // "Kapadokya"
-  mekanik: "labirent";
+// Bir durak ortak bir yer (Sultansazligi, Kapadokya...) ve o yerde
+// kolaydan zora sıralanmış bir bulmaca dizisidir; harita, komut seti ve
+// ideal adim durak seviyesinde degil, her bulmacanin kendi alanidir.
+// Bir durak neden bir haritadan cok bulmacadan olusuyor: bkz.
+// kodlama-kapsam.md §3.
+type BulmacaVerisi = {
   komutSeti: "yonler" | "donusler";
-  tema: string;                          // zemin ve engel cizimini secer
-  durak: { x: number; y: number };       // Turkiye haritasinda yuzde konum
   idealAdim: number;                     // en kisa cozumun uzunlugu
-  ipucu: string;                         // ebeveyne tek cumle
   harita: {
     bakis: "yukari" | "asagi" | "sol" | "sag";   // karakterin baslangic yonu
     satirlar: string[];
   };
+};
+
+type BolumVerisi = {
+  id: string;                            // "kapadokya"
+  ad: string;                            // "Kapadokya"
+  mekanik: "labirent";
+  tema: string;                          // zemin ve engel cizimini secer
+  durak: { x: number; y: number };       // Turkiye haritasinda yuzde konum
+  ipucu: string;                         // ebeveyne tek cumle
+  bulmacalar: BulmacaVerisi[];           // 3-6 bulmaca, kolaydan zora
 };
 
 type Komut =
@@ -182,21 +191,33 @@ gözüyle görür.
   "id": "sultansazligi",
   "ad": "Sultansazligi",
   "mekanik": "labirent",
-  "komutSeti": "yonler",
   "tema": "sazlik",
-  "durak": { "x": 46, "y": 58 },
-  "idealAdim": 5,
+  "durak": { "x": 50, "y": 61 },
   "ipucu": "Sultansazligi Kayseri'de sazliklar ve gollerden olusan bir kus cennetidir.",
-  "harita": {
-    "bakis": "sag",
-    "satirlar": [
-      ".....",
-      ".T.oH",
-      "..#.."
-    ]
-  }
+  "bulmacalar": [
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 3,
+      "harita": { "bakis": "sag", "satirlar": [".....", ".T..H", "....."] }
+    },
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 4,
+      "harita": { "bakis": "sag", "satirlar": ["....H", ".T...", "....."] }
+    },
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 4,
+      "harita": { "bakis": "sag", "satirlar": [".....", ".T...", "....H"] }
+    }
+  ]
 }
 ```
+
+Bu, `content/kodla/turna-yolu.json` içindeki gerçek Sultansazlığı girdisidir
+— uydurma bir örnek değil. `ipucu` ve `tema` durakta bir kez yazılır;
+`komutSeti`, `idealAdim` ve `harita` dizideki üç bulmacanın her birinde
+ayrı ayrı durur.
 
 | İşaret | Anlamı |
 |---|---|
