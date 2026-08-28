@@ -80,8 +80,12 @@ const BOSTA_SURESI = 12000;
 const GECIS_SURESI = 1100;
 
 // Bulmaca kazanilinca kutlama pozu, gecis katmani onu ortmeden once bu kadar
-// sure ekranda kalir. Yukaridaki hicbir sureyle bagli degil: sadece cocugun
-// varisi GORMESI icin bilincli bir bekleme.
+// sure ekranda kalir. POZ_SIFIRLAMA_GECIKMESI (400ms, yukarida) ile KUPLU:
+// asagidaki "Kosu bitince poz..." etkisi bu pencerede (sonrakiHazirlaniyor)
+// bilerek devre disi birakilir, YOKSA o etki bu bekleme dolmadan pozu
+// "durus"a dondurur ve gorunen kutlama suresi ikisinin kucugu (min) olur —
+// bu sabiti tek basina buyutmenin hicbir etkisi kalmaz (Duzeltme turu 2,
+// Onemli B; bu, Onemli 4'un uyardigi belgelenmemis kuplaj sinifinin aynisi).
 const VARIS_BEKLEME_SURESI = 500;
 
 /**
@@ -100,6 +104,27 @@ function demoKomutuSec(seti: KomutSeti, harita: Harita): Komut | null {
     if (yurudu && !sonuc.basarili) return komut;
   }
   return null;
+}
+
+/**
+ * Verilen siradaki bulmacanin haritasini cozup baslangic karakterKonumu'nu
+ * dondurur. `bulmacaSirasi`'ni HERHANGI bir yerde degistiren kod bu
+ * fonksiyonu AYNI commit'te cagirir (Sahne.tsx'teki .kodlaKarakter'in
+ * `key={bulmacaSirasi}` olmasiyla birlikte): boylece karakterKonumu hicbir
+ * zaman yeni sirayla uyumsuz bir "ara" degerde kalmaz, ayri bir "senkron
+ * etkisi"ne de gerek kalmaz — sira degisince .kodlaKarakter zaten yeniden
+ * monte olur (React, degisen key'i eski dugumu atip yenisini kurmak olarak
+ * okur) ve YENI dugumun ilk boyamasinda CSS transform gecisi hic devreye
+ * girmez (bir elemanin "onceki" degeri yoksa gecis olmaz — bu, tarayicilarin
+ * standart, guvenilir davranisidir).
+ */
+function bulmacaBaslangicKonumu(
+  bolum: BolumVerisi,
+  sira: number,
+): { x: number; y: number; bakis: Yon } {
+  const bulmaca = bulmacaBul(bolum, sira) ?? bolum.bulmacalar[0];
+  const harita = bulmacaHaritasi(bulmaca);
+  return { x: harita.baslangic.x, y: harita.baslangic.y, bakis: harita.bakis };
 }
 
 type Durum = {
@@ -153,55 +178,63 @@ export default function BolumEkrani({
   // nasil oynandigini biliyor.
   const ilkDurakDegil = bolumSiralamasi(kursId)[0] !== bolum.id;
 
-  // Baslangicta bulmacaSirasi her zaman 0'dir (localStorage sunucuda yok);
-  // ilk karakter konumu da bu yuzden burada, dogrudan 0. bulmacadan
-  // hesaplanir. Asagidaki `bulmaca`/`harita` degiskenleri ise her render'da
-  // GUNCEL durum.bulmacaSirasi'ni okur (bir sonraki adimda tanimli) —
-  // ikisi ayni yerde birlesmiyor cunku bu ilk deger yalnizca mount anini,
-  // digerleri her render'i temsil eder.
-  const [durum, setDurum] = useState<Durum>(() => {
-    const ilkBulmaca = bulmacaBul(bolum, 0) ?? bolum.bulmacalar[0];
-    const ilkHarita = bulmacaHaritasi(ilkBulmaca);
-    return {
-      program: [],
-      sonEklenenSira: null,
-      oynatma: null,
-      vurgulanan: null,
-      karakterKonumu: { ...ilkHarita.baslangic, bakis: ilkHarita.bakis },
-      poz: "durus",
-      toplananlar: [],
-      bitti: null,
-      bulmacaSirasi: 0,
-      gecis: false,
-      sonrakiHazirlaniyor: false,
-    };
-  });
+  // Baslangicta bulmacaSirasi her zaman 0'dir (localStorage sunucuda yok).
+  const [durum, setDurum] = useState<Durum>(() => ({
+    program: [],
+    sonEklenenSira: null,
+    oynatma: null,
+    vurgulanan: null,
+    karakterKonumu: bulmacaBaslangicKonumu(bolum, 0),
+    poz: "durus",
+    toplananlar: [],
+    bitti: null,
+    bulmacaSirasi: 0,
+    gecis: false,
+    sonrakiHazirlaniyor: false,
+  }));
+
+  // demoKomut, `bulmacaSirasi === 0` KESINLESENE kadar null kalir: ilk-temas
+  // demosu (asagida) SADECE cocuk gercekten 0. bulmacadaysa anlamlidir.
+  const [demoKomut, setDemoKomut] = useState<Komut | null>(null);
 
   // Durak ilk acildiginda kaldigi yerden devam eder. Bitmis bir durak bastan
   // oynaniyorsa sayac da sifirlanir; yoksa ikinci turda "cozulen" toplami
   // asar ve altin sansi eski turdan miras kalir.
+  //
+  // demoKomut da BURADA, ayni "baslangic" degeriyle AYNI ANDA hesaplanir —
+  // ayri hesaplansaydi (ornegin bulmaca/harita'nin asagidaki render-zamani
+  // turetmesine gore) ilk render'da durum.bulmacaSirasi HENUZ 0'dan
+  // duzeltilmemis olurdu: React, bu etkinin setDurum cagrisini yalnizca
+  // KUYRUGA alir, mount pasindaki digerkapili etkiler (demo-baslatma
+  // etkisi dahil) hala ESKI (0) degeri okur. "Baslangic bulmacasi"ni TEK
+  // bir yerde, once hesaplayip hem duruma hem demoKomut'a AYNI ANDA
+  // yazmak, mount-demosunun yanlis haritaya gore secilmis bir komutu
+  // cocuk adina calistirmasini kokten engeller (Duzeltme turu 2, Minor C).
   useEffect(() => {
     const ilerleme = durakIlerlemesi(kursId, bolum.id);
     const baslangic = baslangicBulmacasi(ilerleme.cozulen, toplamBulmaca);
     if (ilerleme.cozulen >= toplamBulmaca) {
       durakIlerlemesiniSil(kursId, bolum.id);
     }
-    if (baslangic === 0) return;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDurum((onceki) => ({ ...onceki, bulmacaSirasi: baslangic }));
-  }, [kursId, bolum.id, toplamBulmaca]);
+    if (baslangic !== 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setDurum((onceki) => ({
+        ...onceki,
+        bulmacaSirasi: baslangic,
+        karakterKonumu: bulmacaBaslangicKonumu(bolum, baslangic),
+      }));
+      return;
+    }
+    if (!ilkDurakDegil) {
+      const ilkBulmaca = bulmacaBul(bolum, 0) ?? bolum.bulmacalar[0];
+      setDemoKomut(demoKomutuSec(ilkBulmaca.komutSeti, bulmacaHaritasi(ilkBulmaca)));
+    }
+  }, [kursId, bolum, toplamBulmaca, ilkDurakDegil]);
 
   const bulmaca = bulmacaBul(bolum, durum.bulmacaSirasi) ?? bolum.bulmacalar[0];
   const harita = useMemo(() => bulmacaHaritasi(bulmaca), [bulmaca]);
   const tema = temaBul(bolum.tema);
   const baslangicKarakterKonumu = { ...harita.baslangic, bakis: harita.bakis };
-
-  // Lazy initializer: bir kez hesaplanir, sonraki render'larda ayni referans
-  // kalir (bagimlilik dizilerinde guvenle kullanilabilir). ilkDurakDegil
-  // true ise hesaplamaya bile gerek yok.
-  const [demoKomut] = useState<Komut | null>(() =>
-    ilkDurakDegil ? null : demoKomutuSec(bulmaca.komutSeti, harita),
-  );
 
   // Demo yalnizca ilk durakta ve ilk giriste oynar. Sahte animasyon degil:
   // gercek arayuzu surer, cocuk tam olarak kendi yapacagi seyi gorur.
@@ -300,14 +333,20 @@ export default function BolumEkrani({
 
   // Kosu bitince poz dinlenme haline doner. Tek blokluk bir carpmada
   // "carpma" pozunu temizleyecek baska bir adim olmadigi icin gerekli.
+  // sonrakiHazirlaniyor penceresinde ATLANIR: bu pencerede poz "kutlama"dir,
+  // oynatma VE bitti ikisi de null'dur — bu etki onlarsiz da POZ_SIFIRLAMA_
+  // GECIKMESI (400ms) sonra "durus"a dondururdu. VARIS_BEKLEME_SURESI
+  // (asagida, 500ms) ile KUPLU bu yuzden: o bekleme dolmadan poz sifirlanirsa
+  // gorunen kutlama suresi ikisinin kucugu (min(500,400)=400ms) olur, sabiti
+  // buyutmenin hicbir etkisi kalmaz (Duzeltme turu 2, Onemli B).
   useEffect(() => {
-    if (durum.oynatma || durum.bitti) return;
+    if (durum.oynatma || durum.bitti || durum.sonrakiHazirlaniyor) return;
     if (durum.poz === "durus") return;
     const zamanlayici = setTimeout(() => {
       setDurum((onceki) => ({ ...onceki, poz: "durus" }));
     }, POZ_SIFIRLAMA_GECIKMESI);
     return () => clearTimeout(zamanlayici);
-  }, [durum.oynatma, durum.bitti, durum.poz]);
+  }, [durum.oynatma, durum.bitti, durum.sonrakiHazirlaniyor, durum.poz]);
 
   // Kutlama pozu bir nefes gorundukten sonra gecis katmanini acar. Bu efekt
   // olmasa "vardi" ile ayni commit'te gecis:true yazilir, kutlama pozu
@@ -321,81 +360,45 @@ export default function BolumEkrani({
     return () => clearTimeout(zamanlayici);
   }, [durum.sonrakiHazirlaniyor]);
 
-  // Gecis katmani kisa sure gorunur, sonra sonraki bulmaca ortunun ALTINDA
-  // acilir: bulmacaSirasi burada ilerler ama gecis HENUZ kapanmaz. Kapatma
-  // isini, konumu yeni haritaya senkronlayan asagidaki etki, kendi ayri
-  // commit'inde yapar — boylece kus, ortu kalkmadan ONCE yeni karesine
-  // gecmis olur; ayni commit'te kapatilsaydi cocuk kusun eski kareden yeniye
-  // "kaydigini" gorurdu (bkz. Duzeltme turu 1, Onemli 1). karakterKonumu
-  // burada da YAZILMAZ: yeni haritanin baslangici baslangicKarakterKonumu'ndan
-  // gelir ve bulmacaSirasi degistiginde yeniden hesaplanir; konumu burada
-  // da yazmak ikinci bir kaynak yaratirdi.
+  // Gecis katmani kisa sure gorunur, sonra sonraki bulmaca AYNI commit'te
+  // hem acilir hem de ortu kapanir: bulmacaSirasi, karakterKonumu VE gecis:
+  // false hepsi TEK setDurum cagrisinda birlikte yazilir. Bu, Duzeltme turu
+  // 1'deki cift-requestAnimationFrame numarasinin YERINE gecti (Duzeltme
+  // turu 2, Onemli 1'in cozum onerisi): Sahne.tsx'teki .kodlaKarakter artik
+  // `key={bulmacaSirasi}` tasiyor, yani sira degisince React o dugumu ATIP
+  // YENISINI kuruyor. Yeni kurulan bir dugumun "onceki" bir stili olmadigi
+  // icin CSS transform gecisi hic devreye girmiyor — konumu AYRI bir
+  // commit'te, ortuyu gizli tutarak senkronlamaya gerek kalmiyor. Bu yuzden
+  // ayrica bir "harita-senkron etkisi" de YOK: bulmacaSirasi'ni degistiren
+  // HER yer (burasi, mount'taki devam etkisi, duraktanTekrarBasla)
+  // karakterKonumu'nu da bulmacaBaslangicKonumu ile AYNI commit'te yazar —
+  // tek kaynak kurali boylece "bir efekt" yerine "atomik yazim" ile korunur.
+  // oynatma:null da eklendi (Duzeltme turu 2, Onemli A): girdiEngelli zaten
+  // bu pencerede calistirmayiBaslat'i engelliyor, ama bu ikinci, bagimsiz
+  // korumadir — her ihtimalde ESKI haritaya gore kuyruga alinmis bir kosu
+  // varsa burada kesin olarak durur.
   useEffect(() => {
     if (!durum.gecis) return;
     const zamanlayici = setTimeout(() => {
-      setDurum((onceki) => ({
-        ...onceki,
-        bulmacaSirasi: onceki.bulmacaSirasi + 1,
-        program: [],
-        sonEklenenSira: null,
-        vurgulanan: null,
-        toplananlar: [],
-        poz: "durus",
-        bitti: null,
-      }));
+      setDurum((onceki) => {
+        const yeniSira = onceki.bulmacaSirasi + 1;
+        return {
+          ...onceki,
+          bulmacaSirasi: yeniSira,
+          karakterKonumu: bulmacaBaslangicKonumu(bolum, yeniSira),
+          gecis: false,
+          oynatma: null,
+          program: [],
+          sonEklenenSira: null,
+          vurgulanan: null,
+          toplananlar: [],
+          poz: "durus",
+          bitti: null,
+        };
+      });
     }, GECIS_SURESI);
     return () => clearTimeout(zamanlayici);
-  }, [durum.gecis]);
-
-  // Harita DEGISTIGINDE (yeni bulmacaya gecince) kus karesini o haritanin
-  // baslangicina esitleyen TEK yer burasidir; gecis etkisi konumu ayrica
-  // yazmiyor, tam da bu yuzden. (Bu, karakterKonumu'nu yazan TEK kod demek
-  // DEGIL: oynatma-tikleme etkisi kosu sirasinda, bastanBasla/
-  // calistirmayiBaslat el ile, demo-sifirlama etkisi de kendi aninda
-  // konumu ayrica yazar — hepsi farkli anlarda calisir, bu etkiyle
-  // cakismazlar.)
-  //
-  // Gecis hala aciksa (durum.gecis true), konum senkronu ORTUNUN ALTINDA
-  // olur; bu etki kendisi de gecisi kapatir ama AYRI bir commit'te — aynen
-  // kapatilirsa .kodlaKarakter'in CSS transform gecisi (kodla.css) tam bu
-  // anda tetiklenir ve kus, ortu kalkarken eski kareden yeniye "belirir"
-  // gibi kayar. .gecisSirasinda sinifi (kodla.css) bu sirada zaten transform
-  // gecisini kapatiyor; iki onlem birlikte kaymayi engeller — AMA setTimeout
-  // 0ms yetmiyor: iki commit birbirine bu kadar yakinsa tarayici arada hic
-  // BOYAMA yapmadan ikisini TEK gorsel kareye sikistirabilir, "gecisSirasinda"
-  // ilk commit'te hic gorunmemis gibi davranir ve kayma yine olusur (bu,
-  // elle test sirasinda GERCEKTEN gozlemlendi — bkz. Duzeltme turu 1 raporu).
-  // Cift requestAnimationFrame, tarayicinin konum-senkron commit'ini
-  // GERCEKTEN boyadigini garanti eden standart teknik: ilk rAF bir sonraki
-  // karenin basinda calisir (onceki kare zaten boyanmis olur), ikinci rAF
-  // ondan bir kare sonra — boylece gecis:false'un tetikledigi commit, konum
-  // degisikliginden kesinlikle AYRI bir boyamadan sonra gelir.
-  useEffect(() => {
-    const gecisOrtusuAcikMiydi = durum.gecis;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setDurum((onceki) => ({
-      ...onceki,
-      karakterKonumu: { ...harita.baslangic, bakis: harita.bakis },
-    }));
-    if (!gecisOrtusuAcikMiydi) return;
-    let ikinciKare: number | null = null;
-    const ilkKare = requestAnimationFrame(() => {
-      ikinciKare = requestAnimationFrame(() => {
-        setDurum((onceki) => ({ ...onceki, gecis: false }));
-      });
-    });
-    return () => {
-      cancelAnimationFrame(ilkKare);
-      if (ikinciKare !== null) cancelAnimationFrame(ikinciKare);
-    };
-    // durum.gecis BILEREK bagimlilik degil: bu etki SADECE harita
-    // degisince calismali. gecis'i eklemek, gecis kendi basina true/false
-    // oldugunda (sonrakiHazirlaniyor efekti acinca, ya da bu etkinin kendi
-    // ic zamanlayicisi kapatinca) da bu etkiyi tekrar tetikler — ilki
-    // ortuyu harita henuz degismeden erken kapatir, ikincisi gereksiz bir
-    // tekrar calisir.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [harita]);
+  }, [durum.gecis, bolum]);
 
   function blokEklendi(komut: Komut) {
     setDurum((onceki) => {
@@ -433,17 +436,18 @@ export default function BolumEkrani({
    * durakIlerlemesi silinmedigi icin bir sonraki acilista sayac eski
    * turden miras kalir.
    *
-   * karakterKonumu burada YAZILMAZ (ayni tek-kaynak kurali): bulmacaSirasi
-   * 0'a donunce harita da 0. bulmacaya doner, harita-senkron etkisi konumu
-   * o haritanin baslangicina kendisi tasir. Burada yazsaydik, hala eski
-   * (son) bulmacanin haritasina ait baslangicKarakterKonumu kullanilirdi —
-   * bir tik sonra dogrusuyla degistirilene kadar yanlis karede gorunurdu.
+   * karakterKonumu burada bulmacaBaslangicKonumu ile DOGRUDAN, bulmacaSirasi
+   * ile AYNI commit'te yazilir (Duzeltme turu 2, Onemli 1'in cozumuyle
+   * uyumlu tek kaynak kurali): render-zamanindaki baslangicKarakterKonumu
+   * hala ESKI (son oynanan) bulmacanin haritasina ait olurdu, bu yuzden onu
+   * KULLANMIYORUZ — kendi baslangicini kendisi hesaplar.
    */
   function duraktanTekrarBasla() {
     durakIlerlemesiniSil(kursId, bolum.id);
     setDurum((onceki) => ({
       ...onceki,
       bulmacaSirasi: 0,
+      karakterKonumu: bulmacaBaslangicKonumu(bolum, 0),
       program: [],
       sonEklenenSira: null,
       poz: "durus",
@@ -471,6 +475,16 @@ export default function BolumEkrani({
   }
 
   const calisiyor = durum.oynatma !== null;
+  // Cocuk kutlama sonrasi "nefes" penceresinde (sonrakiHazirlaniyor) ya da
+  // gecis katmani acikken (gecis) tahtaya dokunamamali: calistirmayiBaslat
+  // o an ESKI haritaya gore hesaplanmis adimlari kuyruga alir; gecis bu
+  // arada haritayi degistirir ve eski-harita adimlari yeni haritada oynamaya
+  // devam eder, son "vardi" adimi bulmacaCozuldu'yu program.length===0 ile
+  // IKINCI kez tetikler — bu da ikinci bulmacayi hic oynanmadan "ideal"
+  // sayar (bkz. Duzeltme turu 2, Onemli A). Nabiz (pulse) sinifi de bu
+  // pencerede KAPANMALI: cocugu basmaya davet eden bir dugme, olu bir
+  // dugmeden kotudur.
+  const girdiEngelli = calisiyor || durum.sonrakiHazirlaniyor || durum.gecis;
 
   // Demo adimlarini yurutur: yon dugmesine "dokunur", calistirir, sonra
   // kosunun bitmesini bekleyip tahtayi sifirlar. calistirmayiBaslat asagida
@@ -591,7 +605,7 @@ export default function BolumEkrani({
           tema={tema}
           karakterKonumu={durum.karakterKonumu}
           poz={durum.poz}
-          gecisSirasinda={durum.gecis}
+          bulmacaSirasi={durum.bulmacaSirasi}
           palet={karakter?.palet ?? VARSAYILAN_PALET}
           bekliyor={!calisiyor}
           yol={yol}
@@ -611,10 +625,10 @@ export default function BolumEkrani({
       <div className="bolumAltBar">
         <KomutPaleti
           seti={bulmaca.komutSeti}
-          kilitli={calisiyor || demo !== null}
+          kilitli={girdiEngelli || demo !== null}
           onEkle={blokEklendi}
           hayalet={demo === "yon" && demoKomut !== null ? komutAnahtari(demoKomut) : null}
-          nabiz={!calisiyor && demo === null && durum.program.length === 0}
+          nabiz={!girdiEngelli && demo === null && durum.program.length === 0}
         />
 
         <div className="bolumKontrolleri">
@@ -622,7 +636,7 @@ export default function BolumEkrani({
             type="button"
             className="kodlaYardimciDugme"
             aria-label="Son bloğu sil"
-            disabled={calisiyor || durum.program.length === 0}
+            disabled={girdiEngelli || durum.program.length === 0}
             onClick={() =>
               setDurum((o) => ({ ...o, program: sonBlokuSil(o.program), sonEklenenSira: null }))
             }
@@ -633,7 +647,7 @@ export default function BolumEkrani({
             type="button"
             className="kodlaYardimciDugme"
             aria-label="Hepsini temizle"
-            disabled={calisiyor || durum.program.length === 0}
+            disabled={girdiEngelli || durum.program.length === 0}
             onClick={() =>
               setDurum((o) => ({ ...o, program: programiTemizle(), sonEklenenSira: null }))
             }
@@ -644,7 +658,7 @@ export default function BolumEkrani({
             type="button"
             className="kodlaYardimciDugme"
             aria-label="Kuşu başa al"
-            disabled={calisiyor}
+            disabled={girdiEngelli}
             onClick={bastanBasla}
           >
             <span aria-hidden="true">↺</span>
@@ -652,10 +666,10 @@ export default function BolumEkrani({
           <button
             type="button"
             className={`calistirDugmesi${demo === "calistir" ? " hayaletli" : ""}${
-              !calisiyor && durum.program.length > 0 && demo === null ? " nabiz" : ""
+              !girdiEngelli && durum.program.length > 0 && demo === null ? " nabiz" : ""
             }`}
             aria-label="Çalıştır"
-            disabled={calisiyor || durum.program.length === 0 || demo !== null}
+            disabled={girdiEngelli || durum.program.length === 0 || demo !== null}
             onClick={calistirmayiBaslat}
           >
             <span aria-hidden="true">▶</span>

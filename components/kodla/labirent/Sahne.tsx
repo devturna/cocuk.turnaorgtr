@@ -40,7 +40,7 @@ export default function Sahne({
   tema,
   karakterKonumu,
   poz,
-  gecisSirasinda,
+  bulmacaSirasi,
   palet,
   bekliyor,
   toplananlar,
@@ -53,11 +53,13 @@ export default function Sahne({
   tema: Tema;
   karakterKonumu: { x: number; y: number; bakis: Yon };
   poz: KarakterPozu;
-  /** Bulmacalar arasi gecis surerken CSS transform gecisini kapatir (bkz.
-      kodla.css'teki .gecisSirasinda ve BolumEkrani.tsx'teki harita-senkron
-      etkisi): harita degisip kus yeni baslangica sicrarken animasyonlu
-      "kayma" gorulmesin diye. */
-  gecisSirasinda: boolean;
+  /** .kodlaKarakter'in React key'i (asagida). Bulmaca degisince (BolumEkrani.tsx)
+      bu deger de degisir; React o zaman dugumu ATIP YENIDEN KURAR. Yeni
+      kurulan bir dugumun "onceki" bir CSS degeri olmadigi icin transform
+      gecisi hic devreye girmez — harita degisip kus yeni baslangica
+      sicrarken animasyonlu "kayma" gorulmez (bkz. BolumEkrani.tsx'teki
+      bulmacaBaslangicKonumu yorumu). */
+  bulmacaSirasi: number;
   palet: KarakterPaleti;
   bekliyor: boolean;
   toplananlar: string[];
@@ -214,9 +216,11 @@ export default function Sahne({
 
       {/* Konum ve donus stile yaziliyor; gecisi CSS yapiyor. --carp-x/y,
           kodlaCarp keyframe'ine hangi yone suruklenecegini soyler: karakterin
-          bakis yonu, yani carptigi duvarin yonu. */}
+          bakis yonu, yani carptigi duvarin yonu. key={bulmacaSirasi}: bulmaca
+          degisince React bu dugumu yeniden kurar, bkz. yukaridaki prop yorumu. */}
       <g
-        className={`kodlaKarakter poz-${poz}${bekliyor ? " bekliyor" : ""}${gecisSirasinda ? " gecisSirasinda" : ""}`}
+        key={bulmacaSirasi}
+        className={`kodlaKarakter poz-${poz}${bekliyor ? " bekliyor" : ""}`}
         style={
           {
             "--kare-x": karakterKonumu.x,
