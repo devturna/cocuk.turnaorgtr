@@ -463,6 +463,13 @@ export default function BolumEkrani({
   }
 
   function calistirmayiBaslat() {
+    // Cift-odul korumasi yalnizca JSX'teki disabled niteliginde YASAYAMAZ:
+    // o nitelik tek bir girdi yolunu (fare/dokunma) kapatir ve ortu de
+    // yalnizca parmagi durdurur. Cagri buraya baska bir yoldan gelirse
+    // (klavye, yardimci teknoloji, demo etkisi) kosu baslar ve zaten
+    // sayilmis bir bulmaca bulmacaCozuldu'yu ikinci kez cagirir. Karar
+    // dugmede degil burada veriliyor.
+    if (girdiEngelli) return;
     const sonuc = calistir(durum.program, harita);
     if (sonuc.adimlar.length === 0) return;
     setDurum((onceki) => ({
@@ -486,7 +493,14 @@ export default function BolumEkrani({
   // sayar. Nabiz (pulse) sinifi de bu
   // pencerede KAPANMALI: cocugu basmaya davet eden bir dugme, olu bir
   // dugmeden kotudur.
-  const girdiEngelli = calisiyor || durum.sonrakiHazirlaniyor || durum.gecis;
+  // durum.bitti de dahil: kutlama katmani tahtanin USTUNU orter ama onu
+  // OLDURMEZDI. Ortu parmak icin yeterli, klavye ve yardimci teknoloji icin
+  // degil - Sekme ile calistir dugmesine gidip Enter'a basmak, zaten sayilmis
+  // bulmacayi ikinci kez oynatir ve bulmacaCozuldu ikinci kez cagrilir.
+  // (Dugme bu pencerede nabiz da atiyordu: ortunun ardinda, basilamayan bir
+  // davet.)
+  const girdiEngelli =
+    calisiyor || durum.sonrakiHazirlaniyor || durum.gecis || durum.bitti !== null;
 
   // Demo adimlarini yurutur: yon dugmesine "dokunur", calistirir, sonra
   // kosunun bitmesini bekleyip tahtayi sifirlar. calistirmayiBaslat asagida
@@ -613,7 +627,22 @@ export default function BolumEkrani({
           yol={yol}
           calisan={durum.vurgulanan}
           toplananlar={durum.toplananlar}
-          vardi={durum.bitti !== null}
+          // vardi, sahnenin en net SOZSUZ basari isaretini surer
+          // (.kodlaYuva.dolu ve dolu yuva simgesi). Bu yuzden yalnizca
+          // durum.bitti'ye bagli OLAMAZ: bitti sadece duragin SON
+          // bulmacasinda yazilir, yani ara bulmacalarda cocuk yuvaya konar
+          // ve yuva hic tepki vermezdi - geriye kalan tek geri bildirim
+          // 500ms'lik bir poz ile bir onay isareti ve "siradaki bulmaca" yazisiydi,
+          // hedef kitle ise okuyamiyor.
+          //
+          // Ayri bir bayrak yerine sonrakiHazirlaniyor kullaniliyor: bu
+          // bayrak zaten "vardi" adimiyla AYNI commit'te, kutlama poz'uyla
+          // birlikte yaziliyor (bkz. oynatma etkisi), yani varistan
+          // ayrisamaz. Dorduncu bir durum alani eklemek ayni gercegi iki
+          // yerde tutmak, yani ayrisma ihtimali uretmek olurdu. Pencere
+          // (VARIS_BEKLEME_SURESI, 500ms) yuvanin yaylanmasindan
+          // (kodla.css, 420ms) uzun: animasyon ortu inmeden tamamlanir.
+          vardi={durum.bitti !== null || durum.sonrakiHazirlaniyor}
           bolumAdi={bolum.ad}
         />
       </div>

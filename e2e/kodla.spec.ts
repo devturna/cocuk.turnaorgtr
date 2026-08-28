@@ -273,6 +273,79 @@ test("bulmacalar arasi kutlama ve gecis penceresinde kontroller kilitli kalir", 
   expect(sonuc.ihlaller).toEqual([]);
 });
 
+// Yuvanin dolmasi (.kodlaYuva.dolu + dolu yuva simgesi) sahnedeki EN NET
+// sozsuz basari isaretidir. Bu isaret bir sure yalnizca duragin SON
+// bulmacasinda yanmisti (vardi={durum.bitti !== null}; bitti yalnizca durak
+// bitince yazilir), yani bu daldaki yedi bulmaca bitirmesinin besinde cocuk
+// yuvaya konuyor ama yuva hic tepki vermiyordu. Geriye kalan tek geri
+// bildirim 500ms'lik bir poz ile bir onay isareti ve "siradaki bulmaca"
+// yazisiydi -
+// hedef kitle okuyamiyor.
+test("ara bulmacayi kazanmak da yuvayi doldurur", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  expect(bolum.bulmacalar.length, "bu test ara bulmaca ister").toBeGreaterThan(1);
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+
+  // Kutlama penceresi kisa (VARIS_BEKLEME_SURESI, 500ms); ayri expect()
+  // cagrilariyla kovalamak yerine tarayici icinde orneklemek daha kararli
+  // (ayni gerekce yukaridaki kilit testinde de anlatiliyor).
+  const sonuc = await page.evaluate(async () => {
+    let kutlamaGoruldu = false;
+    let yuvaDoluGoruldu = false;
+    const bitis = Date.now() + 6000;
+    while (Date.now() < bitis) {
+      const kutlama = document.querySelector(".kodlaKarakter.poz-kutlama");
+      if (kutlama) {
+        kutlamaGoruldu = true;
+        if (document.querySelector(".kodlaYuva.dolu")) yuvaDoluGoruldu = true;
+      }
+      if (kutlamaGoruldu && !kutlama) break;
+      await new Promise((cozul) => setTimeout(cozul, 20));
+    }
+    return { kutlamaGoruldu, yuvaDoluGoruldu };
+  });
+
+  expect(sonuc.kutlamaGoruldu, "kutlama pozu hic gozlemlenemedi").toBe(true);
+  expect(sonuc.yuvaDoluGoruldu, "ara bulmaca kazanildi ama yuva hic dolmadi").toBe(true);
+});
+
+// Kutlama katmani tahtanin USTUNU orter ama tahtayi OLDURMEZDI: palet, ↺ ve
+// ▶ hepsi etkin kalirdi. Parmak icin ortu yeterlidir, klavye ve yardimci
+// teknoloji icin degil - Sekme ile calistir dugmesine gidip Enter'a basmak,
+// zaten
+// sayilmis bulmacayi ikinci kez oynatip bulmacaCozuldu'yu tekrar cagirirdi.
+// Buradaki tiklama tam da o yolu taklit eder: ortunun geometrisini hic
+// sormadan dogrudan dugmeye basar.
+test("kutlama acikken tahta olur: bulmaca ikinci kez sayilamaz", async ({ page }) => {
+  const bolum = BOLUMLER[0];
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+  await expect(page.locator(".kutlamaKutusu")).toBeVisible();
+
+  const calistir = page.getByRole("button", { name: "Çalıştır" });
+  await expect(calistir, "kutlama sirasinda calistir dugmesi etkin").toBeDisabled();
+  await expect(calistir, "olu dugme hala nabiz atiyor").not.toHaveClass(/nabiz/);
+  await expect(page.getByRole("button", { name: "Kuşu başa al" })).toBeDisabled();
+
+  const kayitOku = () =>
+    page.evaluate(() => JSON.parse(localStorage.getItem("kodla:bulmaca") ?? "{}"));
+  const once = await kayitOku();
+
+  // Ortuyu hic sormayan bir basis (klavye/erisilebilirlik yolu).
+  await page.evaluate(() => {
+    (document.querySelector(".calistirDugmesi") as HTMLButtonElement | null)?.click();
+  });
+  // Program yeniden oynatilsaydi son adim ~450ms sonra bulmacaCozuldu'yu
+  // ikinci kez cagirirdi; olcumden once o pencereye rahat pay birakiyoruz.
+  await page.waitForTimeout(2500);
+
+  expect(await kayitOku(), "bulmaca ikinci kez sayildi").toEqual(once);
+  await expect(page.locator(".kutlamaKutusu")).toBeVisible();
+});
+
 test("nokta gostergesi durak icindeki konumu izler, tek bulmacali durakta yoktur", async ({
   page,
 }) => {
