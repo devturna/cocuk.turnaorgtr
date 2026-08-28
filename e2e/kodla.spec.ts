@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { kursBolumleri, bolumHaritasi } from "../lib/kodla/bolumler";
+import { bulmacaBul, bulmacaHaritasi, kursBolumleri, type BolumVerisi } from "../lib/kodla/bolumler";
 import { kursKarakterleri } from "../lib/kodla/karakterler";
 import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
@@ -10,6 +10,12 @@ import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 const KURS = "turna-yolu";
 const BOLUMLER = kursBolumleri(KURS);
 const KARAKTERLER = kursKarakterleri(KURS);
+
+/** Bir bolumun istenen bulmacasinin en kisa cozumu. Sira verilmezse ilki. */
+function bulmacaCozumu(bolum: BolumVerisi, sira = 0) {
+  const bulmaca = bulmacaBul(bolum, sira)!;
+  return enKisaCozumYolu(bulmacaHaritasi(bulmaca), bulmaca.komutSeti);
+}
 
 // Sozsuz ilk temas demosu ilk durakta kendi kendine bir blok ekleyip
 // calistiriyor (Gorev 9). Bu dosyadaki testler paleti kendileri surdugu
@@ -69,7 +75,7 @@ test("baslangicta yalnizca ilk durak aciktir", async ({ page }) => {
 
 test("ilk bolum en kisa yolla bitirilince altin yildiz verilir", async ({ page }) => {
   const bolum = BOLUMLER[0];
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   await programiDiz(page, yol.map(komutAnahtari));
@@ -85,7 +91,7 @@ test("ilk bolum en kisa yolla bitirilince altin yildiz verilir", async ({ page }
 
 test("fazladan blokla bitirmek normal yildiz verir ve cezalandirmaz", async ({ page }) => {
   const bolum = BOLUMLER[0];
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // Sona fazladan blok: karakter hedefe varinca kalan bloklar calistirilmaz,
@@ -102,7 +108,7 @@ test("fazladan blokla bitirmek normal yildiz verir ve cezalandirmaz", async ({ p
 
 test("bolum bitince sadece sonraki durak acilir", async ({ page }) => {
   const bolum = BOLUMLER[0];
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
   await programiDiz(page, yol.map(komutAnahtari));
   await page.getByRole("button", { name: "Çalıştır" }).click();
@@ -116,7 +122,7 @@ test("bolum bitince sadece sonraki durak acilir", async ({ page }) => {
 
 test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page }) => {
   const bolum = BOLUMLER.find((b) => b.id === "kapadokya")!;
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // Once bir carpma ekliyoruz ki onizlemenin carpmayi da cizdigi gorulsun.
@@ -129,7 +135,7 @@ test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page
 
   const beklenen = onizlemeYolu(
     [{ tur: "git", yon: "sag" }, ...yol],
-    bolumHaritasi(bolum),
+    bulmacaHaritasi(bulmacaBul(bolum, 0)!),
   );
   const beklenenCarpma = beklenen.filter((p) => p.tur === "carpma").length;
   // Assertion'in gercekten bir seyi test ettigini kanitlar: sifirsa carpma
@@ -289,7 +295,7 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   await expect(sayfa.locator(".programBloku")).toHaveCount(0);
 
   // --- Kazanma: en kisa cozumle calistirip altin yildiz + kutlamaya ulas ---
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   expect(yol.length, "bu testin ikinci yarisi en az iki blok gerektirir").toBeGreaterThan(1);
   await programiDiz(sayfa, yol.map(komutAnahtari));
 
@@ -350,7 +356,7 @@ test("yon dugmeleri arti duzeninde: yukari ustte, asagi altta", async ({ page })
 // hangisi oldugu dogrudan gorunsun diye her bolum ayri bir testtir.
 for (const bolum of BOLUMLER) {
   test(`${bolum.ad} bolumu cozumle bitirilebilir`, async ({ page }) => {
-    const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti);
+    const yol = bulmacaCozumu(bolum);
     expect(yol, `${bolum.id} icin cozum bulunamadi`).not.toBeNull();
 
     await page.goto(`/kodla/${KURS}/${bolum.id}/`);

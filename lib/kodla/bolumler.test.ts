@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { kursBul, tumKurslar } from "./kurslar";
-import { bolumBul, bolumHaritasi, bolumSiralamasi, kursBolumleri } from "./bolumler";
+import {
+  bolumBul,
+  bolumSiralamasi,
+  bulmacaBul,
+  bulmacaHaritasi,
+  bulmacaSayisi,
+  kursBolumleri,
+} from "./bolumler";
 
 describe("kurslar", () => {
   it("turna-yolu kursu yayindadir", () => {
@@ -42,13 +49,13 @@ describe("bolumler", () => {
 
   it("her bolumun haritasi cozumlenebilir", () => {
     for (const bolum of bolumler) {
-      expect(() => bolumHaritasi(bolum), bolum.id).not.toThrow();
+      expect(() => bulmacaHaritasi(bulmacaBul(bolum, 0)!), bolum.id).not.toThrow();
     }
   });
 
   it("her bolumun idealAdim degeri en az birdir", () => {
     for (const bolum of bolumler) {
-      expect(bolum.idealAdim, bolum.id).toBeGreaterThanOrEqual(1);
+      expect(bulmacaBul(bolum, 0)!.idealAdim, bolum.id).toBeGreaterThanOrEqual(1);
     }
   });
 
@@ -63,7 +70,29 @@ describe("bolumler", () => {
 
   it("faz 4a bolumleri mutlak yon setini kullanir", () => {
     for (const bolum of bolumler) {
-      expect(bolum.komutSeti, bolum.id).toBe("yonler");
+      expect(bulmacaBul(bolum, 0)!.komutSeti, bolum.id).toBe("yonler");
     }
+  });
+});
+
+describe("bulmaca dizisi", () => {
+  it("her bolumun en az bir bulmacasi vardir", () => {
+    for (const bolum of kursBolumleri("turna-yolu")) {
+      expect(bulmacaSayisi(bolum), `${bolum.id} bulmacasiz`).toBeGreaterThan(0);
+    }
+  });
+
+  it("bulmaca sirasi disina cikilinca undefined doner", () => {
+    const bolum = kursBolumleri("turna-yolu")[0];
+    expect(bulmacaBul(bolum, 0)).toBeDefined();
+    expect(bulmacaBul(bolum, bulmacaSayisi(bolum))).toBeUndefined();
+    expect(bulmacaBul(bolum, -1)).toBeUndefined();
+  });
+
+  it("bulmacanin haritasi cozulebilir bir baslangic ve hedef tasir", () => {
+    const bolum = kursBolumleri("turna-yolu")[0];
+    const harita = bulmacaHaritasi(bulmacaBul(bolum, 0)!);
+    expect(harita.baslangic).toBeDefined();
+    expect(harita.hedef).toBeDefined();
   });
 });

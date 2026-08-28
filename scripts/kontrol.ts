@@ -80,7 +80,7 @@ for (const dosya of readdirSync(SVG_KLASORU)) {
 // karsiligi budur.
 const KODLA_KLASORU = join(KOK, "content", "kodla");
 const KURS_ZORUNLU = ["id", "ad", "yas", "ikon", "durum"];
-const BOLUM_ZORUNLU = ["id", "ad", "mekanik", "komutSeti", "tema", "ipucu"];
+const BOLUM_ZORUNLU = ["id", "ad", "mekanik", "tema", "ipucu"];
 // Gecerli komut seti adlari calisma zamanindaki KOMUT_SETLERI kaydindan
 // turetilir, elle tutulan ayri bir liste degil: boylece denetim
 // kutuphaneden asla sapamaz.
@@ -267,10 +267,6 @@ for (const kurs of kurslar) {
       hatalar.push(`${bolumId}: bilinmeyen mekanik "${String(bolum.mekanik)}"`);
       continue;
     }
-    if (!KOMUT_SETLERI_ADLARI.includes(String(bolum.komutSeti))) {
-      hatalar.push(`${bolumId}: "komutSeti" yonler veya donusler olmali`);
-      continue;
-    }
     if (!Object.keys(TEMALAR).includes(String(bolum.tema))) {
       hatalar.push(
         `${bolumId}: "${String(bolum.tema)}" temasi tanimli degil ` +
@@ -295,35 +291,54 @@ for (const kurs of kurslar) {
       );
     }
 
-    const haritaVerisi = bolum.harita as { bakis?: unknown; satirlar?: unknown } | undefined;
-    if (!Array.isArray(haritaVerisi?.satirlar)) {
-      hatalar.push(`${bolumId}: "harita.satirlar" bir dizi olmali`);
+    const bulmacalar = bolum.bulmacalar;
+    if (!Array.isArray(bulmacalar) || bulmacalar.length === 0) {
+      hatalar.push(
+        `${bolumId}: bu duragin hic bulmacasi yok. ` +
+          `Her durak "bulmacalar" dizisinde en az bir bulmaca tasimali.`,
+      );
       continue;
     }
 
-    if (!GECERLI_YONLER.includes(haritaVerisi.bakis as Yon)) {
-      hatalar.push(`${bolumId}: "harita.bakis" gecersiz yon "${String(haritaVerisi.bakis)}"`);
-      continue;
-    }
+    for (let sira = 0; sira < bulmacalar.length; sira++) {
+      const bulmaca = bulmacalar[sira] as Girdi;
+      const kimlik = `${bolumId} bulmaca ${sira + 1}`;
 
-    let harita;
-    try {
-      harita = haritayiCoz(haritaVerisi.satirlar as string[], haritaVerisi.bakis as never);
-    } catch (sorun) {
-      hatalar.push(`${bolumId}: ${(sorun as Error).message}`);
-      continue;
-    }
+      if (!KOMUT_SETLERI_ADLARI.includes(String(bulmaca.komutSeti))) {
+        hatalar.push(`${kimlik}: "komutSeti" yonler veya donusler olmali`);
+        continue;
+      }
 
-    const enKisa = enKisaCozum(harita, bolum.komutSeti as KomutSeti);
-    if (enKisa === null) {
-      hatalar.push(`${bolumId}: bu bolumun cozumu yok, karakter hedefe ulasamiyor`);
-      continue;
-    }
-    if (bolum.idealAdim !== enKisa) {
-      hatalar.push(`${bolumId}: idealAdim ${String(bolum.idealAdim)} yazilmis ama en kisa cozum ${enKisa} adim`);
-    }
-    if (enKisa > EN_FAZLA_BLOK) {
-      hatalar.push(`${bolumId}: en kisa cozum ${enKisa} adim, program siniri ${EN_FAZLA_BLOK} blok`);
+      const haritaVerisi = bulmaca.harita as { bakis?: unknown; satirlar?: unknown } | undefined;
+      if (!Array.isArray(haritaVerisi?.satirlar)) {
+        hatalar.push(`${kimlik}: "harita.satirlar" bir dizi olmali`);
+        continue;
+      }
+
+      if (!GECERLI_YONLER.includes(haritaVerisi.bakis as Yon)) {
+        hatalar.push(`${kimlik}: "harita.bakis" gecersiz yon "${String(haritaVerisi.bakis)}"`);
+        continue;
+      }
+
+      let harita;
+      try {
+        harita = haritayiCoz(haritaVerisi.satirlar as string[], haritaVerisi.bakis as never);
+      } catch (sorun) {
+        hatalar.push(`${kimlik}: ${(sorun as Error).message}`);
+        continue;
+      }
+
+      const enKisa = enKisaCozum(harita, bulmaca.komutSeti as KomutSeti);
+      if (enKisa === null) {
+        hatalar.push(`${kimlik}: bu bolumun cozumu yok, karakter hedefe ulasamiyor`);
+        continue;
+      }
+      if (bulmaca.idealAdim !== enKisa) {
+        hatalar.push(`${kimlik}: idealAdim ${String(bulmaca.idealAdim)} yazilmis ama en kisa cozum ${enKisa} adim`);
+      }
+      if (enKisa > EN_FAZLA_BLOK) {
+        hatalar.push(`${kimlik}: en kisa cozum ${enKisa} adim, program siniri ${EN_FAZLA_BLOK} blok`);
+      }
     }
   }
 }

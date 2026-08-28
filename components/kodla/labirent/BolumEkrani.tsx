@@ -19,7 +19,7 @@ import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
 import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
 import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
-import { bolumHaritasi, bolumSiralamasi, type BolumVerisi } from "@/lib/kodla/bolumler";
+import { bulmacaBul, bulmacaHaritasi, bolumSiralamasi, type BolumVerisi } from "@/lib/kodla/bolumler";
 import { varsayilanKarakter } from "@/lib/kodla/karakterler";
 import {
   bolumSonucuKaydet,
@@ -105,7 +105,10 @@ export default function BolumEkrani({
   bolum: BolumVerisi;
   sonrakiBolumId: string | null;
 }) {
-  const harita = bolumHaritasi(bolum);
+  // Bu gorevde durak hala tek bulmacalik: her zaman ilk bulmaca oynanir.
+  // Bulmacalar arasi gecis Gorev 4'un konusu.
+  const bulmaca = bulmacaBul(bolum, 0)!;
+  const harita = bulmacaHaritasi(bulmaca);
   const tema = temaBul(bolum.tema);
   const baslangicKarakterKonumu = { ...harita.baslangic, bakis: harita.bakis };
 
@@ -127,7 +130,7 @@ export default function BolumEkrani({
   // kalir (bagimlilik dizilerinde guvenle kullanilabilir). ilkDurakDegil
   // true ise hesaplamaya bile gerek yok.
   const [demoKomut] = useState<Komut | null>(() =>
-    ilkDurakDegil ? null : demoKomutuSec(bolum.komutSeti, harita),
+    ilkDurakDegil ? null : demoKomutuSec(bulmaca.komutSeti, harita),
   );
 
   const [durum, setDurum] = useState<Durum>({
@@ -181,7 +184,7 @@ export default function BolumEkrani({
       let kazanilan: YildizTuru | null = null;
       if (sonAdim) {
         if (adim.olay === "vardi") {
-          kazanilan = durum.program.length <= bolum.idealAdim ? "altin" : "yildiz";
+          kazanilan = durum.program.length <= bulmaca.idealAdim ? "altin" : "yildiz";
           bolumSonucuKaydet(kursId, bolum.id, kazanilan);
         } else {
           denemeArtir(kursId, bolum.id);
@@ -215,7 +218,7 @@ export default function BolumEkrani({
     }, ADIM_SURESI);
 
     return () => clearTimeout(zamanlayici);
-  }, [durum.oynatma, durum.program.length, bolum.idealAdim, bolum.id, kursId]);
+  }, [durum.oynatma, durum.program.length, bulmaca.idealAdim, bolum.id, kursId]);
 
   // Kosu bitince poz dinlenme haline doner. Tek blokluk bir carpmada
   // "carpma" pozunu temizleyecek baska bir adim olmadigi icin gerekli.
@@ -369,7 +372,7 @@ export default function BolumEkrani({
 
       <div className="bolumAltBar">
         <KomutPaleti
-          seti={bolum.komutSeti}
+          seti={bulmaca.komutSeti}
           kilitli={calisiyor || demo !== null}
           onEkle={blokEklendi}
           hayalet={demo === "yon" && demoKomut !== null ? komutAnahtari(demoKomut) : null}
