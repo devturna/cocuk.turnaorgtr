@@ -5,7 +5,7 @@
 // Durum tek bir nesnede tutulur. Ayri useState'lere bolmek Harfler ve
 // Sayilar bolumunde gercek bir cokmeye yol acmisti: birlikte degismesi
 // gereken degerler bir render boyunca birbirinden ayri kaliyordu.
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { calistir, type Adim } from "@/lib/kodla/labirent/calistir";
 import {
@@ -19,13 +19,23 @@ import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
 import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
 import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
-import { bulmacaBul, bulmacaHaritasi, bolumSiralamasi, type BolumVerisi } from "@/lib/kodla/bolumler";
+import {
+  bulmacaBul,
+  bulmacaHaritasi,
+  bulmacaSayisi,
+  bolumSiralamasi,
+  type BolumVerisi,
+} from "@/lib/kodla/bolumler";
+import { baslangicBulmacasi, bulmacaSonrasi } from "@/lib/kodla/durak";
 import { varsayilanKarakter } from "@/lib/kodla/karakterler";
 import {
   bolumSonucuKaydet,
+  bulmacaCozuldu,
   demoGosterildi,
   demoGosterildiMi,
   denemeArtir,
+  durakIlerlemesi,
+  durakIlerlemesiniSil,
   seciliKarakter,
   type YildizTuru,
 } from "@/lib/kodla/yerelKayit";
@@ -62,6 +72,10 @@ const POZ_SIFIRLAMA_GECIKMESI = 400;
 // Cocuk bu kadar sure hicbir sey yapmazsa demo sessizce tekrarlanir.
 const BOSTA_SURESI = 12000;
 
+// Bulmacalar arasi gecis katmaninin ekranda kaldigi sure. Yukaridaki uclu
+// zamanlamayla iliskisi yok: gecis, bir bulmaca zaten bitmisken oynar.
+const GECIS_SURESI = 1100;
+
 /**
  * Demo icin bir komut secer: karakter GORULEBILIR sekilde yurumeli (cocuk bir
  * seyin oldugunu gormeli) ama bolumu BITIRMEMELI (yoksa cocugun ilk
@@ -94,6 +108,10 @@ type Durum = {
   poz: KarakterPozu;
   toplananlar: string[];
   bitti: YildizTuru | null;
+  /** Su an oynanan bulmacanin durak icindeki sirasi. */
+  bulmacaSirasi: number;
+  /** Bulmacalar arasi gecis katmani goruntudeyken true. */
+  gecis: boolean;
 };
 
 export default function BolumEkrani({
@@ -105,12 +123,7 @@ export default function BolumEkrani({
   bolum: BolumVerisi;
   sonrakiBolumId: string | null;
 }) {
-  // Bu gorevde durak hala tek bulmacalik: her zaman ilk bulmaca oynanir.
-  // Bulmacalar arasi gecis Gorev 4'un konusu.
-  const bulmaca = bulmacaBul(bolum, 0)!;
-  const harita = bulmacaHaritasi(bulmaca);
-  const tema = temaBul(bolum.tema);
-  const baslangicKarakterKonumu = { ...harita.baslangic, bakis: harita.bakis };
+  const toplamBulmaca = bulmacaSayisi(bolum);
 
   // Karakter yalnizca tarayicida secilir; sayfa sunucuda uretilirken
   // localStorage yoktur. Bu yuzden once varsayilanla cizip, ekran acilinca
@@ -126,23 +139,54 @@ export default function BolumEkrani({
   // nasil oynandigini biliyor.
   const ilkDurakDegil = bolumSiralamasi(kursId)[0] !== bolum.id;
 
+  // Baslangicta bulmacaSirasi her zaman 0'dir (localStorage sunucuda yok);
+  // ilk karakter konumu da bu yuzden burada, dogrudan 0. bulmacadan
+  // hesaplanir. Asagidaki `bulmaca`/`harita` degiskenleri ise her render'da
+  // GUNCEL durum.bulmacaSirasi'ni okur (bir sonraki adimda tanimli) —
+  // ikisi ayni yerde birlesmiyor cunku bu ilk deger yalnizca mount anini,
+  // digerleri her render'i temsil eder.
+  const [durum, setDurum] = useState<Durum>(() => {
+    const ilkBulmaca = bulmacaBul(bolum, 0) ?? bolum.bulmacalar[0];
+    const ilkHarita = bulmacaHaritasi(ilkBulmaca);
+    return {
+      program: [],
+      sonEklenenSira: null,
+      oynatma: null,
+      vurgulanan: null,
+      karakterKonumu: { ...ilkHarita.baslangic, bakis: ilkHarita.bakis },
+      poz: "durus",
+      toplananlar: [],
+      bitti: null,
+      bulmacaSirasi: 0,
+      gecis: false,
+    };
+  });
+
+  // Durak ilk acildiginda kaldigi yerden devam eder. Bitmis bir durak bastan
+  // oynaniyorsa sayac da sifirlanir; yoksa ikinci turda "cozulen" toplami
+  // asar ve altin sansi eski turdan miras kalir.
+  useEffect(() => {
+    const ilerleme = durakIlerlemesi(kursId, bolum.id);
+    const baslangic = baslangicBulmacasi(ilerleme.cozulen, toplamBulmaca);
+    if (ilerleme.cozulen >= toplamBulmaca) {
+      durakIlerlemesiniSil(kursId, bolum.id);
+    }
+    if (baslangic === 0) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDurum((onceki) => ({ ...onceki, bulmacaSirasi: baslangic }));
+  }, [kursId, bolum.id, toplamBulmaca]);
+
+  const bulmaca = bulmacaBul(bolum, durum.bulmacaSirasi) ?? bolum.bulmacalar[0];
+  const harita = useMemo(() => bulmacaHaritasi(bulmaca), [bulmaca]);
+  const tema = temaBul(bolum.tema);
+  const baslangicKarakterKonumu = { ...harita.baslangic, bakis: harita.bakis };
+
   // Lazy initializer: bir kez hesaplanir, sonraki render'larda ayni referans
   // kalir (bagimlilik dizilerinde guvenle kullanilabilir). ilkDurakDegil
   // true ise hesaplamaya bile gerek yok.
   const [demoKomut] = useState<Komut | null>(() =>
     ilkDurakDegil ? null : demoKomutuSec(bulmaca.komutSeti, harita),
   );
-
-  const [durum, setDurum] = useState<Durum>({
-    program: [],
-    sonEklenenSira: null,
-    oynatma: null,
-    vurgulanan: null,
-    karakterKonumu: baslangicKarakterKonumu,
-    poz: "durus",
-    toplananlar: [],
-    bitti: null,
-  });
 
   // Demo yalnizca ilk durakta ve ilk giriste oynar. Sahte animasyon degil:
   // gercek arayuzu surer, cocuk tam olarak kendi yapacagi seyi gorur.
@@ -182,15 +226,20 @@ export default function BolumEkrani({
 
     const zamanlayici = setTimeout(() => {
       let kazanilan: YildizTuru | null = null;
+      let sonrakiBulmacaVar = false;
       if (sonAdim) {
         if (adim.olay === "vardi") {
-          kazanilan = durum.program.length <= bulmaca.idealAdim ? "altin" : "yildiz";
-          bolumSonucuKaydet(kursId, bolum.id, kazanilan);
+          const idealMi = durum.program.length <= bulmaca.idealAdim;
+          const ilerleme = bulmacaCozuldu(kursId, bolum.id, idealMi);
+          const sonrasi = bulmacaSonrasi(durum.bulmacaSirasi, toplamBulmaca, ilerleme.hepsiIdeal);
+          if (sonrasi.tur === "bitti") {
+            kazanilan = sonrasi.yildiz;
+            bolumSonucuKaydet(kursId, bolum.id, kazanilan);
+          } else {
+            sonrakiBulmacaVar = true;
+          }
         } else {
-          // Bu gorevde durak hala tek bulmacalik (yukaridaki bulmaca
-          // sabiti 0. sirayi kullaniyor); deneme sayaci da ayni sirayla
-          // esler. Gorev 4 bunu gercek sirayla degistirecek.
-          denemeArtir(kursId, bolum.id, 0);
+          denemeArtir(kursId, bolum.id, durum.bulmacaSirasi);
         }
       }
 
@@ -217,11 +266,20 @@ export default function BolumEkrani({
         vurgulanan: sonAdim && !kazanilan ? null : adim.blokSirasi,
         oynatma: sonAdim ? null : { adimlar, sira: sira + 1 },
         bitti: kazanilan,
+        gecis: sonrakiBulmacaVar,
       }));
     }, ADIM_SURESI);
 
     return () => clearTimeout(zamanlayici);
-  }, [durum.oynatma, durum.program.length, bulmaca.idealAdim, bolum.id, kursId]);
+  }, [
+    durum.oynatma,
+    durum.program.length,
+    durum.bulmacaSirasi,
+    bulmaca.idealAdim,
+    toplamBulmaca,
+    bolum.id,
+    kursId,
+  ]);
 
   // Kosu bitince poz dinlenme haline doner. Tek blokluk bir carpmada
   // "carpma" pozunu temizleyecek baska bir adim olmadigi icin gerekli.
@@ -233,6 +291,40 @@ export default function BolumEkrani({
     }, POZ_SIFIRLAMA_GECIKMESI);
     return () => clearTimeout(zamanlayici);
   }, [durum.oynatma, durum.bitti, durum.poz]);
+
+  // Gecis katmani kisa sure gorunur, sonra sonraki bulmaca temiz bir
+  // tahtayla acilir. karakterKonumu burada YAZILMAZ: yeni haritanin
+  // baslangici baslangicKarakterKonumu'ndan gelir ve bulmacaSirasi
+  // degistiginde yeniden hesaplanir. Konumu burada da yazmak iki kaynak
+  // yaratir; asagidaki harita-senkron etkisi tek kaynagi korur.
+  useEffect(() => {
+    if (!durum.gecis) return;
+    const zamanlayici = setTimeout(() => {
+      setDurum((onceki) => ({
+        ...onceki,
+        bulmacaSirasi: onceki.bulmacaSirasi + 1,
+        gecis: false,
+        program: [],
+        sonEklenenSira: null,
+        vurgulanan: null,
+        toplananlar: [],
+        poz: "durus",
+        bitti: null,
+      }));
+    }, GECIS_SURESI);
+    return () => clearTimeout(zamanlayici);
+  }, [durum.gecis]);
+
+  // Kus karesinin tek kaynagi bu etkidir: harita degisince (yeni bulmaca
+  // acilinca) konumu o haritanin baslangicina senkronlar. Gecis etkisi
+  // konumu ayrica yazmiyor, tam da bu yuzden.
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDurum((onceki) => ({
+      ...onceki,
+      karakterKonumu: { ...harita.baslangic, bakis: harita.bakis },
+    }));
+  }, [harita]);
 
   function blokEklendi(komut: Komut) {
     setDurum((onceki) => {
@@ -349,6 +441,25 @@ export default function BolumEkrani({
           <span aria-hidden="true">←</span> Duraklar
         </Link>
         <h1 className="bolumAdi">{bolum.ad}</h1>
+        {/* Nokta gostergesi bolum basliginin yaninda HER ZAMAN durur: cocuk
+            durakta nerede oldugunu gorur. Dolu nokta ULASILAN bulmacadir
+            (cozulmus olan degil): su an oynanan bulmacanin noktasi da
+            doludur, ki durak acilir acilmaz en az bir nokta dolu gorunsun. */}
+        {toplamBulmaca > 1 ? (
+          <div
+            className="bulmacaNoktalari"
+            role="img"
+            aria-label={`${bolum.ad}: ${toplamBulmaca} bulmacadan ${durum.bulmacaSirasi + 1}. bulmaca`}
+          >
+            {bolum.bulmacalar.map((_, sira) => (
+              <span
+                key={sira}
+                className={sira <= durum.bulmacaSirasi ? "bulmacaNoktasi dolu" : "bulmacaNoktasi"}
+                aria-hidden="true"
+              />
+            ))}
+          </div>
+        ) : null}
       </div>
 
       <div className="sahneAlani">
@@ -429,6 +540,13 @@ export default function BolumEkrani({
       </div>
 
       <p className="bolumIpucu">{bolum.ipucu}</p>
+
+      {durum.gecis ? (
+        <div className="bulmacaGecisi" role="status">
+          <span className="bulmacaGecisSimgesi" aria-hidden="true">✓</span>
+          <span className="bulmacaGecisYazi">Sıradaki bulmaca</span>
+        </div>
+      ) : null}
 
       {durum.bitti && (
         <>

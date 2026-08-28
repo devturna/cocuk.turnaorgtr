@@ -678,3 +678,59 @@
     transition: none;
   }
 }
+
+/* --- Bulmacalar arasi gecis --- */
+
+.bulmacaNoktalari {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.bulmacaNoktasi {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--kenar);
+  background: transparent;
+}
+
+.bulmacaNoktasi.dolu {
+  background: var(--kenar);
+}
+
+.bulmacaGecisi {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--arkaplan) 88%, transparent);
+  animation: bulmacaGecisBelir 220ms ease-out;
+  z-index: 12;
+}
+
+.bulmacaGecisSimgesi {
+  font-size: 64px;
+  line-height: 1;
+}
+
+.bulmacaGecisYazi {
+  font-size: 22px;
+  color: var(--metin);
+}
+
+@keyframes bulmacaGecisBelir {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* KURAL uyarinca (yukarida): bu gecersiz kilma .bulmacaGecisi'nin
+   animation'ini tanimlayan kuraldan HEMEN SONRA gelir. */
+@media (prefers-reduced-motion: reduce) {
+  .bulmacaGecisi {
+    animation: none;
+  }
+}
