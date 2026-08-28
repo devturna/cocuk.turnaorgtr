@@ -1183,6 +1183,19 @@ test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ brow
   }
 });
 
+// Madalyon gorsel olarak yalnizca bir kus + daire: "buraya dokunursan kus
+// degisir" bilgisi hicbir yazida tasinmiyordu, aria-label bile
+// ("Kusu degistir") okuyamayan bir cocuga hicbir sey soylemez. Rozet bu
+// bosluklu bilgiyi SEKILDE tasir; kendi bir dugme gibi OKUNMAMALI, yani
+// madalyonun erisilebilir adi rozetle DEGISMEMELI.
+test("kus madalyonu degisim rozeti tasir", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/`);
+  const madalyon = page.locator(".karakterMadalyonu");
+  await expect(madalyon).toBeVisible();
+  await expect(madalyon.locator(".madalyonRozeti"), "madalyon rozet tasimiyor").toBeVisible();
+  await expect(madalyon).toHaveAccessibleName("Kuşu değiştir: Turna");
+});
+
 test("secilen kus bolum ekraninda gercekten cizilir", async ({ browser }) => {
   const { baglam, sayfa } = await temizBaglamAc(browser);
 

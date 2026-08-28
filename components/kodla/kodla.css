@@ -662,6 +662,21 @@
   height: 100%;
 }
 
+/* Rozet: madalyonun kendisi zaten position:absolute (yukarida), yani ayrica
+   bir konumlandirma katmani kurmadan bu ogenin konumlandirma bagi (containing
+   block) olur. Kose disina tasar (right/bottom negatif) - madalyonun 64px'lik
+   DOKUNMA KUTUSUNU (kodla.css'teki .karakterMadalyonu genislik/yukseklik)
+   BUYUTMEZ, cunku tasan bir alt oge ata elemanin layout kutusunu
+   degistirmez; boyle olmasaydi bu rozet 64px hedefini bozardi. */
+.karakterMadalyonu .madalyonRozeti {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
 .karakterKarti:active,
 .karakterMadalyonu:active {
   scale: 0.96;

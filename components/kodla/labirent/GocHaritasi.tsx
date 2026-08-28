@@ -138,6 +138,27 @@ export default function GocHaritasi({
           <svg viewBox="0 0 100 100" aria-hidden="true">
             <KarakterSimgesi yon="sag" poz="durus" palet={karakter.palet} />
           </svg>
+          {/*
+            Rozet: "buraya dokunursan degisir" bilgisini SEKILDE tasir, cunku
+            aria-label ("Kusu degistir: ...") okuyamayan cocuga hicbir sey
+            soylemez ve gorsel olarak madalyon suslu bir kus resminden farksiz
+            durur. Takas oku ciftidir (ikon fontu yok, kutuphane yok - dogrudan
+            cizilmis SVG). aria-hidden: madalyonun tek erisilebilir adi hala
+            yukaridaki aria-label'dir, rozet ikinci bir dugme gibi OKUNMAZ.
+            pointer-events: none (CSS): butonun kendi tiklama alanini asla
+            bolmez, rozet sadece madalyonun UZERINE cizilir.
+          */}
+          <svg className="madalyonRozeti" viewBox="0 0 20 20" aria-hidden="true" focusable="false">
+            <circle cx="10" cy="10" r="9" fill="var(--vurgu)" stroke="var(--kenar)" strokeWidth="2" />
+            <path
+              d="M4 6H14M14 6L11 3.5M14 6L11 8.5M16 14H6M6 14L9 11.5M6 14L9 16.5"
+              fill="none"
+              stroke="var(--kenar)"
+              strokeWidth="1.6"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </button>
       )}
 
