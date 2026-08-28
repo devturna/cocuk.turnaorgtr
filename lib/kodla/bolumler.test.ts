@@ -1,6 +1,13 @@
 import { describe, it, expect } from "vitest";
 import { kursBul, tumKurslar } from "./kurslar";
-import { bolumBul, bolumHaritasi, bolumSiralamasi, kursBolumleri } from "./bolumler";
+import {
+  bolumBul,
+  bolumSiralamasi,
+  bulmacaBul,
+  bulmacaHaritasi,
+  bulmacaSayisi,
+  kursBolumleri,
+} from "./bolumler";
 
 describe("kurslar", () => {
   it("turna-yolu kursu yayindadir", () => {
@@ -40,15 +47,22 @@ describe("bolumler", () => {
     expect(bolumBul("yok-boyle", "efes")).toBeUndefined();
   });
 
-  it("her bolumun haritasi cozumlenebilir", () => {
+  it("her bolumun her bulmacasinin haritasi cozumlenebilir", () => {
     for (const bolum of bolumler) {
-      expect(() => bolumHaritasi(bolum), bolum.id).not.toThrow();
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        expect(() => bulmacaHaritasi(bulmaca), `${bolum.id} bulmaca ${sira}`).not.toThrow();
+      }
     }
   });
 
-  it("her bolumun idealAdim degeri en az birdir", () => {
+  // Testin adi "her bolumun" diyor: dizinin YALNIZCA ilk bulmacasina bakmak
+  // bu sozu tutmuyordu (on bulmacanin altisi) ve bu daldaki her yeni bulmaca
+  // denetimsiz giriyordu.
+  it("her bolumun her bulmacasinin idealAdim degeri en az birdir", () => {
     for (const bolum of bolumler) {
-      expect(bolum.idealAdim, bolum.id).toBeGreaterThanOrEqual(1);
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        expect(bulmaca.idealAdim, `${bolum.id} bulmaca ${sira}`).toBeGreaterThanOrEqual(1);
+      }
     }
   });
 
@@ -61,9 +75,33 @@ describe("bolumler", () => {
     }
   });
 
-  it("faz 4a bolumleri mutlak yon setini kullanir", () => {
+  it("bugunku butun bulmacalar mutlak yon setini kullanir", () => {
     for (const bolum of bolumler) {
-      expect(bolum.komutSeti, bolum.id).toBe("yonler");
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        expect(bulmaca.komutSeti, `${bolum.id} bulmaca ${sira}`).toBe("yonler");
+      }
     }
+  });
+});
+
+describe("bulmaca dizisi", () => {
+  it("her bolumun en az bir bulmacasi vardir", () => {
+    for (const bolum of kursBolumleri("turna-yolu")) {
+      expect(bulmacaSayisi(bolum), `${bolum.id} bulmacasiz`).toBeGreaterThan(0);
+    }
+  });
+
+  it("bulmaca sirasi disina cikilinca undefined doner", () => {
+    const bolum = kursBolumleri("turna-yolu")[0];
+    expect(bulmacaBul(bolum, 0)).toBeDefined();
+    expect(bulmacaBul(bolum, bulmacaSayisi(bolum))).toBeUndefined();
+    expect(bulmacaBul(bolum, -1)).toBeUndefined();
+  });
+
+  it("bulmacanin haritasi cozulebilir bir baslangic ve hedef tasir", () => {
+    const bolum = kursBolumleri("turna-yolu")[0];
+    const harita = bulmacaHaritasi(bulmacaBul(bolum, 0)!);
+    expect(harita.baslangic).toBeDefined();
+    expect(harita.hedef).toBeDefined();
   });
 });

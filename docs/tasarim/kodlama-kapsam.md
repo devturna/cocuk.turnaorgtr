@@ -71,14 +71,58 @@ Bunun getirdiği değişiklikler:
 - İlerleme kaydı durak başına "kaçıncı bulmacadayım" bilgisini de tutar.
   Bugünkü `kodla:ilerleme` anahtarı yalnızca tamamlanan durakları biliyor.
 - Bölüm ekranı, bulmaca bitince sonraki bulmacaya **aynı ekranda** geçer;
-  harita ekranına dönmez. Kutlama katmanı yalnızca durağın son bulmacasında
-  çıkar; ara bulmacalarda daha küçük, kesintisiz bir geçiş olur.
+  harita ekranına dönmez. Kutlama katmanı (yıldız, konfeti, "Sonraki durak")
+  yalnızca durağın son bulmacasında çıkar.
+
+  Ara bulmacada ne olduğu, ilk yazımda "daha küçük, kesintisiz bir geçiş"
+  diye tarif ediliyordu. Yapılan bu değil: kuş yuvaya konar, yuva dolar ve
+  kutlama pozu yarım saniye ekranda kalır; sonra **tam ekran, %88 opak bir
+  perde** iner, bir onay işareti ve "Sıradaki bulmaca" yazısı gösterir ve
+  yaklaşık 1,1 saniye sonra kalkar. Oyun toplamda ~1,6 saniye durur.
+
+  Perde küçük değil, tamamen kesintisiz de değil; ne olduğu burada dürüstçe
+  yazılsın diye bu paragraf düzeltildi (28 Ağustos 2026). Ekranı bu kadar
+  kapatmasının bir nedeni var: harita bulmacalar arasında değişiyor ve
+  çocuğun kuşun yeni başlangıcına "ışınlandığını" görmemesi gerekiyor.
+  Süresinin ve boyutunun doğru olup olmadığı ayrı bir sorudur ve bu belge
+  onu kapatmıyor; ölçüt, ara bulmacanın çocuğa sözsüz bir "başardın"
+  vermesidir — bugün bunu yuvanın dolması taşıyor, yazı değil.
 - Yıldız durağın tamamına verilir. Ara bulmacalar yıldız vermez; yoksa
   yıldız sayısı ilerleme hissini değil, sabrı ölçer.
 
-Mevcut altı durak da bu yapıya taşınır ve her birine sırayı pekiştiren 2-3
-bulmaca eklenir. İki tür durak (tek bulmacalık ve dizi) bırakmıyoruz: çocuk
-için tutarsız, kod için iki yol olurdu.
+### Bugünkü durum: durakların dördü hâlâ tek bulmacalık
+
+İlk yazım şöyle diyordu: *"Mevcut altı durak da bu yapıya taşınır ve her
+birine sırayı pekiştiren 2-3 bulmaca eklenir. İki tür durak (tek bulmacalık
+ve dizi) bırakmıyoruz: çocuk için tutarsız, kod için iki yol olurdu."*
+
+**Bu, bugün yayında olanı tarif etmiyor.** Faz 4d'nin yapı adımında altı
+durağın **ikisine** (Sultansazlığı üç, Kapadokya dört) gerçek birer dizi
+verildi; kalan dördü hâlâ tek bulmacalık. Nokta göstergesi tek bulmacalı
+durakta hiç çizilmiyor, yani çocuk gerçekten iki tür durak görüyor.
+
+Neden böyle: §10 zaten "4d'nin kendisi büyüktür ve uygulama planında
+bölünecektir: önce yapı, sonra içerik" diyor. Yapıyı içeriğin önüne almak
+bilinçli ve doğru bir karardı — on bulmaca birden yazmak, yapıyı hiç
+oynanmamış içerik üzerinde denemek olurdu. Ama sözün ihlali koda değil **bu
+belgeye** yazılır: içerik hazırlama rehberinde
+([kodlama-bolumu-hazirlama.md](../kodlama-bolumu-hazirlama.md) §1) yazılı
+olması yetmez, çünkü sözü veren belge burasıdır.
+
+**Kodun iki yolu yok:** tek bulmacalık durak, uzunluğu bir olan bir dizidir;
+`bulmacalar` dizisi her durakta var, bölüm ekranı tek koddan geçiyor.
+Ayrışan tek şey nokta göstergesinin çizilip çizilmediği.
+
+**İki tür ne zaman bire iner:** 4d'nin içerik adımında, kalan dört duraktan
+üçü (Tuz Gölü, Pamukkale, Efes) §5'teki dağılıma göre dört bulmacasını
+aldığında.
+
+Dördüncüsü, Göksu Deltası, §5'te zaten **tek** bulmacayla duruyor: o durak
+kasten tek dokunuşluk bir öğreticidir, kavram öğretmez, mekaniği tanıtır.
+Yani "her durak bir dizidir" kuralının bilinçli ve kalıcı bir istisnası var;
+ilk yazımdaki "iki tür durak bırakmıyoruz" cümlesi bu haliyle zaten fazla
+kesindi. Doğrusu: **öğreten her durak bir dizidir**; rotanın girişindeki tek
+adımlık tanıtım durağı bunun dışındadır ve göstergesiz kalır.
 
 ## 4. Rota
 

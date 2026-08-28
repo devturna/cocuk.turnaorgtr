@@ -151,19 +151,28 @@ type Kurs = {
   durum: "yayinda" | "yakinda";
 };
 
-type Bolum = {
-  id: string;                            // "kapadokya"
-  ad: string;                            // "Kapadokya"
-  mekanik: "labirent";
+// Bir durak ortak bir yer (Sultansazligi, Kapadokya...) ve o yerde
+// kolaydan zora sıralanmış bir bulmaca dizisidir; harita, komut seti ve
+// ideal adim durak seviyesinde degil, her bulmacanin kendi alanidir.
+// Bir durak neden bir haritadan cok bulmacadan olusuyor: bkz.
+// kodlama-kapsam.md §3.
+type BulmacaVerisi = {
   komutSeti: "yonler" | "donusler";
-  tema: string;                          // zemin ve engel cizimini secer
-  durak: { x: number; y: number };       // Turkiye haritasinda yuzde konum
   idealAdim: number;                     // en kisa cozumun uzunlugu
-  ipucu: string;                         // ebeveyne tek cumle
   harita: {
     bakis: "yukari" | "asagi" | "sol" | "sag";   // karakterin baslangic yonu
     satirlar: string[];
   };
+};
+
+type BolumVerisi = {
+  id: string;                            // "kapadokya"
+  ad: string;                            // "Kapadokya"
+  mekanik: "labirent";
+  tema: string;                          // zemin ve engel cizimini secer
+  durak: { x: number; y: number };       // Turkiye haritasinda yuzde konum
+  ipucu: string;                         // ebeveyne tek cumle
+  bulmacalar: BulmacaVerisi[];           // 3-6 bulmaca, kolaydan zora
 };
 
 type Komut =
@@ -182,21 +191,33 @@ gözüyle görür.
   "id": "sultansazligi",
   "ad": "Sultansazligi",
   "mekanik": "labirent",
-  "komutSeti": "yonler",
   "tema": "sazlik",
-  "durak": { "x": 46, "y": 58 },
-  "idealAdim": 5,
+  "durak": { "x": 50, "y": 61 },
   "ipucu": "Sultansazligi Kayseri'de sazliklar ve gollerden olusan bir kus cennetidir.",
-  "harita": {
-    "bakis": "sag",
-    "satirlar": [
-      ".....",
-      ".T.oH",
-      "..#.."
-    ]
-  }
+  "bulmacalar": [
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 3,
+      "harita": { "bakis": "sag", "satirlar": [".....", ".T..H", "....."] }
+    },
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 4,
+      "harita": { "bakis": "sag", "satirlar": ["....H", ".T...", "....."] }
+    },
+    {
+      "komutSeti": "yonler",
+      "idealAdim": 4,
+      "harita": { "bakis": "sag", "satirlar": [".....", ".T...", "....H"] }
+    }
+  ]
 }
 ```
+
+Bu, `content/kodla/turna-yolu.json` içindeki gerçek Sultansazlığı girdisidir
+— uydurma bir örnek değil. `ipucu` ve `tema` durakta bir kez yazılır;
+`komutSeti`, `idealAdim` ve `harita` dizideki üç bulmacanın her birinde
+ayrı ayrı durur.
 
 | İşaret | Anlamı |
 |---|---|
@@ -341,14 +362,18 @@ Boyama bölümünden gelen kurallar burada da geçerlidir, biri sıkılaştırı
 
 ## 8. İçerik: Turna'nın göç yolu
 
-> **Not (20 Ağustos 2026):** Aşağıdaki on beş duraklık tablo rotanın
-> NİHAİ HEDEFİDİR, bugünün durumu değil. Faz 4b itibarıyla yayında olan
-> rota yalnızca **altı** duraktır — bu tablodaki ilk beşi (Sultansazlığı,
-> Kapadokya, Tuz Gölü, Pamukkale, Efes) ve başlarına eklenen tek adımlık
-> öğretici durak Göksu Deltası'nı (bkz.
+> **Not (20 Ağustos 2026; 28 Ağustos 2026'da düzeltildi):** Aşağıdaki on
+> beş duraklık tablo rotanın NİHAİ HEDEFİDİR, bugünün durumu değil. Faz 4b
+> itibarıyla yayında olan rota yalnızca **altı** duraktır — bu tablodaki
+> ilk beşi (Sultansazlığı, Kapadokya, Tuz Gölü, Pamukkale, Efes) ve
+> başlarına eklenen tek adımlık öğretici durak Göksu Deltası'nı (bkz.
 > [kodlama-arayuz.md](kodlama-arayuz.md) §7) kapsar. Kalan dokuz durak
-> (Salda Gölü'nden itibaren) sonraki fazlarda (4c, 4d) eklenir; güncel
-> durum için [yol haritası](../yol-haritasi.md)'na bakın.
+> ilerideki fazlarda eklenecek; üstelik rotanın kendisi de değişti: bugün
+> geçerli olan on beş duraklık liste
+> [kodlama-kapsam.md](kodlama-kapsam.md) §4'tedir (gerçek göç döngüsünü
+> izler, aşağıdaki tablo izlemiyordu). Rotanın hangi fazda genişleyeceği
+> için kapsam belgesinin §10'una, günün durumu için
+> [yol haritası](../yol-haritasi.md)'na bakın.
 
 Göç haritası ekranında Türkiye silueti ve üstünde duraklar bulunur.
 Tamamlanan duraklar arasında kesik çizgi bir uçuş yolu çizilir; çocuk
@@ -477,9 +502,12 @@ Ayrıca harita bütünlüğü denetlenir: bütün satırlar eşit uzunlukta mı,
 yıldızın verildiğini doğrular. `e2e/tum-resimler.spec.ts` kalıbının aynısıdır:
 yeni bir bölüm eklendiğinde test onu otomatik kapsar.
 
-> **Not (19 Ağustos 2026, 20 Ağustos 2026'da düzeltildi):** Bu belgenin 7.
-> bölümündeki arayüz tasarımı ve 11. bölümündeki 4b-4d fazları
-> [kodlama-arayuz.md](kodlama-arayuz.md) ile değiştirilmiştir. Motor ve
+> **Not (19 Ağustos 2026; 20 ve 28 Ağustos 2026'da düzeltildi):** Bu
+> belgenin 7. bölümündeki arayüz tasarımı
+> [kodlama-arayuz.md](kodlama-arayuz.md) ile değiştirilmiştir. 11.
+> bölümündeki faz tablosu ise kaldırılmıştır: tek yetkili faz tablosu
+> [kodlama-kapsam.md](kodlama-kapsam.md) §10'dur (arayüz belgesinin kendi
+> faz tablosu da aynı gerekçeyle kaldırıldı). Motor ve
 > veri modeli bölümleri geçerliliğini korur. 8. bölümdeki (İçerik) on beş
 > duraklık rota tablosu ise bugünün durumu değil, ilerideki fazlar için
 > bir HEDEFTİR (bkz. o bölümün başındaki not) — Faz 4b'de yayında olan
@@ -491,12 +519,17 @@ yeni bir bölüm eklendiğinde test onu otomatik kapsar.
 
 ## 11. Fazlar
 
-| Faz | Kapsam | Gerekçe |
-|---|---|---|
-| 4a | Kurs katmanı, göç haritası, labirent motoru, dokunarak blok ekleme, mutlak yönler, ilk beş durak, yıldız ve altın yıldız | Mekanik uçtan uca kanıtlanır ve yayınlanabilir. Faz 2a'daki "önce yalnızca rakamlar" kararının aynısı |
-| 4b | Sürükleyerek sıralama ve dışarı atarak silme, duraklar 6-9 | Sürükleme en riskli arayüz işidir; motor çalıştıktan sonra tek başına ele alınır |
-| 4c | Dönüşlü komut seti, duraklar 10-15, beş deneme kuralı | İkinci kavram ve içeriğin tamamlanması |
-| 4d | İkinci yaş grubu kursu: döngü bloğu, iç içe blok arayüzü | Kendi tasarım belgesini hak eder; altyapı bugün buna hazır bırakılıyor |
+**Faz tablosu bu belgede değil, [kodlama-kapsam.md](kodlama-kapsam.md) §10'da
+tutulur.** Burada bir zamanlar duran tablo (4b sürükleme, 4c dönüşler, 4d
+"ikinci yaş grubu kursu: döngü bloğu, iç içe blok arayüzü") artık geçerli
+değil ve her satırı yanlıştır: sürükleme yerine dokunma kaldı, dönüşler hâlâ
+hiçbir durakta kullanılmıyor, ve iç içe blok kapsam belgesinin §11'inde
+açıkça **yapmayacaklarımız** arasında.
+
+Faz numaraları üç ayrı belgede üç ayrı şey söylediği için buradaki ve
+[kodlama-arayuz.md](kodlama-arayuz.md) §11'deki tablolar kaldırıldı. Tek
+yetkili tablo kapsam belgesindedir; günün durumu için
+[yol haritası](../yol-haritasi.md).
 
 ## 12. Faz 4a tamamlanma ölçütleri
 

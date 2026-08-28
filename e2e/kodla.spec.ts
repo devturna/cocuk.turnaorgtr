@@ -1,5 +1,5 @@
 import { test, expect, type Page } from "@playwright/test";
-import { kursBolumleri, bolumHaritasi } from "../lib/kodla/bolumler";
+import { bulmacaBul, bulmacaHaritasi, kursBolumleri, type BolumVerisi } from "../lib/kodla/bolumler";
 import { kursKarakterleri } from "../lib/kodla/karakterler";
 import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
@@ -11,8 +11,14 @@ const KURS = "turna-yolu";
 const BOLUMLER = kursBolumleri(KURS);
 const KARAKTERLER = kursKarakterleri(KURS);
 
+/** Bir bolumun istenen bulmacasinin en kisa cozumu. Sira verilmezse ilki. */
+function bulmacaCozumu(bolum: BolumVerisi, sira = 0) {
+  const bulmaca = bulmacaBul(bolum, sira)!;
+  return enKisaCozumYolu(bulmacaHaritasi(bulmaca), bulmaca.komutSeti);
+}
+
 // Sozsuz ilk temas demosu ilk durakta kendi kendine bir blok ekleyip
-// calistiriyor (Gorev 9). Bu dosyadaki testler paleti kendileri surdugu
+// calistiriyor. Bu dosyadaki testler paleti kendileri surdugu
 // icin demo devrede kalirsa programa beklenmedik bir blok karisir ve
 // sonuclar kararsizlasir. Demo'nun kendisi kodla-demo.spec.ts icinde ayrica
 // test ediliyor; burada sessizce kapatiyoruz.
@@ -69,7 +75,7 @@ test("baslangicta yalnizca ilk durak aciktir", async ({ page }) => {
 
 test("ilk bolum en kisa yolla bitirilince altin yildiz verilir", async ({ page }) => {
   const bolum = BOLUMLER[0];
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   await programiDiz(page, yol.map(komutAnahtari));
@@ -85,7 +91,7 @@ test("ilk bolum en kisa yolla bitirilince altin yildiz verilir", async ({ page }
 
 test("fazladan blokla bitirmek normal yildiz verir ve cezalandirmaz", async ({ page }) => {
   const bolum = BOLUMLER[0];
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // Sona fazladan blok: karakter hedefe varinca kalan bloklar calistirilmaz,
@@ -102,7 +108,7 @@ test("fazladan blokla bitirmek normal yildiz verir ve cezalandirmaz", async ({ p
 
 test("bolum bitince sadece sonraki durak acilir", async ({ page }) => {
   const bolum = BOLUMLER[0];
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
   await programiDiz(page, yol.map(komutAnahtari));
   await page.getByRole("button", { name: "Çalıştır" }).click();
@@ -116,7 +122,7 @@ test("bolum bitince sadece sonraki durak acilir", async ({ page }) => {
 
 test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page }) => {
   const bolum = BOLUMLER.find((b) => b.id === "kapadokya")!;
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
   // Once bir carpma ekliyoruz ki onizlemenin carpmayi da cizdigi gorulsun.
@@ -129,7 +135,7 @@ test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page
 
   const beklenen = onizlemeYolu(
     [{ tur: "git", yon: "sag" }, ...yol],
-    bolumHaritasi(bolum),
+    bulmacaHaritasi(bulmacaBul(bolum, 0)!),
   );
   const beklenenCarpma = beklenen.filter((p) => p.tur === "carpma").length;
   // Assertion'in gercekten bir seyi test ettigini kanitlar: sifirsa carpma
@@ -183,6 +189,207 @@ test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
   await expect(page.locator(".kodlaYolParcasi")).toHaveCount(1);
 });
 
+/** Verilen siradaki bulmacayi en kisa yolla cozup calistirir. */
+async function bolumuCoz(page: Page, bolum: BolumVerisi, sira: number) {
+  await programiDiz(page, bulmacaCozumu(bolum, sira)!.map(komutAnahtari));
+  await page.getByRole("button", { name: "Çalıştır" }).click();
+}
+
+test("dizi durakta bulmacalar sirayla acilir, yildiz sonunda gelir", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  const noktalar = page.locator(".bulmacaNoktasi");
+  await expect(noktalar).toHaveCount(bolum.bulmacalar.length);
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(1);
+
+  // Ilk bulmacayi coz: kutlama DEGIL gecis gelmeli.
+  await bolumuCoz(page, bolum, 0);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+  await expect(page.locator(".kutlamaKutusu")).toBeHidden();
+
+  // Gecis kendiliginden kapanir ve ikinci bulmaca acilir.
+  await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(2);
+  // Serit temiz baslar: onceki bulmacanin bloklari kalmamali.
+  await expect(page.locator(".programBloku")).toHaveCount(0);
+
+  await bolumuCoz(page, bolum, 1);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+  await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+
+  // Son bulmaca bitince kutlama ve sonraki durak dugmesi gelir.
+  await bolumuCoz(page, bolum, 2);
+  await expect(page.locator(".kutlamaKutusu")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Sonraki durak/ })).toBeVisible();
+});
+
+// Onceki gorevlerde eklenen "sonrakiHazirlaniyor" penceresi (varis kutlamasi,
+// bulmaca bitince gecis katmani acilmadan once ~500ms) daha once HICBIR
+// testte calistirilmadi: tum duraklar tek bulmacaliydi, bu yuzden o pencere
+// hicbir zaman girilmedi. Bu test dogrudan o pencereyi ve onu izleyen gecis
+// katmanini hedefler: onceki gorevin incelemesinde tam bu boslukta elle
+// yakalanan bir hata vardi (kontroller acik kalip haritanin degistigi anda
+// eski programi yeni bulmacaya calistirip altin yildiz veriyordu).
+test("bulmacalar arasi kutlama ve gecis penceresinde kontroller kilitli kalir", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+
+  // Kutlama pozu ve ardindan gecis katmani, kosu bitince toplam ~1.6sn'lik
+  // (VARIS_BEKLEME_SURESI + GECIS_SURESI) kisa bir pencerede gelip gecer.
+  // Bu pencereyi Playwright'in kendi tur-basi (round-trip) gecikmeli ayri
+  // expect() cagrilariyla yakalamaya calismak, paralel calisan diger
+  // testlerin CPU'yu paylastigi bir tam paket kosusunda kacirilabilir
+  // (gozlemlendi). Bunun yerine TARAYICI ICINDE, kisa araliklarla orneklenen
+  // bir dongu ile dogruluyoruz: pencere ne zaman baslarsa baslasin, HER
+  // orneklemede "Calistir" dugmesi kilitli ve nabizsiz olmali.
+  const sonuc = await page.evaluate(async () => {
+    const ihlaller: string[] = [];
+    let kutlamaGoruldu = false;
+    let gecisGoruldu = false;
+    const bitis = Date.now() + 6000;
+    while (Date.now() < bitis) {
+      const kutlama = document.querySelector(".kodlaKarakter.poz-kutlama");
+      const gecis = document.querySelector(".bulmacaGecisi");
+      if (kutlama) kutlamaGoruldu = true;
+      if (gecis) gecisGoruldu = true;
+      if (kutlama || gecis) {
+        const dugme = document.querySelector(".calistirDugmesi") as HTMLButtonElement | null;
+        if (!dugme?.disabled) ihlaller.push("dugme kilitli degildi");
+        if (dugme?.classList.contains("nabiz")) ihlaller.push("dugme nabiz tasiyordu");
+      }
+      // Ikinci bulmaca acildiktan (gecis kapandiktan) sonra daha fazla
+      // orneklemeye gerek yok.
+      if (gecisGoruldu && !gecis) break;
+      await new Promise((cozul) => setTimeout(cozul, 20));
+    }
+    return { ihlaller, kutlamaGoruldu, gecisGoruldu };
+  });
+
+  expect(sonuc.kutlamaGoruldu, "kutlama pozu hic gozlemlenemedi").toBe(true);
+  expect(sonuc.gecisGoruldu, "gecis katmani hic gozlemlenemedi").toBe(true);
+  expect(sonuc.ihlaller).toEqual([]);
+});
+
+// Yuvanin dolmasi (.kodlaYuva.dolu + dolu yuva simgesi) sahnedeki EN NET
+// sozsuz basari isaretidir. Bu isaret bir sure yalnizca duragin SON
+// bulmacasinda yanmisti (vardi={durum.bitti !== null}; bitti yalnizca durak
+// bitince yazilir), yani bu daldaki yedi bulmaca bitirmesinin besinde cocuk
+// yuvaya konuyor ama yuva hic tepki vermiyordu. Geriye kalan tek geri
+// bildirim 500ms'lik bir poz ile bir onay isareti ve "siradaki bulmaca"
+// yazisiydi -
+// hedef kitle okuyamiyor.
+test("ara bulmacayi kazanmak da yuvayi doldurur", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  expect(bolum.bulmacalar.length, "bu test ara bulmaca ister").toBeGreaterThan(1);
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+
+  // Kutlama penceresi kisa (VARIS_BEKLEME_SURESI, 500ms); ayri expect()
+  // cagrilariyla kovalamak yerine tarayici icinde orneklemek daha kararli
+  // (ayni gerekce yukaridaki kilit testinde de anlatiliyor).
+  const sonuc = await page.evaluate(async () => {
+    let kutlamaGoruldu = false;
+    let yuvaDoluGoruldu = false;
+    const bitis = Date.now() + 6000;
+    while (Date.now() < bitis) {
+      const kutlama = document.querySelector(".kodlaKarakter.poz-kutlama");
+      if (kutlama) {
+        kutlamaGoruldu = true;
+        if (document.querySelector(".kodlaYuva.dolu")) yuvaDoluGoruldu = true;
+      }
+      if (kutlamaGoruldu && !kutlama) break;
+      await new Promise((cozul) => setTimeout(cozul, 20));
+    }
+    return { kutlamaGoruldu, yuvaDoluGoruldu };
+  });
+
+  expect(sonuc.kutlamaGoruldu, "kutlama pozu hic gozlemlenemedi").toBe(true);
+  expect(sonuc.yuvaDoluGoruldu, "ara bulmaca kazanildi ama yuva hic dolmadi").toBe(true);
+});
+
+// Kutlama katmani tahtanin USTUNU orter ama tahtayi OLDURMEZDI: palet, ↺ ve
+// ▶ hepsi etkin kalirdi. Parmak icin ortu yeterlidir, klavye ve yardimci
+// teknoloji icin degil - Sekme ile calistir dugmesine gidip Enter'a basmak,
+// zaten
+// sayilmis bulmacayi ikinci kez oynatip bulmacaCozuldu'yu tekrar cagirirdi.
+// Buradaki tiklama tam da o yolu taklit eder: ortunun geometrisini hic
+// sormadan dogrudan dugmeye basar.
+test("kutlama acikken tahta olur: bulmaca ikinci kez sayilamaz", async ({ page }) => {
+  const bolum = BOLUMLER[0];
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+  await expect(page.locator(".kutlamaKutusu")).toBeVisible();
+
+  const calistir = page.getByRole("button", { name: "Çalıştır" });
+  await expect(calistir, "kutlama sirasinda calistir dugmesi etkin").toBeDisabled();
+  await expect(calistir, "olu dugme hala nabiz atiyor").not.toHaveClass(/nabiz/);
+  await expect(page.getByRole("button", { name: "Kuşu başa al" })).toBeDisabled();
+
+  const kayitOku = () =>
+    page.evaluate(() => JSON.parse(localStorage.getItem("kodla:bulmaca") ?? "{}"));
+  const once = await kayitOku();
+
+  // Ortuyu hic sormayan bir basis (klavye/erisilebilirlik yolu).
+  await page.evaluate(() => {
+    (document.querySelector(".calistirDugmesi") as HTMLButtonElement | null)?.click();
+  });
+  // Program yeniden oynatilsaydi son adim ~450ms sonra bulmacaCozuldu'yu
+  // ikinci kez cagirirdi; olcumden once o pencereye rahat pay birakiyoruz.
+  await page.waitForTimeout(2500);
+
+  expect(await kayitOku(), "bulmaca ikinci kez sayildi").toEqual(once);
+  await expect(page.locator(".kutlamaKutusu")).toBeVisible();
+});
+
+test("nokta gostergesi durak icindeki konumu izler, tek bulmacali durakta yoktur", async ({
+  page,
+}) => {
+  const bolum = BOLUMLER.find((b) => b.id === "kapadokya")!;
+  expect(bolum.bulmacalar.length, "bu test coklu ilerlemeyi gormek icin en az 3 bulmaca ister").toBeGreaterThanOrEqual(3);
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await expect(page.locator(".bulmacaNoktasi")).toHaveCount(bolum.bulmacalar.length);
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(1);
+
+  for (let sira = 0; sira < bolum.bulmacalar.length - 1; sira++) {
+    await bolumuCoz(page, bolum, sira);
+    await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+    await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+    await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(sira + 2);
+  }
+
+  // Son bulmacaya varildiginda tum noktalar dolu olmali.
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(bolum.bulmacalar.length);
+
+  // Tek bulmacali bir durakta gosterge hic gorunmemeli.
+  const tekBulmacaliBolum = BOLUMLER.find((b) => b.bulmacalar.length === 1)!;
+  await page.goto(`/kodla/${KURS}/${tekBulmacaliBolum.id}/`);
+  await expect(page.locator(".bulmacaNoktasi")).toHaveCount(0);
+});
+
+test("durak ici ilerleme sayfa yenilenince korunur", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+  await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(2);
+
+  await page.reload();
+
+  // Yeniden yuklemeden sonra cocuk ikinci bulmacada olmali, birinciye
+  // donmemeli.
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(2);
+  await bolumuCoz(page, bolum, 1);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+});
+
 // Onceki surum yalnizca .kodlaTurna'yi orneklerdi (bu sinif daha sonra
 // .kodlaKarakter olarak adlandirildi): kodla.css'teki
 // prefers-reduced-motion blogunda BUNUN disinda on bes ayri sinif/durum
@@ -196,7 +403,7 @@ test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
 test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda gecis ve animasyon yok", async ({
   browser,
 }) => {
-  test.setTimeout(30000);
+  test.setTimeout(45000);
   const baglam = await browser.newContext({ reducedMotion: "reduce" });
   const sayfa = await baglam.newPage();
   await sayfa.addInitScript(() => {
@@ -243,10 +450,10 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
 
   // --- Karakter secim ekrani: bu baglam BILEREK kodla:karakter kurmaz, bu
   // yuzden goc haritasina ilk giriste "Kiminle ucalim?" diyalogu acar.
-  // Gorev 5'te eklenen .karakterKarti ve .karakterMadalyonu gecisleri daha
-  // once hicbir e2e testinde reducedMotion baglaminda dogrulanmiyordu (bu
-  // test dogrudan bolum ekranina giderdi, haritaya hic ugramazdi) - burada
-  // haritayi da ziyaret ederek o boslugu kapatiyoruz.
+  // .karakterKarti ve .karakterMadalyonu gecisleri daha once hicbir e2e
+  // testinde reducedMotion baglaminda dogrulanmiyordu (bu test dogrudan
+  // bolum ekranina giderdi, haritaya hic ugramazdi) - burada haritayi da
+  // ziyaret ederek o boslugu kapatiyoruz.
   await sayfa.goto(`/kodla/${KURS}/`);
   const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
   await expect(diyalog).toBeVisible();
@@ -289,7 +496,7 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   await expect(sayfa.locator(".programBloku")).toHaveCount(0);
 
   // --- Kazanma: en kisa cozumle calistirip altin yildiz + kutlamaya ulas ---
-  const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti)!;
+  const yol = bulmacaCozumu(bolum)!;
   expect(yol.length, "bu testin ikinci yarisi en az iki blok gerektirir").toBeGreaterThan(1);
   await programiDiz(sayfa, yol.map(komutAnahtari));
 
@@ -320,6 +527,20 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   const konfeti = await anlikYakala(".kodlaKonfeti");
   expect(konfeti.goruntu, ".kodlaKonfeti (display)").toBe("none");
 
+  // --- Bulmacalar arasi gecis katmani ---
+  //
+  // .bulmacaGecisi yalnizca COKLU bulmacali bir durakta, bir ara bulmaca
+  // kazanildiginda belirir; yukaridaki bolum (efes) tek bulmacalik oldugu
+  // icin bu sinif bu testte hic var olmuyordu ve reduced-motion bildirimi
+  // (bulmacaGecisBelir'i iptal eden kural) hicbir e2e testinde
+  // calistirilmiyordu - oysa testin basligi "ilgili TUM sinif/durumlar"
+  // diyor. Bir gecis daha oynatarak boslugu kapatiyoruz.
+  const diziBolum = BOLUMLER.find((b) => b.bulmacalar.length > 1)!;
+  await sayfa.goto(`/kodla/${KURS}/${diziBolum.id}/`);
+  await programiDiz(sayfa, bulmacaCozumu(diziBolum, 0)!.map(komutAnahtari));
+  await sayfa.getByRole("button", { name: "Çalıştır" }).click();
+  animasyonYok(await anlikYakala(".bulmacaGecisi"), ".bulmacaGecisi");
+
   // --- Bu testte ULASILAMAYAN reduced-motion bildirimleri ---
   // .komutDugmesi.hayaletli::after, .calistirDugmesi.hayaletli::after:
   // yalnizca sessiz demo surerken var olurlar; bu dosyadaki beforeEach
@@ -347,15 +568,27 @@ test("yon dugmeleri arti duzeninde: yukari ustte, asagi altta", async ({ page })
 });
 
 // Her bolum gercekten oynanabiliyor mu? Bir bolumun haritasi bozulursa
-// hangisi oldugu dogrudan gorunsun diye her bolum ayri bir testtir.
+// hangisi oldugu dogrudan gorunsun diye her bolum ayri bir testtir. Durakta
+// birden fazla bulmaca varsa (bir durak boyle bir dizi tasimadan once bu hic
+// olmuyordu) TUMU
+// sirayla cozulur, aralardaki gecis katmani her seferinde beklenir: yalnizca
+// ilk bulmacayi cozmek durak icinde ikinci bulmacaya birakir, "Harika!" hic
+// gorunmez.
 for (const bolum of BOLUMLER) {
   test(`${bolum.ad} bolumu cozumle bitirilebilir`, async ({ page }) => {
-    const yol = enKisaCozumYolu(bolumHaritasi(bolum), bolum.komutSeti);
-    expect(yol, `${bolum.id} icin cozum bulunamadi`).not.toBeNull();
-
     await page.goto(`/kodla/${KURS}/${bolum.id}/`);
-    await programiDiz(page, yol!.map(komutAnahtari));
-    await page.getByRole("button", { name: "Çalıştır" }).click();
+
+    for (let sira = 0; sira < bolum.bulmacalar.length; sira++) {
+      const yol = bulmacaCozumu(bolum, sira);
+      expect(yol, `${bolum.id} - ${sira}. bulmaca icin cozum bulunamadi`).not.toBeNull();
+      await programiDiz(page, yol!.map(komutAnahtari));
+      await page.getByRole("button", { name: "Çalıştır" }).click();
+
+      if (sira < bolum.bulmacalar.length - 1) {
+        await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+        await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+      }
+    }
 
     await expect(page.getByText("Harika! En kısa yol!"), `${bolum.id} tamamlanamadi`).toBeVisible({
       timeout: 20000,
@@ -363,21 +596,59 @@ for (const bolum of BOLUMLER) {
   });
 }
 
+// Duraklarin yalnizca bir kismi coklu bulmacali; nokta gostergesi (ust
+// barda, bolum adinin yaninda) SADECE onlarda cizilir. Bu test hep
+// BOLUMLER[0]'i (tek bulmacali Goksu Deltasi) acardi, yani gostergenin
+// oldugu duzen hicbir ekran boyutunda olculmemisti. En dar ekrani -ust
+// barin tasmaya en yakin oldugu yeri- en cok bulmacali duraga ceviriyoruz.
+const COK_BULMACALI = BOLUMLER.reduce((enUzun, bolum) =>
+  bolum.bulmacalar.length > enUzun.bulmacalar.length ? bolum : enUzun,
+);
+
 test("bolum ekraninda kaydirma yok ve dokunma hedefleri en az 64 piksel", async ({ page }) => {
+  expect(COK_BULMACALI.bulmacalar.length, "nokta gostergesini goren bir durak yok").toBeGreaterThan(
+    1,
+  );
   for (const ekran of [
-    { g: 820, y: 1180 },
-    { g: 1180, y: 820 },
-    { g: 1024, y: 768 },
-    { g: 390, y: 844 },
+    { g: 820, y: 1180, bolum: BOLUMLER[0] },
+    { g: 1180, y: 820, bolum: BOLUMLER[0] },
+    { g: 1024, y: 768, bolum: BOLUMLER[0] },
+    { g: 390, y: 844, bolum: COK_BULMACALI },
   ]) {
     await page.setViewportSize({ width: ekran.g, height: ekran.y });
-    await page.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
+    await page.goto(`/kodla/${KURS}/${ekran.bolum.id}/`);
 
     // Tam ekran duzeni bir useEffect icinde body'ye sinif ekleyerek kuruluyor;
     // hydration bitmeden olcum yapmak, ust bar ve alt bilgi hala ekrandayken
     // olcmek demektir. Yavas bir makinede bu yarisi kaybediyoruz (CI'da tam
     // olarak bu oldu), o yuzden once kosulu bekliyoruz.
     await expect(page.locator("body")).toHaveClass(/tamEkran/);
+
+    // Ust barin genisligi yukaridaki scrollWidth olcumuyle KORUNMAZ:
+    // body.tamEkran overflow:hidden verir, yani tasan bir ust bar belgeyi
+    // buyutmez - sessizce kirpilir. Cocuk icin sonuc "kaydirilamayan bir
+    // sayfa" degil, "yarisi olmayan bir baslik/gosterge" olur. Bu yuzden
+    // barin KENDI ic tasmasini ve nokta gostergesinin gercekten goruntu
+    // alaninda oldugunu ayrica soruyoruz.
+    const ustBarTasmasi = await page
+      .locator(".bolumUstBar")
+      .evaluate((oge) => oge.scrollWidth - oge.clientWidth);
+    expect(ustBarTasmasi, `ust bar kendi icinde tasiyor (${ekran.g}x${ekran.y})`).toBeLessThanOrEqual(
+      1,
+    );
+
+    const noktalar = page.locator(".bulmacaNoktalari");
+    if (ekran.bolum.bulmacalar.length > 1) {
+      await expect(noktalar, `nokta gostergesi yok (${ekran.g}x${ekran.y})`).toHaveCount(1);
+      await expect(
+        noktalar,
+        `nokta gostergesi goruntu alanindan tasti (${ekran.g}x${ekran.y})`,
+      ).toBeInViewport({ ratio: 0.99 });
+      await expect(
+        page.locator(".bolumAdi"),
+        `bolum adi goruntu alanindan tasti (${ekran.g}x${ekran.y})`,
+      ).toBeInViewport({ ratio: 0.99 });
+    }
 
     const tasma = await page.evaluate(() => ({
       dikey: document.documentElement.scrollHeight - window.innerHeight,
@@ -504,11 +775,11 @@ test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabil
   // madalyon ise yalnizca "kusu degistir" gibi ikincil bir eylem.
   await expect(sayfa.getByRole("link", { name: /1\. durak/ })).toBeFocused();
 
-  // Yonlendirilen madde 1: hicbir e2e testi haritadaki duraga TIKLAMIYORDU,
-  // yani secim ekraninin haritanin ustunu kapatmasi yalnizca tesadufen
-  // zararsizdi - acik/kilitli duraklarin gercekten tiklanabilir oldugunu
-  // hicbir test korumuyordu. Secim kapandiktan sonra ilk durak gercekten
-  // tiklanabilmeli ve bolum ekranina goturmeli.
+  // Hicbir e2e testi haritadaki duraga TIKLAMIYORDU, yani secim ekraninin
+  // haritanin ustunu kapatmasi yalnizca tesadufen zararsizdi - acik/kilitli
+  // duraklarin gercekten tiklanabilir oldugunu hicbir test korumuyordu.
+  // Secim kapandiktan sonra ilk durak gercekten tiklanabilmeli ve bolum
+  // ekranina goturmeli.
   await sayfa.getByRole("link", { name: /1\. durak/ }).click();
   await expect(sayfa.getByRole("heading", { name: BOLUMLER[0].ad })).toBeVisible();
 
@@ -523,11 +794,11 @@ test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabil
   await baglam.close();
 });
 
-// Duzeltme turu 1 (review): §11 madde 1'in "secim yapilmadan harita
-// kullanilamiyor" yarisi daha once HICBIR kalici teste baglanmamisti -
-// yalnizca elle, bir kerelik bir denemeyle dogrulanip test dosyasi
-// silinmisti. Bu invaryant tamamen CSS'e dayanir (kodla.css'teki
-// .karakterSecimi: position:fixed, inset:0, z-index:20, opak arkaplan);
+// (review) "secim yapilmadan harita kullanilamiyor" kurali daha once
+// HICBIR kalici teste baglanmamisti - yalnizca elle, bir kerelik bir
+// denemeyle dogrulanip test dosyasi silinmisti. Bu invaryant tamamen
+// CSS'e dayanir (kodla.css'teki .karakterSecimi: position:fixed, inset:0,
+// z-index:20, opak arkaplan);
 // GocHaritasi.tsx'teki durak <Link>'i DOM'dan hic kaldirmaz, yalnizca
 // gorsel/etkilesimsel olarak ustunu orter. z-index veya position
 // gelecekte degistirilirse hicbir committed test bunu yakalamazdi. Kalici
@@ -561,9 +832,9 @@ test("secim yapilmadan durak tiklanamaz, diyalog acik ve url degismez kalir", as
   await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
   await expect(sayfa).toHaveURL(new RegExp(`/kodla/${KURS}/$`));
 
-  // Duzeltme turu 2 (review): yukaridaki tiklama denemesi yalnizca
-  // GEOMETRIYI olcer - Playwright "tiklanacak noktada baska bir eleman
-  // var mi" diye bakar, o elemanin gorunur olup olmadigina bakmaz.
+  // (review) yukaridaki tiklama denemesi yalnizca GEOMETRIYI olcer -
+  // Playwright "tiklanacak noktada baska bir eleman var mi" diye bakar, o
+  // elemanin gorunur olup olmadigina bakmaz.
   // Arkaplani seffaflastiran bir gerileme testi YESIL birakirdi, oysa
   // cocuk secim kartlarinin arkasindan haritayi gorurdu. Bu yuzden
   // ortunun gercekten opak oldugunu ayrica dogruluyoruz: rgb(...) ya da
@@ -582,9 +853,9 @@ test("secim yapilmadan durak tiklanamaz, diyalog acik ve url degismez kalir", as
   await baglam.close();
 });
 
-// Duzeltme turu 2 (review): yukaridaki test yalnizca FARE yolunu kapatir.
-// role="dialog" + aria-modal="true" bir sozdur, uygulama degil: odak
-// yonetimi yapilmazsa harita DOM'da durur, durak <Link>'leri sekme
+// (review) yukaridaki test yalnizca FARE yolunu kapatir. role="dialog" +
+// aria-modal="true" bir sozdur, uygulama degil: odak yonetimi yapilmazsa
+// harita DOM'da durur, durak <Link>'leri sekme
 // sirasindan cikmaz ve Tab-Tab-Enter kus secmeden bir bolume girer.
 // Duzeltme iki parcali (bkz. GocHaritasi.tsx ve KarakterKartlari.tsx):
 // haritanin ustune `inert` konur ve acilista ilk karta odaklanilir.
@@ -627,9 +898,9 @@ test("secim yapilmadan durak klavyeyle de acilamaz", async ({ browser }) => {
   // 2. Sekme sirasindan cikmak yetmez: durak baglantisi PROGRAMATIK
   //    olarak da odak alamamali. Bu, sekme sirasindaki oge sayisindan
   //    bagimsiz, dogrudan `inert`i olcen kontrol.
-  //    Duzeltme turu (review, madde 4): asagidaki .focus() denemesi
-  //    yalnizca ilk durak bir <a> OLDUGU icin anlamli - o her zaman
-  //    aciktir (bkz. dosya basi), ama bu garanti gelecekte degisebilir.
+  //    (review) asagidaki .focus() denemesi yalnizca ilk durak bir <a>
+  //    OLDUGU icin anlamli - o her zaman aciktir (bkz. dosya basi), ama bu
+  //    garanti gelecekte degisebilir.
   //    Kilitli bir ilk durak <div> olarak render edilir (bkz.
   //    GocHaritasi.tsx) ve <div>.focus() sessizce hicbir sey yapmaz -
   //    o zaman asagidaki expect, `inert` hic uygulanmasa da YANLISLIKLA
@@ -648,9 +919,9 @@ test("secim yapilmadan durak klavyeyle de acilamaz", async ({ browser }) => {
   expect(durakOdaklandi, "durak baglantisi hala odak alabiliyor").toBe(false);
 
   // 3. Senaryonun kendisi: karti sekmeyle yeniden bulup Enter'a basmak.
-  //    Duzeltme turu (review, madde 3): sabit bir Tab sayisi yerine, odak
-  //    PROGRAMATIK olarak ilk karta geri donene kadar SINIRLI sayida Tab
-  //    basiyoruz ve yol boyunca haritaya hic girmemis olmasini
+  //    (review) sabit bir Tab sayisi yerine, odak PROGRAMATIK olarak ilk
+  //    karta geri donene kadar SINIRLI sayida Tab basiyoruz ve yol boyunca
+  //    haritaya hic girmemis olmasini
   //    dogruluyoruz. Sabit sayi kirilgandi: karakterler.json'a ucuncu bir
   //    kus eklenmesi, alt bilgiye/ust bara yeni bir baglanti eklenmesi,
   //    diyaloga bir kapatma dugmesi eklenmesi ya da bu ekranin
@@ -741,9 +1012,9 @@ test("Escape ilk giriste kapatmaz, madalyondan acilinca kapatir", async ({ brows
   await baglam.close();
 });
 
-// Duzeltme turu (review, "kapanis rotusu"): Escape'i .karakterSecimi
-// DIV'ine (yani diyalogun kendisine) baglamak, yalnizca odak diyalogun
-// ICINDEYKEN calisir. Ortuye (bosluga) dokunmak odagi <body>'ye tasir -
+// (review) Escape'i .karakterSecimi DIV'ine (yani diyalogun kendisine)
+// baglamak, yalnizca odak diyalogun ICINDEYKEN calisir. Ortuye (bosluga)
+// dokunmak odagi <body>'ye tasir -
 // klavye olayi artik diyalogun altindan gecmez, cunku <body> diyalogun
 // ATASI degil (kardesi/ustu), bubbling ona hic ugramaz. Tablet gercek
 // senaryosunu simule ediyoruz: tiklama diyalogun kendi YUZEYINE (baslik
@@ -780,9 +1051,10 @@ test("diyalogun yuzeyine tiklamak kapatmaz, odak body'ye dusse de Escape calisir
   await baglam.close();
 });
 
-// Ayni duzeltme turu: tabletin Escape tusu yok, kapatma dugmesi de yok -
-// madalyon yolunda "vazgecmek" ancak ortuye (bosluga) dokunarak mumkun
-// olmali. Ilk giriste ise ortu HICBIR SEY yapmamali (secim zorunlu).
+// Yukaridaki testle ayni gerekceyle: tabletin Escape tusu yok, kapatma
+// dugmesi de yok - madalyon yolunda "vazgecmek" ancak ortuye (bosluga)
+// dokunarak mumkun olmali. Ilk giriste ise ortu HICBIR SEY yapmamali
+// (secim zorunlu).
 test("bos ortuye dokunmak madalyon yolunda kapatir, ilk giriste hicbir sey yapmaz", async ({
   browser,
 }) => {
@@ -833,7 +1105,7 @@ test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ brow
     const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
     await expect(diyalog).toBeVisible();
 
-    // Duzeltme turu 1 (review): kart sayisi yalnizca >0 degil, katalogdaki
+    // (review) kart sayisi yalnizca >0 degil, katalogdaki
     // karakter sayisiyla TAM eslesmeli - katalogdaki listeden turetiliyor
     // (KARAKTERLER.length), 2 olarak sabitlenmiyor; yarin uculu bir kurs
     // eklenirse test kendiliginden yeni beklentiye uyar.

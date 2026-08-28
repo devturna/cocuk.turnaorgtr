@@ -186,7 +186,8 @@ Dördüncü ana bölüm. Tasarım kararları ve gerekçeleri:
 | `lib/kodla/labirent/cozucu.ts` | En kısa çözüm (yalnızca denetimde kullanılır) |
 | `lib/kodla/labirent/temalar.ts` | Zemin ve engel çizimleri |
 | `lib/kodla/program.ts` | Blok listesi işlemleri |
-| `lib/kodla/yerelKayit.ts` | Yıldızlar, deneme sayacı, kilit kuralı, demo bayrağı, karakter seçimi |
+| `lib/kodla/durak.ts` | Durakta sıradaki adım, altın yıldız kuralı |
+| `lib/kodla/yerelKayit.ts` | Yıldızlar, bulmaca başına deneme sayacı, durak içi bulmaca ilerlemesi, kilit kuralı, demo bayrağı, karakter seçimi |
 
 ### Motor neden adım listesi döndürüyor?
 

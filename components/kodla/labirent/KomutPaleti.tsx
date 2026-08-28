@@ -33,10 +33,10 @@ export default function KomutPaleti({
   kilitli: boolean;
   onEkle: (komut: Komut) => void;
   hayalet: string | null;
-  // Yardim eden nabiz (Gorev 9, Sozsuz ilk temas): program bosken pad'in
-  // kendisi hafifce nabiz atar. Once bir sarmalayici div'e uygulaniyordu ki
-  // hicbir CSS kurali tanimlamiyordu; nabzin haloladigi dikdortgen artik
-  // pad'in kendi sinir kutusuna gore ciziliyor.
+  // Yardim eden nabiz (okuma bilmeyen cocuk icin sozsuz ilk temas): program
+  // bosken pad'in kendisi hafifce nabiz atar. Once bir sarmalayici div'e
+  // uygulaniyordu ki hicbir CSS kurali tanimlamiyordu; nabzin haloladigi
+  // dikdortgen artik pad'in kendi sinir kutusuna gore ciziliyor.
   nabiz: boolean;
 }) {
   return (

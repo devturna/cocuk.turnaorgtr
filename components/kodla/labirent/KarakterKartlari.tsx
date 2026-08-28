@@ -40,11 +40,11 @@ export default function KarakterKartlari({
   }, []);
 
   useEffect(() => {
-    // Duzeltme turu (review): Escape'i BELGE seviyesinde dinliyoruz, div
-    // uzerindeki onKeyDown degil. Ortuye (bosluga) dokunmak odagi
-    // <body>'ye tasir; <body> diyalogun ATASI degil, bubbling ona hic
-    // ugramaz - div'e baglanmis bir onKeyDown bu durumda asla tetiklenmez.
-    // Belge seviyesinde dinlemek odagin nerede oldugundan bagimsizdir.
+    // (review) Escape'i BELGE seviyesinde dinliyoruz, div uzerindeki
+    // onKeyDown degil. Ortuye (bosluga) dokunmak odagi <body>'ye tasir;
+    // <body> diyalogun ATASI degil, bubbling ona hic ugramaz - div'e
+    // baglanmis bir onKeyDown bu durumda asla tetiklenmez. Belge
+    // seviyesinde dinlemek odagin nerede oldugundan bagimsizdir.
     function tusaBasildi(olay: KeyboardEvent) {
       if (olay.key === "Escape" && kapatilabilir) onKapat?.();
     }

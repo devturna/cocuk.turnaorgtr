@@ -25,5 +25,27 @@ export default async function BolumSayfasi({
   const sirali = bolumSiralamasi(kursId);
   const sonraki = sirali[sirali.indexOf(bolumId) + 1] ?? null;
 
-  return <BolumEkrani kursId={kursId} bolum={bolum} sonrakiBolumId={sonraki} />;
+  // key: durak degisince BolumEkrani YENIDEN MONTE OLUR.
+  //
+  // BolumEkrani'nin durum makinesi bunu zaten varsayiyor: `bolum` prop'u
+  // degisirse haritayi kendiliginden duzelten bir senkron etkisi YOK, ve
+  // "kaldigi yerden devam" etkisi (BolumEkrani.tsx icinde) bagimliliginda
+  // butun `bolum` nesnesini tasiyor. App Router dinamik segment degisince
+  // alt agaci zaten yeniden montelemek zorunda kaldigi icin bu bugun
+  // dogru calisiyor - ama o, cerceve ici bir davranistir, bize verilmis bir
+  // sozlesme degil. Varsayimi burada YERELDE zorunlu kiliyoruz.
+  //
+  // Kirilirsa en kotu dal sessizdir ve altin yildiz uydurur: devam etkisi
+  // oyunun ORTASINDA yeniden kosarsa, cozulen >= toplamBulmaca olan bir
+  // durakta durakIlerlemesiniSil'i cagirir; bulmacaSirasi'na dokunulmadigi
+  // icin cocuk son bulmacayi TERTEMIZ bir kayda karsi bitirir, hepsiIdeal
+  // yeniden true okunur ve ozensiz oynanmis bir durak altin alir.
+  return (
+    <BolumEkrani
+      key={`${kursId}/${bolumId}`}
+      kursId={kursId}
+      bolum={bolum}
+      sonrakiBolumId={sonraki}
+    />
+  );
 }

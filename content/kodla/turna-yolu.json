@@ -3,84 +3,148 @@
     "id": "goksu-deltasi",
     "ad": "Göksu Deltası",
     "mekanik": "labirent",
-    "komutSeti": "yonler",
     "tema": "sazlik",
     "durak": { "x": 43, "y": 92 },
-    "idealAdim": 1,
     "ipucu": "Göksu Deltası Mersin'de, Türkiye'nin en zengin kuş sulak alanlarından biridir.",
-    "harita": {
-      "bakis": "sag",
-      "satirlar": ["...", ".TH", "..."]
-    }
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 1,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["...", ".TH", "..."]
+        }
+      }
+    ]
   },
   {
     "id": "sultansazligi",
     "ad": "Sultansazlığı",
     "mekanik": "labirent",
-    "komutSeti": "yonler",
     "tema": "sazlik",
     "durak": { "x": 50, "y": 61 },
-    "idealAdim": 3,
     "ipucu": "Sultansazlığı Kayseri'de sazlıklar ve göllerden oluşan bir kuş cennetidir.",
-    "harita": {
-      "bakis": "sag",
-      "satirlar": [".....", ".T..H", "....."]
-    }
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [".....", ".T..H", "....."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["....H", ".T...", "....."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["....H", ".....", ".T..."]
+        }
+      }
+    ]
   },
   {
     "id": "kapadokya",
     "ad": "Kapadokya",
     "mekanik": "labirent",
-    "komutSeti": "yonler",
     "tema": "peribacasi",
     "durak": { "x": 48, "y": 56 },
-    "idealAdim": 5,
     "ipucu": "Peribacaları yumuşak kayanın rüzgârla aşınmasıyla oluştu.",
-    "harita": {
-      "bakis": "sag",
-      "satirlar": ["....H", ".....", ".T#.."]
-    }
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["....H", ".....", ".T#.."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [".T...", ".#...", "...H."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [".....", ".T#H.", "....."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["...#H", ".T...", "..#.."]
+        }
+      }
+    ]
   },
   {
     "id": "tuz-golu",
     "ad": "Tuz Gölü",
     "mekanik": "labirent",
-    "komutSeti": "yonler",
     "tema": "beyaz",
     "durak": { "x": 40, "y": 54 },
-    "idealAdim": 5,
     "ipucu": "Yazın suyu çekilir ve göl bembeyaz tuzla kaplanır.",
-    "harita": {
-      "bakis": "sol",
-      "satirlar": ["H....", ".#...", "...T."]
-    }
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 5,
+        "harita": {
+          "bakis": "sol",
+          "satirlar": ["H....", ".#...", "...T."]
+        }
+      }
+    ]
   },
   {
     "id": "pamukkale",
     "ad": "Pamukkale",
     "mekanik": "labirent",
-    "komutSeti": "yonler",
     "tema": "beyaz",
     "durak": { "x": 18, "y": 68 },
-    "idealAdim": 4,
     "ipucu": "Beyaz basamakları sıcak suyun bıraktığı kireç yaptı.",
-    "harita": {
-      "bakis": "sag",
-      "satirlar": [".....", ".T.o.", "....H"]
-    }
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [".....", ".T.o.", "....H"]
+        }
+      }
+    ]
   },
   {
     "id": "efes",
     "ad": "Efes",
     "mekanik": "labirent",
-    "komutSeti": "yonler",
     "tema": "antiktas",
     "durak": { "x": 9, "y": 67 },
-    "idealAdim": 6,
     "ipucu": "Efes iki bin yıl önce denize açılan büyük bir liman şehriydi.",
-    "harita": {
-      "bakis": "sag",
-      "satirlar": ["..o..", ".T#..", "....H"]
-    }
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 6,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["..o..", ".T#..", "....H"]
+        }
+      }
+    ]
   }
 ]
