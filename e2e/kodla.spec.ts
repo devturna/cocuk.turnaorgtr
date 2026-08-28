@@ -403,7 +403,7 @@ test("durak ici ilerleme sayfa yenilenince korunur", async ({ page }) => {
 test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda gecis ve animasyon yok", async ({
   browser,
 }) => {
-  test.setTimeout(30000);
+  test.setTimeout(45000);
   const baglam = await browser.newContext({ reducedMotion: "reduce" });
   const sayfa = await baglam.newPage();
   await sayfa.addInitScript(() => {
@@ -527,6 +527,20 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   const konfeti = await anlikYakala(".kodlaKonfeti");
   expect(konfeti.goruntu, ".kodlaKonfeti (display)").toBe("none");
 
+  // --- Bulmacalar arasi gecis katmani ---
+  //
+  // .bulmacaGecisi yalnizca COKLU bulmacali bir durakta, bir ara bulmaca
+  // kazanildiginda belirir; yukaridaki bolum (efes) tek bulmacalik oldugu
+  // icin bu sinif bu testte hic var olmuyordu ve reduced-motion bildirimi
+  // (bulmacaGecisBelir'i iptal eden kural) hicbir e2e testinde
+  // calistirilmiyordu - oysa testin basligi "ilgili TUM sinif/durumlar"
+  // diyor. Bir gecis daha oynatarak boslugu kapatiyoruz.
+  const diziBolum = BOLUMLER.find((b) => b.bulmacalar.length > 1)!;
+  await sayfa.goto(`/kodla/${KURS}/${diziBolum.id}/`);
+  await programiDiz(sayfa, bulmacaCozumu(diziBolum, 0)!.map(komutAnahtari));
+  await sayfa.getByRole("button", { name: "Çalıştır" }).click();
+  animasyonYok(await anlikYakala(".bulmacaGecisi"), ".bulmacaGecisi");
+
   // --- Bu testte ULASILAMAYAN reduced-motion bildirimleri ---
   // .komutDugmesi.hayaletli::after, .calistirDugmesi.hayaletli::after:
   // yalnizca sessiz demo surerken var olurlar; bu dosyadaki beforeEach
@@ -581,21 +595,59 @@ for (const bolum of BOLUMLER) {
   });
 }
 
+// Duraklarin yalnizca bir kismi coklu bulmacali; nokta gostergesi (ust
+// barda, bolum adinin yaninda) SADECE onlarda cizilir. Bu test hep
+// BOLUMLER[0]'i (tek bulmacali Goksu Deltasi) acardi, yani gostergenin
+// oldugu duzen hicbir ekran boyutunda olculmemisti. En dar ekrani -ust
+// barin tasmaya en yakin oldugu yeri- en cok bulmacali duraga ceviriyoruz.
+const COK_BULMACALI = BOLUMLER.reduce((enUzun, bolum) =>
+  bolum.bulmacalar.length > enUzun.bulmacalar.length ? bolum : enUzun,
+);
+
 test("bolum ekraninda kaydirma yok ve dokunma hedefleri en az 64 piksel", async ({ page }) => {
+  expect(COK_BULMACALI.bulmacalar.length, "nokta gostergesini goren bir durak yok").toBeGreaterThan(
+    1,
+  );
   for (const ekran of [
-    { g: 820, y: 1180 },
-    { g: 1180, y: 820 },
-    { g: 1024, y: 768 },
-    { g: 390, y: 844 },
+    { g: 820, y: 1180, bolum: BOLUMLER[0] },
+    { g: 1180, y: 820, bolum: BOLUMLER[0] },
+    { g: 1024, y: 768, bolum: BOLUMLER[0] },
+    { g: 390, y: 844, bolum: COK_BULMACALI },
   ]) {
     await page.setViewportSize({ width: ekran.g, height: ekran.y });
-    await page.goto(`/kodla/${KURS}/${BOLUMLER[0].id}/`);
+    await page.goto(`/kodla/${KURS}/${ekran.bolum.id}/`);
 
     // Tam ekran duzeni bir useEffect icinde body'ye sinif ekleyerek kuruluyor;
     // hydration bitmeden olcum yapmak, ust bar ve alt bilgi hala ekrandayken
     // olcmek demektir. Yavas bir makinede bu yarisi kaybediyoruz (CI'da tam
     // olarak bu oldu), o yuzden once kosulu bekliyoruz.
     await expect(page.locator("body")).toHaveClass(/tamEkran/);
+
+    // Ust barin genisligi yukaridaki scrollWidth olcumuyle KORUNMAZ:
+    // body.tamEkran overflow:hidden verir, yani tasan bir ust bar belgeyi
+    // buyutmez - sessizce kirpilir. Cocuk icin sonuc "kaydirilamayan bir
+    // sayfa" degil, "yarisi olmayan bir baslik/gosterge" olur. Bu yuzden
+    // barin KENDI ic tasmasini ve nokta gostergesinin gercekten goruntu
+    // alaninda oldugunu ayrica soruyoruz.
+    const ustBarTasmasi = await page
+      .locator(".bolumUstBar")
+      .evaluate((oge) => oge.scrollWidth - oge.clientWidth);
+    expect(ustBarTasmasi, `ust bar kendi icinde tasiyor (${ekran.g}x${ekran.y})`).toBeLessThanOrEqual(
+      1,
+    );
+
+    const noktalar = page.locator(".bulmacaNoktalari");
+    if (ekran.bolum.bulmacalar.length > 1) {
+      await expect(noktalar, `nokta gostergesi yok (${ekran.g}x${ekran.y})`).toHaveCount(1);
+      await expect(
+        noktalar,
+        `nokta gostergesi goruntu alanindan tasti (${ekran.g}x${ekran.y})`,
+      ).toBeInViewport({ ratio: 0.99 });
+      await expect(
+        page.locator(".bolumAdi"),
+        `bolum adi goruntu alanindan tasti (${ekran.g}x${ekran.y})`,
+      ).toBeInViewport({ ratio: 0.99 });
+    }
 
     const tasma = await page.evaluate(() => ({
       dikey: document.documentElement.scrollHeight - window.innerHeight,
