@@ -84,8 +84,9 @@ const GECIS_SURESI = 1100;
 // asagidaki "Kosu bitince poz..." etkisi bu pencerede (sonrakiHazirlaniyor)
 // bilerek devre disi birakilir, YOKSA o etki bu bekleme dolmadan pozu
 // "durus"a dondurur ve gorunen kutlama suresi ikisinin kucugu (min) olur —
-// bu sabiti tek basina buyutmenin hicbir etkisi kalmaz (Duzeltme turu 2,
-// Onemli B; bu, Onemli 4'un uyardigi belgelenmemis kuplaj sinifinin aynisi).
+// bu sabiti tek basina buyutmenin hicbir etkisi kalmaz. Yorumsuz birakilirsa
+// bu, "degeri degistirdim, hicbir sey olmadi" turunden belgelenmemis bir
+// kuplajdir.
 const VARIS_BEKLEME_SURESI = 500;
 
 /**
@@ -148,7 +149,8 @@ type Durum = {
   /**
    * Bulmaca kazanildi, sirada bir sonraki bulmaca var; kutlama pozu bir
    * "nefes" suresi ekranda kalsin diye gecis katmani HEMEN degil, bu bayrak
-   * kapaninca acilir (Duzeltme turu 1, Onemli 1).
+   * kapaninca acilir: ayni commit'te acilsaydi kutlama pozu dogdugu anda
+   * ortulur, cocuk varisi hic gormezdi.
    */
   sonrakiHazirlaniyor: boolean;
 };
@@ -209,7 +211,7 @@ export default function BolumEkrani({
   // etkisi dahil) hala ESKI (0) degeri okur. "Baslangic bulmacasi"ni TEK
   // bir yerde, once hesaplayip hem duruma hem demoKomut'a AYNI ANDA
   // yazmak, mount-demosunun yanlis haritaya gore secilmis bir komutu
-  // cocuk adina calistirmasini kokten engeller (Duzeltme turu 2, Minor C).
+  // cocuk adina calistirmasini kokten engeller.
   useEffect(() => {
     const ilerleme = durakIlerlemesi(kursId, bolum.id);
     const baslangic = baslangicBulmacasi(ilerleme.cozulen, toplamBulmaca);
@@ -338,7 +340,7 @@ export default function BolumEkrani({
   // GECIKMESI (400ms) sonra "durus"a dondururdu. VARIS_BEKLEME_SURESI
   // (asagida, 500ms) ile KUPLU bu yuzden: o bekleme dolmadan poz sifirlanirsa
   // gorunen kutlama suresi ikisinin kucugu (min(500,400)=400ms) olur, sabiti
-  // buyutmenin hicbir etkisi kalmaz (Duzeltme turu 2, Onemli B).
+  // buyutmenin hicbir etkisi kalmaz.
   useEffect(() => {
     if (durum.oynatma || durum.bitti || durum.sonrakiHazirlaniyor) return;
     if (durum.poz === "durus") return;
@@ -351,7 +353,7 @@ export default function BolumEkrani({
   // Kutlama pozu bir nefes gorundukten sonra gecis katmanini acar. Bu efekt
   // olmasa "vardi" ile ayni commit'te gecis:true yazilir, kutlama pozu
   // dogunca ANINDA ortulur ve cocuk varisi hic gormez (durak son bulmacada
-  // degilse) — bkz. Duzeltme turu 1, Onemli 1.
+  // degilse).
   useEffect(() => {
     if (!durum.sonrakiHazirlaniyor) return;
     const zamanlayici = setTimeout(() => {
@@ -362,9 +364,9 @@ export default function BolumEkrani({
 
   // Gecis katmani kisa sure gorunur, sonra sonraki bulmaca AYNI commit'te
   // hem acilir hem de ortu kapanir: bulmacaSirasi, karakterKonumu VE gecis:
-  // false hepsi TEK setDurum cagrisinda birlikte yazilir. Bu, Duzeltme turu
-  // 1'deki cift-requestAnimationFrame numarasinin YERINE gecti (Duzeltme
-  // turu 2, Onemli 1'in cozum onerisi): Sahne.tsx'teki .kodlaKarakter artik
+  // false hepsi TEK setDurum cagrisinda birlikte yazilir. Bu, daha onceki
+  // cift-requestAnimationFrame numarasinin YERINE gecti: Sahne.tsx'teki
+  // .kodlaKarakter artik
   // `key={bulmacaSirasi}` tasiyor, yani sira degisince React o dugumu ATIP
   // YENISINI kuruyor. Yeni kurulan bir dugumun "onceki" bir stili olmadigi
   // icin CSS transform gecisi hic devreye girmiyor — konumu AYRI bir
@@ -373,7 +375,7 @@ export default function BolumEkrani({
   // HER yer (burasi, mount'taki devam etkisi, duraktanTekrarBasla)
   // karakterKonumu'nu da bulmacaBaslangicKonumu ile AYNI commit'te yazar —
   // tek kaynak kurali boylece "bir efekt" yerine "atomik yazim" ile korunur.
-  // oynatma:null da eklendi (Duzeltme turu 2, Onemli A): girdiEngelli zaten
+  // oynatma:null da eklendi: girdiEngelli zaten
   // bu pencerede calistirmayiBaslat'i engelliyor, ama bu ikinci, bagimsiz
   // korumadir — her ihtimalde ESKI haritaya gore kuyruga alinmis bir kosu
   // varsa burada kesin olarak durur.
@@ -430,15 +432,15 @@ export default function BolumEkrani({
    * ve kasten bulmacaSirasi'na dokunmaz — o, tek bir bulmacayi yeniden
    * denemektir. Kutlama ise durak BITTIKTEN sonra gorunur; oradan "yeniden
    * oyna" demek nokta gostergesindeki HER noktayi bos, altin sansini da
-   * yeniden acik saymak demektir (bkz. Duzeltme turu 1, Onemli 3) — yoksa
+   * yeniden acik saymak demektir — yoksa
    * cocuk yalnizca SON bulmacayi tekrar cozer ve butun durak icin yildiz
    * tekrar kazanir, oysa durum.bulmacaSirasi hala son bulmacayi gosterir ve
    * durakIlerlemesi silinmedigi icin bir sonraki acilista sayac eski
    * turden miras kalir.
    *
    * karakterKonumu burada bulmacaBaslangicKonumu ile DOGRUDAN, bulmacaSirasi
-   * ile AYNI commit'te yazilir (Duzeltme turu 2, Onemli 1'in cozumuyle
-   * uyumlu tek kaynak kurali): render-zamanindaki baslangicKarakterKonumu
+   * ile AYNI commit'te yazilir (yukaridaki tek kaynak kuraliyla uyumlu):
+   * render-zamanindaki baslangicKarakterKonumu
    * hala ESKI (son oynanan) bulmacanin haritasina ait olurdu, bu yuzden onu
    * KULLANMIYORUZ — kendi baslangicini kendisi hesaplar.
    */
@@ -481,7 +483,7 @@ export default function BolumEkrani({
   // arada haritayi degistirir ve eski-harita adimlari yeni haritada oynamaya
   // devam eder, son "vardi" adimi bulmacaCozuldu'yu program.length===0 ile
   // IKINCI kez tetikler — bu da ikinci bulmacayi hic oynanmadan "ideal"
-  // sayar (bkz. Duzeltme turu 2, Onemli A). Nabiz (pulse) sinifi de bu
+  // sayar. Nabiz (pulse) sinifi de bu
   // pencerede KAPANMALI: cocugu basmaya davet eden bir dugme, olu bir
   // dugmeden kotudur.
   const girdiEngelli = calisiyor || durum.sonrakiHazirlaniyor || durum.gecis;
