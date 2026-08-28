@@ -5,10 +5,14 @@ import {
   bolumAcikMi,
   bolumSonucu,
   bolumSonucuKaydet,
+  bulmacaCozuldu,
   demoGosterildi,
   demoGosterildiMi,
   denemeArtir,
   denemeSayisi,
+  durakIlerlemesi,
+  durakIlerlemesiniSil,
+  durakTakildiMi,
   ilerlemeyiSil,
   karakterSec,
   kursYildizSayisi,
@@ -63,10 +67,10 @@ describe("bolum sonucu", () => {
 
 describe("deneme sayaci", () => {
   it("sifirdan baslar ve artar", () => {
-    expect(denemeSayisi(KURS, "kapadokya")).toBe(0);
-    expect(denemeArtir(KURS, "kapadokya")).toBe(1);
-    expect(denemeArtir(KURS, "kapadokya")).toBe(2);
-    expect(denemeSayisi(KURS, "kapadokya")).toBe(2);
+    expect(denemeSayisi(KURS, "kapadokya", 0)).toBe(0);
+    expect(denemeArtir(KURS, "kapadokya", 0)).toBe(1);
+    expect(denemeArtir(KURS, "kapadokya", 0)).toBe(2);
+    expect(denemeSayisi(KURS, "kapadokya", 0)).toBe(2);
   });
 });
 
@@ -86,12 +90,12 @@ describe("kilit kurali", () => {
   });
 
   it("bes denemeden sonra sonraki bolum sessizce acilir", () => {
-    for (let i = 0; i < EN_FAZLA_DENEME; i++) denemeArtir(KURS, "sultansazligi");
+    for (let i = 0; i < EN_FAZLA_DENEME; i++) denemeArtir(KURS, "sultansazligi", 0);
     expect(bolumAcikMi(KURS, "kapadokya", SIRALI)).toBe(true);
   });
 
   it("dort deneme yetmez", () => {
-    for (let i = 0; i < EN_FAZLA_DENEME - 1; i++) denemeArtir(KURS, "sultansazligi");
+    for (let i = 0; i < EN_FAZLA_DENEME - 1; i++) denemeArtir(KURS, "sultansazligi", 0);
     expect(bolumAcikMi(KURS, "kapadokya", SIRALI)).toBe(false);
   });
 
@@ -103,10 +107,10 @@ describe("kilit kurali", () => {
 describe("ilerlemeyiSil", () => {
   it("yildizlari ve denemeleri siler", () => {
     bolumSonucuKaydet(KURS, "kapadokya", "altin");
-    denemeArtir(KURS, "kapadokya");
+    denemeArtir(KURS, "kapadokya", 0);
     ilerlemeyiSil();
     expect(tumIlerleme()).toEqual({});
-    expect(denemeSayisi(KURS, "kapadokya")).toBe(0);
+    expect(denemeSayisi(KURS, "kapadokya", 0)).toBe(0);
   });
 });
 
@@ -203,5 +207,87 @@ describe("secim sorulmali mi", () => {
 
   it("karakteri olmayan kursta hic sorulmaz", () => {
     expect(secimSorulmaliMi("yok-boyle", [])).toBe(false);
+  });
+});
+
+describe("durak ici ilerleme", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("hic oynanmamis durak sifirdan baslar ve ideal sayilir", () => {
+    expect(durakIlerlemesi("turna-yolu", "kapadokya")).toEqual({
+      cozulen: 0,
+      hepsiIdeal: true,
+    });
+  });
+
+  it("cozulen bulmaca sayilir", () => {
+    bulmacaCozuldu("turna-yolu", "kapadokya", true);
+    bulmacaCozuldu("turna-yolu", "kapadokya", true);
+    expect(durakIlerlemesi("turna-yolu", "kapadokya")).toEqual({
+      cozulen: 2,
+      hepsiIdeal: true,
+    });
+  });
+
+  it("bir bulmaca bile ideal degilse durak altin olmaz", () => {
+    bulmacaCozuldu("turna-yolu", "kapadokya", true);
+    bulmacaCozuldu("turna-yolu", "kapadokya", false);
+    bulmacaCozuldu("turna-yolu", "kapadokya", true);
+    expect(durakIlerlemesi("turna-yolu", "kapadokya").hepsiIdeal).toBe(false);
+  });
+
+  it("duraklar birbirini etkilemez", () => {
+    bulmacaCozuldu("turna-yolu", "kapadokya", false);
+    bulmacaCozuldu("turna-yolu", "efes", true);
+    expect(durakIlerlemesi("turna-yolu", "kapadokya")).toEqual({
+      cozulen: 1,
+      hepsiIdeal: false,
+    });
+    expect(durakIlerlemesi("turna-yolu", "efes")).toEqual({
+      cozulen: 1,
+      hepsiIdeal: true,
+    });
+  });
+
+  it("silinen durak bastan baslar, komsusu bozulmaz", () => {
+    bulmacaCozuldu("turna-yolu", "kapadokya", false);
+    bulmacaCozuldu("turna-yolu", "efes", true);
+    durakIlerlemesiniSil("turna-yolu", "kapadokya");
+    expect(durakIlerlemesi("turna-yolu", "kapadokya").cozulen).toBe(0);
+    expect(durakIlerlemesi("turna-yolu", "efes").cozulen).toBe(1);
+  });
+
+  it("ilerlemeyiSil durak ici ilerlemeyi de siler", () => {
+    bulmacaCozuldu("turna-yolu", "kapadokya", true);
+    ilerlemeyiSil();
+    expect(durakIlerlemesi("turna-yolu", "kapadokya").cozulen).toBe(0);
+  });
+});
+
+describe("bulmaca basina deneme sayaci", () => {
+  beforeEach(() => localStorage.clear());
+
+  it("her bulmaca kendi sayacini tutar", () => {
+    denemeArtir("turna-yolu", "kapadokya", 0);
+    denemeArtir("turna-yolu", "kapadokya", 0);
+    denemeArtir("turna-yolu", "kapadokya", 2);
+    expect(denemeSayisi("turna-yolu", "kapadokya", 0)).toBe(2);
+    expect(denemeSayisi("turna-yolu", "kapadokya", 1)).toBe(0);
+    expect(denemeSayisi("turna-yolu", "kapadokya", 2)).toBe(1);
+  });
+
+  it("bir bulmacada takilmak duragi takilmis sayar", () => {
+    expect(durakTakildiMi("turna-yolu", "kapadokya")).toBe(false);
+    for (let i = 0; i < EN_FAZLA_DENEME; i++) {
+      denemeArtir("turna-yolu", "kapadokya", 1);
+    }
+    expect(durakTakildiMi("turna-yolu", "kapadokya")).toBe(true);
+  });
+
+  it("farkli bulmacalara dagilan denemeler takilmak sayilmaz", () => {
+    for (let i = 0; i < EN_FAZLA_DENEME; i++) {
+      denemeArtir("turna-yolu", "kapadokya", i);
+    }
+    expect(durakTakildiMi("turna-yolu", "kapadokya")).toBe(false);
   });
 });

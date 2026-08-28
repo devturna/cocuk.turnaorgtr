@@ -187,7 +187,10 @@ export default function BolumEkrani({
           kazanilan = durum.program.length <= bulmaca.idealAdim ? "altin" : "yildiz";
           bolumSonucuKaydet(kursId, bolum.id, kazanilan);
         } else {
-          denemeArtir(kursId, bolum.id);
+          // Bu gorevde durak hala tek bulmacalik (yukaridaki bulmaca
+          // sabiti 0. sirayi kullaniyor); deneme sayaci da ayni sirayla
+          // esler. Gorev 4 bunu gercek sirayla degistirecek.
+          denemeArtir(kursId, bolum.id, 0);
         }
       }
 

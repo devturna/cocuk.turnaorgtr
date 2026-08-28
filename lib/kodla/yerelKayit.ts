@@ -1,7 +1,7 @@
 // Kodlama bolumunun tek yerel kayit modulu: yildizlar, deneme sayaci, demo
-// bayragi ve karakter secimi hep burada tutulur. Bolumun geri kalaninda
-// localStorage'a dokunulmaz; Boyama'daki lib/boyama/yerelKayit.ts ayni isi
-// gorur, bu dosya onun kodlama tarafindaki kardesidir.
+// bayragi, karakter secimi ve bulmaca ilerlemesi hep burada tutulur. Bolumun
+// geri kalaninda localStorage'a dokunulmaz; Boyama'daki lib/boyama/yerelKayit.ts
+// ayni isi gorur, bu dosya onun kodlama tarafindaki kardesidir.
 
 import { karakterBul, varsayilanKarakter, type Karakter } from "./karakterler";
 
@@ -9,6 +9,7 @@ const ANAHTAR = "kodla:ilerleme";
 const DENEME_ANAHTARI = "kodla:denemeler";
 const DEMO_ANAHTARI = "kodla:demo";
 const KARAKTER_ANAHTARI = "kodla:karakter";
+const BULMACA_ANAHTARI = "kodla:bulmaca";
 
 export type YildizTuru = "yildiz" | "altin";
 
@@ -69,27 +70,94 @@ export function kursYildizSayisi(kursId: string): number {
   return Object.keys(tumIlerleme()[kursId] ?? {}).length;
 }
 
-function tumDenemeler(): Record<string, Record<string, number>> {
-  return nesneOku(DENEME_ANAHTARI) as Record<string, Record<string, number>>;
+export type DurakIlerlemesi = {
+  /** Bu durakta bugune kadar cozulen bulmaca sayisi. */
+  cozulen: number;
+  /** Cozulenlerin HEPSI ideal adimda mi bitti: durak altin yildizi bunu ister. */
+  hepsiIdeal: boolean;
+};
+
+function tumDurakIlerlemesi(): Record<string, Record<string, unknown>> {
+  return nesneOku(BULMACA_ANAHTARI) as Record<string, Record<string, unknown>>;
 }
 
-export function denemeSayisi(kursId: string, bolumId: string): number {
-  const deger = tumDenemeler()[kursId]?.[bolumId];
-  return typeof deger === "number" ? deger : 0;
+export function durakIlerlemesi(kursId: string, bolumId: string): DurakIlerlemesi {
+  const ham = tumDurakIlerlemesi()[kursId]?.[bolumId];
+  // Hic oynanmamis durak "sifir cozuldu, hepsi ideal" sayilir: bos kume
+  // uzerinde "hepsi" dogrudur ve ilk bulmaca ideal biterse altin yolu acik
+  // kalir.
+  if (!ham || typeof ham !== "object") return { cozulen: 0, hepsiIdeal: true };
+  const girdi = ham as Record<string, unknown>;
+  return {
+    cozulen: typeof girdi.cozulen === "number" ? girdi.cozulen : 0,
+    hepsiIdeal: girdi.hepsiIdeal !== false,
+  };
 }
 
-export function denemeArtir(kursId: string, bolumId: string): number {
-  const denemeler = tumDenemeler();
-  const kurs = denemeler[kursId] ?? {};
-  const yeni = denemeSayisi(kursId, bolumId) + 1;
-  nesneYaz(DENEME_ANAHTARI, { ...denemeler, [kursId]: { ...kurs, [bolumId]: yeni } });
+export function bulmacaCozuldu(
+  kursId: string,
+  bolumId: string,
+  idealMi: boolean,
+): DurakIlerlemesi {
+  const onceki = durakIlerlemesi(kursId, bolumId);
+  const yeni: DurakIlerlemesi = {
+    cozulen: onceki.cozulen + 1,
+    hepsiIdeal: onceki.hepsiIdeal && idealMi,
+  };
+  const hepsi = tumDurakIlerlemesi();
+  const kurs = hepsi[kursId] ?? {};
+  nesneYaz(BULMACA_ANAHTARI, { ...hepsi, [kursId]: { ...kurs, [bolumId]: yeni } });
   return yeni;
 }
 
+/** Durak bastan oynanirken cagrilir: sayac ve altin sansi sifirlanir. */
+export function durakIlerlemesiniSil(kursId: string, bolumId: string): void {
+  const hepsi = tumDurakIlerlemesi();
+  const kurs = { ...(hepsi[kursId] ?? {}) };
+  delete kurs[bolumId];
+  nesneYaz(BULMACA_ANAHTARI, { ...hepsi, [kursId]: kurs });
+}
+
+function tumDenemeler(): Record<string, Record<string, unknown>> {
+  return nesneOku(DENEME_ANAHTARI) as Record<string, Record<string, unknown>>;
+}
+
+function durakDenemeleri(kursId: string, bolumId: string): Record<string, unknown> {
+  const ham = tumDenemeler()[kursId]?.[bolumId];
+  // Eski surumde bu deger duz bir sayiydi. O kayit artik okunamaz; sayac
+  // sifirlanir. Sayac bir kacis kapisidir, kazanim degil: kaybi zararsiz.
+  if (!ham || typeof ham !== "object") return {};
+  return ham as Record<string, unknown>;
+}
+
+export function denemeSayisi(kursId: string, bolumId: string, bulmacaSirasi: number): number {
+  const deger = durakDenemeleri(kursId, bolumId)[String(bulmacaSirasi)];
+  return typeof deger === "number" ? deger : 0;
+}
+
+export function denemeArtir(kursId: string, bolumId: string, bulmacaSirasi: number): number {
+  const hepsi = tumDenemeler();
+  const kurs = hepsi[kursId] ?? {};
+  const durak = durakDenemeleri(kursId, bolumId);
+  const yeni = denemeSayisi(kursId, bolumId, bulmacaSirasi) + 1;
+  nesneYaz(DENEME_ANAHTARI, {
+    ...hepsi,
+    [kursId]: { ...kurs, [bolumId]: { ...durak, [String(bulmacaSirasi)]: yeni } },
+  });
+  return yeni;
+}
+
+/** Cocuk bu duragin HERHANGI bir bulmacasinda takildi mi. */
+export function durakTakildiMi(kursId: string, bolumId: string): boolean {
+  return Object.values(durakDenemeleri(kursId, bolumId)).some(
+    (deger) => typeof deger === "number" && deger >= EN_FAZLA_DENEME,
+  );
+}
+
 /**
- * Siradaki durak aciktir, sonrasi kilitlidir. Bir bolumde EN_FAZLA_DENEME
+ * Siradaki durak aciktir, sonrasi kilitlidir. Bir durakta EN_FAZLA_DENEME
  * kadar denedigi halde gecemeyen cocuga sonraki durak sessizce acilir:
- * kimse bir bolumde mahsur kalmamali.
+ * kimse bir durakta mahsur kalmamali.
  */
 export function bolumAcikMi(kursId: string, bolumId: string, sirali: string[]): boolean {
   const sira = sirali.indexOf(bolumId);
@@ -98,7 +166,7 @@ export function bolumAcikMi(kursId: string, bolumId: string, sirali: string[]): 
 
   const onceki = sirali[sira - 1];
   if (bolumSonucu(kursId, onceki) !== undefined) return true;
-  return denemeSayisi(kursId, onceki) >= EN_FAZLA_DENEME;
+  return durakTakildiMi(kursId, onceki);
 }
 
 export function ilerlemeyiSil(): void {
@@ -107,6 +175,7 @@ export function ilerlemeyiSil(): void {
     localStorage.removeItem(DENEME_ANAHTARI);
     localStorage.removeItem(DEMO_ANAHTARI);
     localStorage.removeItem(KARAKTER_ANAHTARI);
+    localStorage.removeItem(BULMACA_ANAHTARI);
   } catch {
     // Yok sayilir.
   }
