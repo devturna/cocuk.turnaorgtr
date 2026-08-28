@@ -642,7 +642,7 @@ export default function BolumEkrani({
           // yerde tutmak, yani ayrisma ihtimali uretmek olurdu. Pencere
           // (VARIS_BEKLEME_SURESI, 500ms) yuvanin yaylanmasindan
           // (kodla.css, 420ms) uzun: animasyon ortu inmeden tamamlanir.
-          vardi={durum.bitti !== null || durum.sonrakiHazirlaniyor}
+          vardi={durum.bitti !== null || durum.sonrakiHazirlaniyor || durum.gecis}
           bolumAdi={bolum.ad}
         />
       </div>

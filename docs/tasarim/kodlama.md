@@ -362,13 +362,14 @@ Boyama bölümünden gelen kurallar burada da geçerlidir, biri sıkılaştırı
 
 ## 8. İçerik: Turna'nın göç yolu
 
-> **Not (20 Ağustos 2026):** Aşağıdaki on beş duraklık tablo rotanın
-> NİHAİ HEDEFİDİR, bugünün durumu değil. Faz 4b itibarıyla yayında olan
-> rota yalnızca **altı** duraktır — bu tablodaki ilk beşi (Sultansazlığı,
-> Kapadokya, Tuz Gölü, Pamukkale, Efes) ve başlarına eklenen tek adımlık
-> öğretici durak Göksu Deltası'nı (bkz.
+> **Not (20 Ağustos 2026; 28 Ağustos 2026'da düzeltildi):** Aşağıdaki on
+> beş duraklık tablo rotanın NİHAİ HEDEFİDİR, bugünün durumu değil. Faz 4b
+> itibarıyla yayında olan rota yalnızca **altı** duraktır — bu tablodaki
+> ilk beşi (Sultansazlığı, Kapadokya, Tuz Gölü, Pamukkale, Efes) ve
+> başlarına eklenen tek adımlık öğretici durak Göksu Deltası'nı (bkz.
 > [kodlama-arayuz.md](kodlama-arayuz.md) §7) kapsar. Kalan dokuz durak
-> ROTANIN KENDİSİ de değişti: bugün geçerli olan on beş duraklık liste
+> ilerideki fazlarda eklenecek; üstelik rotanın kendisi de değişti: bugün
+> geçerli olan on beş duraklık liste
 > [kodlama-kapsam.md](kodlama-kapsam.md) §4'tedir (gerçek göç döngüsünü
 > izler, aşağıdaki tablo izlemiyordu). Rotanın hangi fazda genişleyeceği
 > için kapsam belgesinin §10'una, günün durumu için
