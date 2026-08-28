@@ -42,6 +42,7 @@ import {
 import Sahne from "./Sahne";
 import KomutPaleti from "./KomutPaleti";
 import ProgramSeridi from "./ProgramSeridi";
+import BulmacaNoktalari from "./BulmacaNoktalari";
 import Konfeti from "./Konfeti";
 import { VARSAYILAN_PALET, type KarakterPozu } from "./Simgeler";
 import "../kodla.css";
@@ -74,9 +75,17 @@ const BOSTA_SURESI = 12000;
 
 // Bulmacalar arasi gecis katmaninin ekranda kaldigi sure. Yukaridaki uclu
 // zamanlamayla iliskisi yok: gecis, bir bulmaca zaten bitmisken oynar. Ama
-// kendi kuplaji var: kodla.css'teki .bulmacaGecisi'nin bulmacaGecisBelir
-// belirme animasyonundan (220ms) KISA OLAMAZ, yoksa katman belirme
-// ortasinda kaldirilir.
+// kendi kuplaji var, ve bu kuplaj artik IKI parcali: kodla.css'teki
+// .bulmacaGecisi'nin bulmacaGecisBelir belirme animasyonu (220ms) VE
+// .bulmacaNoktasi.yeniDolan'in dolus animasyonu (280ms, AYNI commit'te,
+// belirmeyle es zamanli baslar) katman acilirken birlikte oynar. GECIS_SURESI
+// bu ikisinin ikisinden de (fade-in VE nokta animasyonu, hangisi daha uzun
+// surerse) KISA OLAMAZ, yoksa katman/nokta yarida kesilir. 1100ms burada
+// bilerek 220/280ms'in COK uzerinde tutuluyor: perde artik bir kelime degil
+// bir ILERLEME gostergesi tasiyor (asagidaki .bulmacaGecisi), ve dolan nokta
+// bittikten sonra ~800ms'lik bir "durgun bakis" penceresi kaliyor - okuma
+// bilmeyen bir cocugun yeni dolan noktayi fark edip anlamlandirmasi icin
+// animasyon suresinin kendisinden fazlasi gerekiyor.
 const GECIS_SURESI = 1100;
 
 // Bulmaca kazanilinca kutlama pozu, gecis katmani onu ortmeden once bu kadar
@@ -597,21 +606,16 @@ export default function BolumEkrani({
             basliginin yaninda durur: cocuk durakta nerede oldugunu gorur.
             Dolu nokta ULASILAN bulmacadir (cozulmus olan degil): su an
             oynanan bulmacanin noktasi da doludur, ki durak acilir acilmaz
-            en az bir nokta dolu gorunsun. */}
+            en az bir nokta dolu gorunsun. Bu satir GECIS PERDESI ASAGIDA
+            tasidigi buyuk satirdan AYRIDIR: bu, oyun surerken (perde
+            kapaliyken) gorunen kucuk halidir; ikisi BulmacaNoktalari'ni
+            paylasir, markup tekrar yazilmaz. */}
         {toplamBulmaca > 1 ? (
-          <div
-            className="bulmacaNoktalari"
-            role="img"
-            aria-label={`${bolum.ad}: ${toplamBulmaca} bulmacadan ${durum.bulmacaSirasi + 1}. bulmaca`}
-          >
-            {bolum.bulmacalar.map((_, sira) => (
-              <span
-                key={sira}
-                className={sira <= durum.bulmacaSirasi ? "bulmacaNoktasi dolu" : "bulmacaNoktasi"}
-                aria-hidden="true"
-              />
-            ))}
-          </div>
+          <BulmacaNoktalari
+            toplam={toplamBulmaca}
+            doluSira={durum.bulmacaSirasi}
+            etiket={`${bolum.ad}: ${toplamBulmaca} bulmacadan ${durum.bulmacaSirasi + 1}. bulmaca`}
+          />
         ) : null}
       </div>
 
@@ -712,6 +716,22 @@ export default function BolumEkrani({
 
       {durum.gecis ? (
         <div className="bulmacaGecisi" role="status">
+          {/* Perde artik sadece bir onay isareti degil, ILERLEMENIN
+              KENDISIDIR: nokta satiri normalde ust barda yasar ama ust bar
+              tam da bu perdenin ALTINDA kalir - eskiden dolan nokta ancak
+              perde kalkinca gorunurdu, yani "ilerledim" hissini veren tek an
+              cocugun goremedigi andi. durum.bulmacaSirasi burada HALA ESKI
+              degerdir (gecis efekti onu ancak GECIS_SURESI sonra artirir,
+              bkz. yukaridaki efekt), bu yuzden ULASILAN yeni bulmaca
+              bulmacaSirasi + 1'dir - hem doluSira hem yeniDolanSira bunu
+              gosterir. */}
+          <BulmacaNoktalari
+            toplam={toplamBulmaca}
+            doluSira={durum.bulmacaSirasi + 1}
+            yeniDolanSira={durum.bulmacaSirasi + 1}
+            buyuk
+            etiket={`${bolum.ad}: ${toplamBulmaca} bulmacadan ${durum.bulmacaSirasi + 2}. bulmaca`}
+          />
           <span className="bulmacaGecisSimgesi" aria-hidden="true">✓</span>
           <span className="bulmacaGecisYazi">Sıradaki bulmaca</span>
         </div>

@@ -662,6 +662,21 @@
   height: 100%;
 }
 
+/* Rozet: madalyonun kendisi zaten position:absolute (yukarida), yani ayrica
+   bir konumlandirma katmani kurmadan bu ogenin konumlandirma bagi (containing
+   block) olur. Kose disina tasar (right/bottom negatif) - madalyonun 64px'lik
+   DOKUNMA KUTUSUNU (kodla.css'teki .karakterMadalyonu genislik/yukseklik)
+   BUYUTMEZ, cunku tasan bir alt oge ata elemanin layout kutusunu
+   degistirmez; boyle olmasaydi bu rozet 64px hedefini bozardi. */
+.karakterMadalyonu .madalyonRozeti {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+}
+
 .karakterKarti:active,
 .karakterMadalyonu:active {
   scale: 0.96;
@@ -734,6 +749,42 @@
    animation'ini tanimlayan kuraldan HEMEN SONRA gelir. */
 @media (prefers-reduced-motion: reduce) {
   .bulmacaGecisi {
+    animation: none;
+  }
+}
+
+/* Perdedeki buyuk nokta satiri: BulmacaNoktalari ust barda kucuk (varsayilan
+   .bulmacaNoktasi, 10px), burada -perde acikken- daha buyuk cizilir ki
+   noktalar perdenin gercek icerigi gibi okunsun, kucuk bir sus gibi degil. */
+.bulmacaNoktalari.buyuk {
+  gap: 10px;
+}
+
+.bulmacaNoktalari.buyuk .bulmacaNoktasi {
+  width: 18px;
+  height: 18px;
+}
+
+/* Yeni ulasilan nokta perde acikken parlayarak dolar: cocuk okuyamadigi
+   "Sıradaki bulmaca" yazisi yerine bu hareketten ilerledigini anlar. Sure
+   (280ms) BolumEkrani.tsx'teki GECIS_SURESI ile KUPLU: GECIS_SURESI bu
+   animasyonun suresinden (ve .bulmacaGecisi'nin 220ms'lik belirmesinden)
+   KISA OLAMAZ, yoksa nokta perde kalkmadan once yarida kesilir - kuplajin
+   tam gerekcesi BolumEkrani.tsx'teki GECIS_SURESI yorumunda. */
+@keyframes bulmacaNoktaDolus {
+  0% { scale: 0.4; opacity: 0.5; }
+  60% { scale: 1.3; }
+  100% { scale: 1; opacity: 1; }
+}
+
+.bulmacaNoktasi.yeniDolan {
+  animation: bulmacaNoktaDolus 280ms ease-out;
+}
+
+/* KURAL uyarinca (yukarida): bu gecersiz kilma .bulmacaNoktasi.yeniDolan'in
+   animation'ini tanimlayan kuraldan HEMEN SONRA gelir. */
+@media (prefers-reduced-motion: reduce) {
+  .bulmacaNoktasi.yeniDolan {
     animation: none;
   }
 }
