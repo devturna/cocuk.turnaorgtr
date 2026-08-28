@@ -4,7 +4,7 @@ import { kursBolumleri } from "../lib/kodla/bolumler";
 const KURS = "turna-yolu";
 const BOLUMLER = kursBolumleri(KURS);
 
-// Sozsuz ilk temas (Gorev 9): demo gercek arayuzu surer (sahte animasyon
+// Sozsuz ilk temas: demo gercek arayuzu surer (sahte animasyon
 // degil) ama cocugun ilk deneyimi "kendisi hic dokunmadan kazandim"
 // olmamali. Bu dosya, kodla.spec.ts'in aksine, demo'yu KAPATMAZ — demo'nun
 // kendisi test edilen sey. Fresh bir context her testte fresh localStorage

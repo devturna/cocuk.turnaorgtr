@@ -18,7 +18,7 @@ function bulmacaCozumu(bolum: BolumVerisi, sira = 0) {
 }
 
 // Sozsuz ilk temas demosu ilk durakta kendi kendine bir blok ekleyip
-// calistiriyor (Gorev 9). Bu dosyadaki testler paleti kendileri surdugu
+// calistiriyor. Bu dosyadaki testler paleti kendileri surdugu
 // icin demo devrede kalirsa programa beklenmedik bir blok karisir ve
 // sonuclar kararsizlasir. Demo'nun kendisi kodla-demo.spec.ts icinde ayrica
 // test ediliyor; burada sessizce kapatiyoruz.
@@ -450,10 +450,10 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
 
   // --- Karakter secim ekrani: bu baglam BILEREK kodla:karakter kurmaz, bu
   // yuzden goc haritasina ilk giriste "Kiminle ucalim?" diyalogu acar.
-  // Gorev 5'te eklenen .karakterKarti ve .karakterMadalyonu gecisleri daha
-  // once hicbir e2e testinde reducedMotion baglaminda dogrulanmiyordu (bu
-  // test dogrudan bolum ekranina giderdi, haritaya hic ugramazdi) - burada
-  // haritayi da ziyaret ederek o boslugu kapatiyoruz.
+  // .karakterKarti ve .karakterMadalyonu gecisleri daha once hicbir e2e
+  // testinde reducedMotion baglaminda dogrulanmiyordu (bu test dogrudan
+  // bolum ekranina giderdi, haritaya hic ugramazdi) - burada haritayi da
+  // ziyaret ederek o boslugu kapatiyoruz.
   await sayfa.goto(`/kodla/${KURS}/`);
   const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
   await expect(diyalog).toBeVisible();
@@ -569,7 +569,8 @@ test("yon dugmeleri arti duzeninde: yukari ustte, asagi altta", async ({ page })
 
 // Her bolum gercekten oynanabiliyor mu? Bir bolumun haritasi bozulursa
 // hangisi oldugu dogrudan gorunsun diye her bolum ayri bir testtir. Durakta
-// birden fazla bulmaca varsa (Gorev 5'ten once hicbiri boyle degildi) TUMU
+// birden fazla bulmaca varsa (bir durak boyle bir dizi tasimadan once bu hic
+// olmuyordu) TUMU
 // sirayla cozulur, aralardaki gecis katmani her seferinde beklenir: yalnizca
 // ilk bulmacayi cozmek durak icinde ikinci bulmacaya birakir, "Harika!" hic
 // gorunmez.
@@ -774,11 +775,11 @@ test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabil
   // madalyon ise yalnizca "kusu degistir" gibi ikincil bir eylem.
   await expect(sayfa.getByRole("link", { name: /1\. durak/ })).toBeFocused();
 
-  // Yonlendirilen madde 1: hicbir e2e testi haritadaki duraga TIKLAMIYORDU,
-  // yani secim ekraninin haritanin ustunu kapatmasi yalnizca tesadufen
-  // zararsizdi - acik/kilitli duraklarin gercekten tiklanabilir oldugunu
-  // hicbir test korumuyordu. Secim kapandiktan sonra ilk durak gercekten
-  // tiklanabilmeli ve bolum ekranina goturmeli.
+  // Hicbir e2e testi haritadaki duraga TIKLAMIYORDU, yani secim ekraninin
+  // haritanin ustunu kapatmasi yalnizca tesadufen zararsizdi - acik/kilitli
+  // duraklarin gercekten tiklanabilir oldugunu hicbir test korumuyordu.
+  // Secim kapandiktan sonra ilk durak gercekten tiklanabilmeli ve bolum
+  // ekranina goturmeli.
   await sayfa.getByRole("link", { name: /1\. durak/ }).click();
   await expect(sayfa.getByRole("heading", { name: BOLUMLER[0].ad })).toBeVisible();
 
@@ -793,11 +794,11 @@ test("ilk giriste kus secimi sorulur, secim hatirlanir, secilen durak tiklanabil
   await baglam.close();
 });
 
-// Duzeltme turu 1 (review): §11 madde 1'in "secim yapilmadan harita
-// kullanilamiyor" yarisi daha once HICBIR kalici teste baglanmamisti -
-// yalnizca elle, bir kerelik bir denemeyle dogrulanip test dosyasi
-// silinmisti. Bu invaryant tamamen CSS'e dayanir (kodla.css'teki
-// .karakterSecimi: position:fixed, inset:0, z-index:20, opak arkaplan);
+// (review) "secim yapilmadan harita kullanilamiyor" kurali daha once
+// HICBIR kalici teste baglanmamisti - yalnizca elle, bir kerelik bir
+// denemeyle dogrulanip test dosyasi silinmisti. Bu invaryant tamamen
+// CSS'e dayanir (kodla.css'teki .karakterSecimi: position:fixed, inset:0,
+// z-index:20, opak arkaplan);
 // GocHaritasi.tsx'teki durak <Link>'i DOM'dan hic kaldirmaz, yalnizca
 // gorsel/etkilesimsel olarak ustunu orter. z-index veya position
 // gelecekte degistirilirse hicbir committed test bunu yakalamazdi. Kalici
@@ -831,9 +832,9 @@ test("secim yapilmadan durak tiklanamaz, diyalog acik ve url degismez kalir", as
   await expect(sayfa.getByRole("dialog", { name: "Kiminle uçalım?" })).toBeVisible();
   await expect(sayfa).toHaveURL(new RegExp(`/kodla/${KURS}/$`));
 
-  // Duzeltme turu 2 (review): yukaridaki tiklama denemesi yalnizca
-  // GEOMETRIYI olcer - Playwright "tiklanacak noktada baska bir eleman
-  // var mi" diye bakar, o elemanin gorunur olup olmadigina bakmaz.
+  // (review) yukaridaki tiklama denemesi yalnizca GEOMETRIYI olcer -
+  // Playwright "tiklanacak noktada baska bir eleman var mi" diye bakar, o
+  // elemanin gorunur olup olmadigina bakmaz.
   // Arkaplani seffaflastiran bir gerileme testi YESIL birakirdi, oysa
   // cocuk secim kartlarinin arkasindan haritayi gorurdu. Bu yuzden
   // ortunun gercekten opak oldugunu ayrica dogruluyoruz: rgb(...) ya da
@@ -852,9 +853,9 @@ test("secim yapilmadan durak tiklanamaz, diyalog acik ve url degismez kalir", as
   await baglam.close();
 });
 
-// Duzeltme turu 2 (review): yukaridaki test yalnizca FARE yolunu kapatir.
-// role="dialog" + aria-modal="true" bir sozdur, uygulama degil: odak
-// yonetimi yapilmazsa harita DOM'da durur, durak <Link>'leri sekme
+// (review) yukaridaki test yalnizca FARE yolunu kapatir. role="dialog" +
+// aria-modal="true" bir sozdur, uygulama degil: odak yonetimi yapilmazsa
+// harita DOM'da durur, durak <Link>'leri sekme
 // sirasindan cikmaz ve Tab-Tab-Enter kus secmeden bir bolume girer.
 // Duzeltme iki parcali (bkz. GocHaritasi.tsx ve KarakterKartlari.tsx):
 // haritanin ustune `inert` konur ve acilista ilk karta odaklanilir.
@@ -897,9 +898,9 @@ test("secim yapilmadan durak klavyeyle de acilamaz", async ({ browser }) => {
   // 2. Sekme sirasindan cikmak yetmez: durak baglantisi PROGRAMATIK
   //    olarak da odak alamamali. Bu, sekme sirasindaki oge sayisindan
   //    bagimsiz, dogrudan `inert`i olcen kontrol.
-  //    Duzeltme turu (review, madde 4): asagidaki .focus() denemesi
-  //    yalnizca ilk durak bir <a> OLDUGU icin anlamli - o her zaman
-  //    aciktir (bkz. dosya basi), ama bu garanti gelecekte degisebilir.
+  //    (review) asagidaki .focus() denemesi yalnizca ilk durak bir <a>
+  //    OLDUGU icin anlamli - o her zaman aciktir (bkz. dosya basi), ama bu
+  //    garanti gelecekte degisebilir.
   //    Kilitli bir ilk durak <div> olarak render edilir (bkz.
   //    GocHaritasi.tsx) ve <div>.focus() sessizce hicbir sey yapmaz -
   //    o zaman asagidaki expect, `inert` hic uygulanmasa da YANLISLIKLA
@@ -918,9 +919,9 @@ test("secim yapilmadan durak klavyeyle de acilamaz", async ({ browser }) => {
   expect(durakOdaklandi, "durak baglantisi hala odak alabiliyor").toBe(false);
 
   // 3. Senaryonun kendisi: karti sekmeyle yeniden bulup Enter'a basmak.
-  //    Duzeltme turu (review, madde 3): sabit bir Tab sayisi yerine, odak
-  //    PROGRAMATIK olarak ilk karta geri donene kadar SINIRLI sayida Tab
-  //    basiyoruz ve yol boyunca haritaya hic girmemis olmasini
+  //    (review) sabit bir Tab sayisi yerine, odak PROGRAMATIK olarak ilk
+  //    karta geri donene kadar SINIRLI sayida Tab basiyoruz ve yol boyunca
+  //    haritaya hic girmemis olmasini
   //    dogruluyoruz. Sabit sayi kirilgandi: karakterler.json'a ucuncu bir
   //    kus eklenmesi, alt bilgiye/ust bara yeni bir baglanti eklenmesi,
   //    diyaloga bir kapatma dugmesi eklenmesi ya da bu ekranin
@@ -1011,9 +1012,9 @@ test("Escape ilk giriste kapatmaz, madalyondan acilinca kapatir", async ({ brows
   await baglam.close();
 });
 
-// Duzeltme turu (review, "kapanis rotusu"): Escape'i .karakterSecimi
-// DIV'ine (yani diyalogun kendisine) baglamak, yalnizca odak diyalogun
-// ICINDEYKEN calisir. Ortuye (bosluga) dokunmak odagi <body>'ye tasir -
+// (review) Escape'i .karakterSecimi DIV'ine (yani diyalogun kendisine)
+// baglamak, yalnizca odak diyalogun ICINDEYKEN calisir. Ortuye (bosluga)
+// dokunmak odagi <body>'ye tasir -
 // klavye olayi artik diyalogun altindan gecmez, cunku <body> diyalogun
 // ATASI degil (kardesi/ustu), bubbling ona hic ugramaz. Tablet gercek
 // senaryosunu simule ediyoruz: tiklama diyalogun kendi YUZEYINE (baslik
@@ -1050,9 +1051,10 @@ test("diyalogun yuzeyine tiklamak kapatmaz, odak body'ye dusse de Escape calisir
   await baglam.close();
 });
 
-// Ayni duzeltme turu: tabletin Escape tusu yok, kapatma dugmesi de yok -
-// madalyon yolunda "vazgecmek" ancak ortuye (bosluga) dokunarak mumkun
-// olmali. Ilk giriste ise ortu HICBIR SEY yapmamali (secim zorunlu).
+// Yukaridaki testle ayni gerekceyle: tabletin Escape tusu yok, kapatma
+// dugmesi de yok - madalyon yolunda "vazgecmek" ancak ortuye (bosluga)
+// dokunarak mumkun olmali. Ilk giriste ise ortu HICBIR SEY yapmamali
+// (secim zorunlu).
 test("bos ortuye dokunmak madalyon yolunda kapatir, ilk giriste hicbir sey yapmaz", async ({
   browser,
 }) => {
@@ -1103,7 +1105,7 @@ test("karakter secim ekraninda dokunma hedefleri en az 64 piksel", async ({ brow
     const diyalog = sayfa.getByRole("dialog", { name: "Kiminle uçalım?" });
     await expect(diyalog).toBeVisible();
 
-    // Duzeltme turu 1 (review): kart sayisi yalnizca >0 degil, katalogdaki
+    // (review) kart sayisi yalnizca >0 degil, katalogdaki
     // karakter sayisiyla TAM eslesmeli - katalogdaki listeden turetiliyor
     // (KARAKTERLER.length), 2 olarak sabitlenmiyor; yarin uculu bir kurs
     // eklenirse test kendiliginden yeni beklentiye uyar.
