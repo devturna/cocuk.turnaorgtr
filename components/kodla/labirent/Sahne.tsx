@@ -53,7 +53,9 @@ export default function Sahne({
   tema: Tema;
   karakterKonumu: { x: number; y: number; bakis: Yon };
   poz: KarakterPozu;
-  /** .kodlaKarakter'in React key'i (asagida). Bulmaca degisince (BolumEkrani.tsx)
+  /** .kodlaKarakter'in ve .kodlaBasak'larin React key'ine girer (asagida):
+      gecisi olan her dugum bulmacaya gore anahtarlanir.
+      Bulmaca degisince (BolumEkrani.tsx)
       bu deger de degisir; React o zaman dugumu ATIP YENIDEN KURAR. Yeni
       kurulan bir dugumun "onceki" bir CSS degeri olmadigi icin transform
       gecisi hic devreye girmez — harita degisip kus yeni baslangica
@@ -190,11 +192,20 @@ export default function Sahne({
         <YuvaSimgesi dolu={vardi} />
       </g>
 
+      {/* key'e bulmacaSirasi da giriyor: .kodlaBasak 320ms'lik bir opacity
+          gecisi tasir, ve React ayni key'i gordugunde dugumu YENIDEN
+          KULLANIR. Ust uste iki bulmacada AYNI karede basak varsa, once
+          "toplandi" ile opacity:0'a inmis dugum yeni bulmacaya devredilir ve
+          basak, ortu kalkarken yavasca belirir - oysa o, hic dokunulmamis
+          yeni bir basaktir. Bu daldaki kural, .kodlaKarakter'de oldugu gibi
+          (yukarida): YENI bir dugumun "onceki" degeri yoktur, dolayisiyla
+          gecis hic devreye girmez. Bugunku icerik bu cakismayi uretmiyor;
+          kurali icerige degil, dugume bagliyoruz. */}
       {harita.basaklar.map((basak) => {
         const toplandi = toplananlar.includes(kareAnahtari(basak));
         return (
           <g
-            key={kareAnahtari(basak)}
+            key={`${bulmacaSirasi}:${kareAnahtari(basak)}`}
             className={`kodlaBasak${toplandi ? " toplandi" : ""}`}
             transform={`translate(${basak.x * KARE} ${basak.y * KARE})`}
           >
