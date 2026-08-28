@@ -40,6 +40,7 @@ export default function Sahne({
   tema,
   karakterKonumu,
   poz,
+  gecisSirasinda,
   palet,
   bekliyor,
   toplananlar,
@@ -52,6 +53,11 @@ export default function Sahne({
   tema: Tema;
   karakterKonumu: { x: number; y: number; bakis: Yon };
   poz: KarakterPozu;
+  /** Bulmacalar arasi gecis surerken CSS transform gecisini kapatir (bkz.
+      kodla.css'teki .gecisSirasinda ve BolumEkrani.tsx'teki harita-senkron
+      etkisi): harita degisip kus yeni baslangica sicrarken animasyonlu
+      "kayma" gorulmesin diye. */
+  gecisSirasinda: boolean;
   palet: KarakterPaleti;
   bekliyor: boolean;
   toplananlar: string[];
@@ -210,7 +216,7 @@ export default function Sahne({
           kodlaCarp keyframe'ine hangi yone suruklenecegini soyler: karakterin
           bakis yonu, yani carptigi duvarin yonu. */}
       <g
-        className={`kodlaKarakter poz-${poz}${bekliyor ? " bekliyor" : ""}`}
+        className={`kodlaKarakter poz-${poz}${bekliyor ? " bekliyor" : ""}${gecisSirasinda ? " gecisSirasinda" : ""}`}
         style={
           {
             "--kare-x": karakterKonumu.x,

@@ -126,6 +126,16 @@
   transform-origin: center;
 }
 
+/* Bulmacalar arasi gecis surerken (BolumEkrani.tsx'teki durum.gecis) bu
+   transform gecisi kapatilir: harita degisip kus yeni haritanin baslangic
+   karesine sicrarken (harita-senkron etkisi) 380ms'lik animasyon calismasin
+   — calisirsa gecis katmani kapaninca kus eski kareden yeniye dogru
+   "kayarken" gorulur. Iki class'li secici (0-2-0), yukaridaki .kodlaKarakter
+   kuralinin (0-1-0) her zaman ustune cikar; sira onemli degil. */
+.kodlaKarakter.gecisSirasinda {
+  transition: none;
+}
+
 /* Karaya inisteki ezilme-yaylanma: karakteri suruklenen bir resim olmaktan
    cikarip yuruyen bir kusa ceviren tek detay. */
 .kodlaKarakter.poz-adim {
@@ -699,6 +709,9 @@
   background: var(--kenar);
 }
 
+/* animation suresi (220ms) BolumEkrani.tsx'teki GECIS_SURESI (1100ms) ile
+   kuplu: GECIS_SURESI bunun altina inerse katman belirme ortasinda
+   kaldirilir. */
 .bulmacaGecisi {
   position: absolute;
   inset: 0;
