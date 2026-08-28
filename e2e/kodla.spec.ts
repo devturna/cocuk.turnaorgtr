@@ -273,6 +273,36 @@ test("bulmacalar arasi kutlama ve gecis penceresinde kontroller kilitli kalir", 
   expect(sonuc.ihlaller).toEqual([]);
 });
 
+// Perde artik SADECE bir onay isareti degil, ILERLEMENIN KENDISIDIR: nokta
+// gostergesinin tek yuvasi ust bardaydi ama ust bar PERDENIN ALTINDA kalir -
+// eskiden dolan nokta ancak perde kalkinca gorunurdu, yani "ilerledim"
+// hissini veren tek an cocugun goremedigi andi. Simdi perde kendi nokta
+// satirini tasiyor ve sonraki bulmacanin noktasi PERDE ACIKKEN doluyor.
+test("gecis perdesi kendi nokta gostergesini tasir, sonraki nokta perde acikken doluyor", async ({
+  page,
+}) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+
+  const perde = page.locator(".bulmacaGecisi");
+  await expect(perde).toBeVisible();
+
+  const perdeNoktalari = perde.locator(".bulmacaNoktasi");
+  await expect(perdeNoktalari, "perdenin kendi nokta satiri yok").toHaveCount(
+    bolum.bulmacalar.length,
+  );
+  // Perde henuz kapanmadan (arka planda bulmacaSirasi hala ESKI), ikinci
+  // bulmacanin noktasi ZATEN dolu olmali - kapanmasini beklemeden.
+  await expect(
+    perde.locator(".bulmacaNoktasi.dolu"),
+    "sonraki nokta perde acikken dolmadi",
+  ).toHaveCount(2);
+
+  await expect(perde).toBeHidden();
+});
+
 // Yuvanin dolmasi (.kodlaYuva.dolu + dolu yuva simgesi) sahnedeki EN NET
 // sozsuz basari isaretidir. Bu isaret bir sure yalnizca duragin SON
 // bulmacasinda yanmisti (vardi={durum.bitti !== null}; bitti yalnizca durak
@@ -540,6 +570,9 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   await programiDiz(sayfa, bulmacaCozumu(diziBolum, 0)!.map(komutAnahtari));
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
   animasyonYok(await anlikYakala(".bulmacaGecisi"), ".bulmacaGecisi");
+  // Perdenin kendi nokta gostergesindeki "yeni dolan" nokta da bir
+  // animasyonla belirir; bu da reduced-motion altinda iptal edilmeli.
+  animasyonYok(await anlikYakala(".bulmacaNoktasi.yeniDolan"), ".bulmacaNoktasi.yeniDolan");
 
   // --- Bu testte ULASILAMAYAN reduced-motion bildirimleri ---
   // .komutDugmesi.hayaletli::after, .calistirDugmesi.hayaletli::after:
