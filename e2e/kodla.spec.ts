@@ -189,6 +189,134 @@ test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
   await expect(page.locator(".kodlaYolParcasi")).toHaveCount(1);
 });
 
+/** Verilen siradaki bulmacayi en kisa yolla cozup calistirir. */
+async function bolumuCoz(page: Page, bolum: BolumVerisi, sira: number) {
+  await programiDiz(page, bulmacaCozumu(bolum, sira)!.map(komutAnahtari));
+  await page.getByRole("button", { name: "Çalıştır" }).click();
+}
+
+test("dizi durakta bulmacalar sirayla acilir, yildiz sonunda gelir", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  const noktalar = page.locator(".bulmacaNoktasi");
+  await expect(noktalar).toHaveCount(bolum.bulmacalar.length);
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(1);
+
+  // Ilk bulmacayi coz: kutlama DEGIL gecis gelmeli.
+  await bolumuCoz(page, bolum, 0);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+  await expect(page.locator(".kutlamaKutusu")).toBeHidden();
+
+  // Gecis kendiliginden kapanir ve ikinci bulmaca acilir.
+  await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(2);
+  // Serit temiz baslar: onceki bulmacanin bloklari kalmamali.
+  await expect(page.locator(".programBloku")).toHaveCount(0);
+
+  await bolumuCoz(page, bolum, 1);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+  await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+
+  // Son bulmaca bitince kutlama ve sonraki durak dugmesi gelir.
+  await bolumuCoz(page, bolum, 2);
+  await expect(page.locator(".kutlamaKutusu")).toBeVisible();
+  await expect(page.getByRole("link", { name: /Sonraki durak/ })).toBeVisible();
+});
+
+// Onceki gorevlerde eklenen "sonrakiHazirlaniyor" penceresi (varis kutlamasi,
+// bulmaca bitince gecis katmani acilmadan once ~500ms) daha once HICBIR
+// testte calistirilmadi: tum duraklar tek bulmacaliydi, bu yuzden o pencere
+// hicbir zaman girilmedi. Bu test dogrudan o pencereyi ve onu izleyen gecis
+// katmanini hedefler: onceki gorevin incelemesinde tam bu boslukta elle
+// yakalanan bir hata vardi (kontroller acik kalip haritanin degistigi anda
+// eski programi yeni bulmacaya calistirip altin yildiz veriyordu).
+test("bulmacalar arasi kutlama ve gecis penceresinde kontroller kilitli kalir", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+
+  // Kutlama pozu ve ardindan gecis katmani, kosu bitince toplam ~1.6sn'lik
+  // (VARIS_BEKLEME_SURESI + GECIS_SURESI) kisa bir pencerede gelip gecer.
+  // Bu pencereyi Playwright'in kendi tur-basi (round-trip) gecikmeli ayri
+  // expect() cagrilariyla yakalamaya calismak, paralel calisan diger
+  // testlerin CPU'yu paylastigi bir tam paket kosusunda kacirilabilir
+  // (gozlemlendi). Bunun yerine TARAYICI ICINDE, kisa araliklarla orneklenen
+  // bir dongu ile dogruluyoruz: pencere ne zaman baslarsa baslasin, HER
+  // orneklemede "Calistir" dugmesi kilitli ve nabizsiz olmali.
+  const sonuc = await page.evaluate(async () => {
+    const ihlaller: string[] = [];
+    let kutlamaGoruldu = false;
+    let gecisGoruldu = false;
+    const bitis = Date.now() + 6000;
+    while (Date.now() < bitis) {
+      const kutlama = document.querySelector(".kodlaKarakter.poz-kutlama");
+      const gecis = document.querySelector(".bulmacaGecisi");
+      if (kutlama) kutlamaGoruldu = true;
+      if (gecis) gecisGoruldu = true;
+      if (kutlama || gecis) {
+        const dugme = document.querySelector(".calistirDugmesi") as HTMLButtonElement | null;
+        if (!dugme?.disabled) ihlaller.push("dugme kilitli degildi");
+        if (dugme?.classList.contains("nabiz")) ihlaller.push("dugme nabiz tasiyordu");
+      }
+      // Ikinci bulmaca acildiktan (gecis kapandiktan) sonra daha fazla
+      // orneklemeye gerek yok.
+      if (gecisGoruldu && !gecis) break;
+      await new Promise((cozul) => setTimeout(cozul, 20));
+    }
+    return { ihlaller, kutlamaGoruldu, gecisGoruldu };
+  });
+
+  expect(sonuc.kutlamaGoruldu, "kutlama pozu hic gozlemlenemedi").toBe(true);
+  expect(sonuc.gecisGoruldu, "gecis katmani hic gozlemlenemedi").toBe(true);
+  expect(sonuc.ihlaller).toEqual([]);
+});
+
+test("nokta gostergesi durak icindeki konumu izler, tek bulmacali durakta yoktur", async ({
+  page,
+}) => {
+  const bolum = BOLUMLER.find((b) => b.id === "kapadokya")!;
+  expect(bolum.bulmacalar.length, "bu test coklu ilerlemeyi gormek icin en az 3 bulmaca ister").toBeGreaterThanOrEqual(3);
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await expect(page.locator(".bulmacaNoktasi")).toHaveCount(bolum.bulmacalar.length);
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(1);
+
+  for (let sira = 0; sira < bolum.bulmacalar.length - 1; sira++) {
+    await bolumuCoz(page, bolum, sira);
+    await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+    await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+    await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(sira + 2);
+  }
+
+  // Son bulmacaya varildiginda tum noktalar dolu olmali.
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(bolum.bulmacalar.length);
+
+  // Tek bulmacali bir durakta gosterge hic gorunmemeli.
+  const tekBulmacaliBolum = BOLUMLER.find((b) => b.bulmacalar.length === 1)!;
+  await page.goto(`/kodla/${KURS}/${tekBulmacaliBolum.id}/`);
+  await expect(page.locator(".bulmacaNoktasi")).toHaveCount(0);
+});
+
+test("durak ici ilerleme sayfa yenilenince korunur", async ({ page }) => {
+  const bolum = BOLUMLER.find((b) => b.id === "sultansazligi")!;
+  await page.goto(`/kodla/${KURS}/${bolum.id}/`);
+
+  await bolumuCoz(page, bolum, 0);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+  await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(2);
+
+  await page.reload();
+
+  // Yeniden yuklemeden sonra cocuk ikinci bulmacada olmali, birinciye
+  // donmemeli.
+  await expect(page.locator(".bulmacaNoktasi.dolu")).toHaveCount(2);
+  await bolumuCoz(page, bolum, 1);
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+});
+
 // Onceki surum yalnizca .kodlaTurna'yi orneklerdi (bu sinif daha sonra
 // .kodlaKarakter olarak adlandirildi): kodla.css'teki
 // prefers-reduced-motion blogunda BUNUN disinda on bes ayri sinif/durum
@@ -353,15 +481,26 @@ test("yon dugmeleri arti duzeninde: yukari ustte, asagi altta", async ({ page })
 });
 
 // Her bolum gercekten oynanabiliyor mu? Bir bolumun haritasi bozulursa
-// hangisi oldugu dogrudan gorunsun diye her bolum ayri bir testtir.
+// hangisi oldugu dogrudan gorunsun diye her bolum ayri bir testtir. Durakta
+// birden fazla bulmaca varsa (Gorev 5'ten once hicbiri boyle degildi) TUMU
+// sirayla cozulur, aralardaki gecis katmani her seferinde beklenir: yalnizca
+// ilk bulmacayi cozmek durak icinde ikinci bulmacaya birakir, "Harika!" hic
+// gorunmez.
 for (const bolum of BOLUMLER) {
   test(`${bolum.ad} bolumu cozumle bitirilebilir`, async ({ page }) => {
-    const yol = bulmacaCozumu(bolum);
-    expect(yol, `${bolum.id} icin cozum bulunamadi`).not.toBeNull();
-
     await page.goto(`/kodla/${KURS}/${bolum.id}/`);
-    await programiDiz(page, yol!.map(komutAnahtari));
-    await page.getByRole("button", { name: "Çalıştır" }).click();
+
+    for (let sira = 0; sira < bolum.bulmacalar.length; sira++) {
+      const yol = bulmacaCozumu(bolum, sira);
+      expect(yol, `${bolum.id} - ${sira}. bulmaca icin cozum bulunamadi`).not.toBeNull();
+      await programiDiz(page, yol!.map(komutAnahtari));
+      await page.getByRole("button", { name: "Çalıştır" }).click();
+
+      if (sira < bolum.bulmacalar.length - 1) {
+        await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
+        await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+      }
+    }
 
     await expect(page.getByText("Harika! En kısa yol!"), `${bolum.id} tamamlanamadi`).toBeVisible({
       timeout: 20000,

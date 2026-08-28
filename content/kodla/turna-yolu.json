@@ -32,6 +32,22 @@
           "bakis": "sag",
           "satirlar": [".....", ".T..H", "....."]
         }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["....H", ".T...", "....."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [".....", ".T...", "....H"]
+        }
       }
     ]
   },
@@ -49,6 +65,30 @@
         "harita": {
           "bakis": "sag",
           "satirlar": ["....H", ".....", ".T#.."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [".T...", ".#...", "...H."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [".....", ".T#H.", "....."]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": ["...#H", ".T...", "..#.."]
         }
       }
     ]
