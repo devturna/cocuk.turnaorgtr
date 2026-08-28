@@ -311,14 +311,16 @@ yakalar.
 
 ## 11. Fazlar
 
-Yol haritasındaki 4b-4d bu belgeyle değişir.
+**Faz tablosu bu belgede değil, [kodlama-kapsam.md](kodlama-kapsam.md) §10'da
+tutulur.** Burada duran tablo (4c döngü, 4d ses katmanı, 4e çizim) kapsam
+belgesiyle birlikte emekliye ayrıldı: ses bir kavram değil bir kolaylıktır ve
+kavramların arkasına alındı (kapsam §2), 4c ise karakter seçimi olarak
+yayınlandı. Bu belgenin geri kalanı — arayüz, hareket ve döngü arayüzü
+kararları — geçerliliğini korur.
 
-| Faz | Kapsam |
-|---|---|
-| 4b | Arayüz ve hareket katmanı: yol önizlemesi, D-pad, animasyon, dokunma geri bildirimi, sessiz demo, tek adımlık ilk durak. Durum: tamamlandı (altı durak yayında). |
-| 4c | Döngü: üç aşamalı öğretim, kucak arayüzü, döngü durakları. Rota bu ve sonraki fazlarda genişler; [kodlama.md](kodlama.md) §8'deki on beş duraklık tablo bu genişlemenin **hedefidir**, bugünün durumu değil. |
-| 4d | Ses katmanı |
-| 4e | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) |
+Aynı çakışma [kodlama.md](kodlama.md) §11'de de vardı; o tablo da kaldırıldı.
+Üç belgede üç farklı faz listesi yerine tek yetkili tablo kapsam
+belgesindedir; günün durumu için [yol haritası](../yol-haritasi.md).
 
 Sanat entegrasyonu ayrı bir faz değildir; varlıklar geldikçe sürekli yapılır.
 
