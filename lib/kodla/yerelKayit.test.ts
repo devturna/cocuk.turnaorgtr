@@ -254,6 +254,11 @@ describe("durak ici ilerleme", () => {
     bulmacaCozuldu("turna-yolu", "efes", true);
     durakIlerlemesiniSil("turna-yolu", "kapadokya");
     expect(durakIlerlemesi("turna-yolu", "kapadokya").cozulen).toBe(0);
+    // Sayacin sifirlanmasi yetmez: altin sansi da yeniden acilmali. Bu
+    // duragin en degerli invaryanti bu - "bastan baslayan durak" sozu,
+    // hepsiIdeal false takili kalirsa yalnizca yarim tutulur ve cocuk
+    // kusursuz oynadigi ikinci turda altin yildizi asla goremez.
+    expect(durakIlerlemesi("turna-yolu", "kapadokya").hepsiIdeal).toBe(true);
     expect(durakIlerlemesi("turna-yolu", "efes").cozulen).toBe(1);
   });
 
@@ -289,5 +294,51 @@ describe("bulmaca basina deneme sayaci", () => {
       denemeArtir("turna-yolu", "kapadokya", i);
     }
     expect(durakTakildiMi("turna-yolu", "kapadokya")).toBe(false);
+  });
+
+  // Bu surumden onceki kayitlarda deger durak basina TEK bir sayiydi
+  // (bulmaca ayrimi yoktu). O kaydi atmak, bes denemeyle acilmis bir duragi
+  // guncellemeden sonra YENIDEN KILITLER: sayac sifirlanir ve takilan cocuk
+  // -kuralin korumak icin var oldugu cocuk- yeniden mahsur kalir.
+  it("eski surumun duz sayi kaydi ilk bulmacanin sayacina tasinir", () => {
+    localStorage.setItem(
+      "kodla:denemeler",
+      JSON.stringify({ "turna-yolu": { sultansazligi: EN_FAZLA_DENEME } }),
+    );
+    expect(denemeSayisi("turna-yolu", "sultansazligi", 0)).toBe(EN_FAZLA_DENEME);
+    expect(durakTakildiMi("turna-yolu", "sultansazligi")).toBe(true);
+    expect(bolumAcikMi("turna-yolu", "kapadokya", SIRALI)).toBe(true);
+  });
+
+  it("tasinan sayac uzerine yazmaya devam edilebilir", () => {
+    localStorage.setItem(
+      "kodla:denemeler",
+      JSON.stringify({ "turna-yolu": { sultansazligi: 2 } }),
+    );
+    expect(denemeArtir("turna-yolu", "sultansazligi", 0)).toBe(3);
+    expect(denemeSayisi("turna-yolu", "sultansazligi", 0)).toBe(3);
+  });
+
+  // Bir durak artik dort bulmaca uzunlugunda olabiliyor; bulmaca basina
+  // okuma tek basina birakilirsa her bulmacada dorder kez basarisiz olan
+  // cocuk (toplam on alti deneme) hicbir zaman kacis kapisina ulasamaz.
+  it("bulmacalara dagilmis toplam deneme de duragi acar", () => {
+    for (let bulmaca = 0; bulmaca < 4; bulmaca++) {
+      for (let i = 0; i < EN_FAZLA_DENEME - 1; i++) {
+        denemeArtir("turna-yolu", "sultansazligi", bulmaca);
+      }
+    }
+    expect(durakTakildiMi("turna-yolu", "sultansazligi")).toBe(true);
+    expect(bolumAcikMi("turna-yolu", "kapadokya", SIRALI)).toBe(true);
+  });
+
+  it("toplam esigin altinda kalan denemeler duragi acmaz", () => {
+    for (let bulmaca = 0; bulmaca < 3; bulmaca++) {
+      for (let i = 0; i < 3; i++) {
+        denemeArtir("turna-yolu", "sultansazligi", bulmaca);
+      }
+    }
+    expect(denemeSayisi("turna-yolu", "sultansazligi", 0)).toBe(3);
+    expect(durakTakildiMi("turna-yolu", "sultansazligi")).toBe(false);
   });
 });

@@ -13,8 +13,26 @@ const BULMACA_ANAHTARI = "kodla:bulmaca";
 
 export type YildizTuru = "yildiz" | "altin";
 
-/** Bir bolumde bu kadar denendikten sonra sonraki durak sessizce acilir. */
+/** Bir bulmacada bu kadar denendikten sonra sonraki durak sessizce acilir. */
 export const EN_FAZLA_DENEME = 5;
+
+/**
+ * Bir DURAKTA (bulmacalara dagilmis olarak) bu kadar denendikten sonra da
+ * sonraki durak sessizce acilir.
+ *
+ * Neden ikinci bir esik: EN_FAZLA_DENEME bulmaca BASINA okunur ve bu, gercek
+ * anlamda tek bir bulmacada takilan cocuk icin dogru olcumdur. Ama bir durak
+ * artik dort bulmaca uzunlugunda olabiliyor; yalnizca bulmaca basina okumak,
+ * her bulmacada dorder kez basarisiz olan cocugu (toplam on alti deneme)
+ * hicbir zaman kacis kapisina ulastirmaz. Oysa kural "kimse bir durakta
+ * mahsur kalmamali" der, "kimse bir bulmacada mahsur kalmamali" demez.
+ *
+ * Neden 10 (= 2 x EN_FAZLA_DENEME): bugunku en uzun durak dort bulmacalik.
+ * Kesfeden, arada bir carpan bir cocuk bulmaca basina iki denemeyi bulur
+ * (dort bulmacada sekiz) - bu esik onun altinda kalmaz, yani "oynadigi icin"
+ * durak acilmaz. Onunu bulmasi ise artik oynamak degil, tikanmaktir.
+ */
+export const EN_FAZLA_TOPLAM_DENEME = 2 * EN_FAZLA_DENEME;
 
 // Deger tipi bilerek `unknown`: bu dosyada dort ayri anahtar okunuyor ve
 // sekilleri ayni degil (ilerleme ve denemeler ic ice nesne tutar, karakter
@@ -124,8 +142,13 @@ function tumDenemeler(): Record<string, Record<string, unknown>> {
 
 function durakDenemeleri(kursId: string, bolumId: string): Record<string, unknown> {
   const ham = tumDenemeler()[kursId]?.[bolumId];
-  // Eski surumde bu deger duz bir sayiydi. O kayit artik okunamaz; sayac
-  // sifirlanir. Sayac bir kacis kapisidir, kazanim degil: kaybi zararsiz.
+  // Bir durak tek bulmaca tutarken bu deger duz bir sayiydi. O kayit ATILMAZ,
+  // tasinir: eski cihazda deger yalnizca o duragin (tek) bulmacasini
+  // sayiyordu, yani bugunku 0. bulmacanin sayacidir. Atmak zararsiz degil -
+  // bes denemeyle sessizce acilmis bir durak, guncellemeden sonra yeniden
+  // KILITLENIR ve takilan cocuk, yani kuralin korumak icin var oldugu cocuk,
+  // sayaci sifirlanmis halde bastan mahsur kalir.
+  if (typeof ham === "number") return { "0": ham };
   if (!ham || typeof ham !== "object") return {};
   return ham as Record<string, unknown>;
 }
@@ -147,17 +170,24 @@ export function denemeArtir(kursId: string, bolumId: string, bulmacaSirasi: numb
   return yeni;
 }
 
-/** Cocuk bu duragin HERHANGI bir bulmacasinda takildi mi. */
+/**
+ * Cocuk bu durakta takildi mi: ya TEK bir bulmacada EN_FAZLA_DENEME kadar,
+ * ya da durak genelinde EN_FAZLA_TOPLAM_DENEME kadar denedi mi. Iki okuma
+ * birlikte gerekli; gerekcesi iki sabitin yanindaki yorumlarda.
+ */
 export function durakTakildiMi(kursId: string, bolumId: string): boolean {
-  return Object.values(durakDenemeleri(kursId, bolumId)).some(
-    (deger) => typeof deger === "number" && deger >= EN_FAZLA_DENEME,
+  const sayilar = Object.values(durakDenemeleri(kursId, bolumId)).filter(
+    (deger) => typeof deger === "number",
   );
+  if (sayilar.some((deger) => deger >= EN_FAZLA_DENEME)) return true;
+  return sayilar.reduce((toplam, deger) => toplam + deger, 0) >= EN_FAZLA_TOPLAM_DENEME;
 }
 
 /**
- * Siradaki durak aciktir, sonrasi kilitlidir. Bir durakta EN_FAZLA_DENEME
- * kadar denedigi halde gecemeyen cocuga sonraki durak sessizce acilir:
- * kimse bir durakta mahsur kalmamali.
+ * Siradaki durak aciktir, sonrasi kilitlidir. Bir duragi (bkz.
+ * durakTakildiMi: bir bulmacada EN_FAZLA_DENEME, ya da durak genelinde
+ * EN_FAZLA_TOPLAM_DENEME deneme) gecemeyen cocuga sonraki durak sessizce
+ * acilir: kimse bir durakta mahsur kalmamali.
  */
 export function bolumAcikMi(kursId: string, bolumId: string, sirali: string[]): boolean {
   const sira = sirali.indexOf(bolumId);
