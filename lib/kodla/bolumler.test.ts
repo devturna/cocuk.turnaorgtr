@@ -47,15 +47,22 @@ describe("bolumler", () => {
     expect(bolumBul("yok-boyle", "efes")).toBeUndefined();
   });
 
-  it("her bolumun haritasi cozumlenebilir", () => {
+  it("her bolumun her bulmacasinin haritasi cozumlenebilir", () => {
     for (const bolum of bolumler) {
-      expect(() => bulmacaHaritasi(bulmacaBul(bolum, 0)!), bolum.id).not.toThrow();
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        expect(() => bulmacaHaritasi(bulmaca), `${bolum.id} bulmaca ${sira}`).not.toThrow();
+      }
     }
   });
 
-  it("her bolumun idealAdim degeri en az birdir", () => {
+  // Testin adi "her bolumun" diyor: dizinin YALNIZCA ilk bulmacasina bakmak
+  // bu sozu tutmuyordu (on bulmacanin altisi) ve bu daldaki her yeni bulmaca
+  // denetimsiz giriyordu.
+  it("her bolumun her bulmacasinin idealAdim degeri en az birdir", () => {
     for (const bolum of bolumler) {
-      expect(bulmacaBul(bolum, 0)!.idealAdim, bolum.id).toBeGreaterThanOrEqual(1);
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        expect(bulmaca.idealAdim, `${bolum.id} bulmaca ${sira}`).toBeGreaterThanOrEqual(1);
+      }
     }
   });
 
@@ -68,9 +75,11 @@ describe("bolumler", () => {
     }
   });
 
-  it("faz 4a bolumleri mutlak yon setini kullanir", () => {
+  it("bugunku butun bulmacalar mutlak yon setini kullanir", () => {
     for (const bolum of bolumler) {
-      expect(bulmacaBul(bolum, 0)!.komutSeti, bolum.id).toBe("yonler");
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        expect(bulmaca.komutSeti, `${bolum.id} bulmaca ${sira}`).toBe("yonler");
+      }
     }
   });
 });

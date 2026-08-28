@@ -43,10 +43,10 @@
       },
       {
         "komutSeti": "yonler",
-        "idealAdim": 4,
+        "idealAdim": 5,
         "harita": {
           "bakis": "sag",
-          "satirlar": [".....", ".T...", "....H"]
+          "satirlar": ["....H", ".....", ".T..."]
         }
       }
     ]
