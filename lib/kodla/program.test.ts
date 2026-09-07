@@ -2,10 +2,13 @@ import { describe, it, expect } from "vitest";
 import {
   EN_FAZLA_BLOK,
   blokEkle,
+  blokSayisi,
   blokSil,
   blokTasi,
+  komutBloku,
   programiTemizle,
   sonBlokuSil,
+  type Blok,
 } from "./program";
 import type { Komut } from "./labirent/komutlar";
 
@@ -72,5 +75,33 @@ describe("blokTasi", () => {
 describe("programiTemizle", () => {
   it("bos program dondurur", () => {
     expect(programiTemizle()).toEqual([]);
+  });
+});
+
+describe("blokSayisi", () => {
+  it("duz programda blok sayisi uzunluktur", () => {
+    expect(blokSayisi([komutBloku(yukari), komutBloku(sag)])).toBe(2);
+  });
+
+  it("tekrar kutusu kendisi bir, govdesi ayrica sayilir", () => {
+    const program: Blok[] = [
+      { tur: "tekrar", kez: 3, govde: [komutBloku(sag), komutBloku(yukari)] },
+    ];
+    expect(blokSayisi(program)).toBe(3);
+  });
+
+  it("bos kutu bir blok sayilir", () => {
+    expect(blokSayisi([{ tur: "tekrar", kez: 2, govde: [] }])).toBe(1);
+  });
+
+  it("kez sayisi blok sayisini degistirmez", () => {
+    const govde = [komutBloku(sag)];
+    expect(blokSayisi([{ tur: "tekrar", kez: 5, govde }])).toBe(
+      blokSayisi([{ tur: "tekrar", kez: 2, govde }]),
+    );
+  });
+
+  it("bos program sifirdir", () => {
+    expect(blokSayisi([])).toBe(0);
   });
 });
