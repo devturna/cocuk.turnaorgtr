@@ -1,6 +1,8 @@
 import { describe, it, expect } from "vitest";
 import {
   EN_FAZLA_BLOK,
+  EN_AZ_KEZ,
+  EN_FAZLA_KEZ,
   blokEkle,
   blokSayisi,
   blokSil,
@@ -8,6 +10,8 @@ import {
   komutBloku,
   programiTemizle,
   sonBlokuSil,
+  tekrarEkle,
+  kezDegistir,
   type Blok,
 } from "./program";
 import type { Komut } from "./labirent/komutlar";
@@ -171,5 +175,57 @@ describe("blokSayisi", () => {
 
   it("bos program sifirdir", () => {
     expect(blokSayisi([])).toBe(0);
+  });
+});
+
+describe("tekrarEkle", () => {
+  it("bos kutuyu sona ekler", () => {
+    expect(tekrarEkle([komutBloku(sag)])).toEqual([
+      komutBloku(sag),
+      { tur: "tekrar", kez: EN_AZ_KEZ, govde: [] },
+    ]);
+  });
+
+  it("kutu ikiden baslar", () => {
+    expect(tekrarEkle([])).toEqual([{ tur: "tekrar", kez: 2, govde: [] }]);
+  });
+
+  it("serit doluysa eklemez", () => {
+    const dolu = Array.from({ length: EN_FAZLA_BLOK }, () => komutBloku(yukari));
+    expect(tekrarEkle(dolu)).toHaveLength(EN_FAZLA_BLOK);
+  });
+});
+
+describe("kezDegistir", () => {
+  it("her dokunusta bir artar", () => {
+    expect(kezDegistir([kutu(2, sag)], 0)).toEqual([kutu(3, sag)]);
+  });
+
+  it("en fazladan sonra basa doner", () => {
+    expect(kezDegistir([kutu(EN_FAZLA_KEZ, sag)], 0)).toEqual([kutu(EN_AZ_KEZ, sag)]);
+  });
+
+  it("komut blogunda hicbir sey yapmaz", () => {
+    expect(kezDegistir([komutBloku(sag)], 0)).toEqual([komutBloku(sag)]);
+  });
+
+  it("gecersiz sira programi degistirmez", () => {
+    expect(kezDegistir([kutu(2, sag)], 9)).toEqual([kutu(2, sag)]);
+  });
+});
+
+describe("blokEkle, acik kutuya", () => {
+  it("hedef kutu verilince blok kutunun icine duser", () => {
+    expect(blokEkle([kutu(3, sag)], yukari, EN_FAZLA_BLOK, 0)).toEqual([kutu(3, sag, yukari)]);
+  });
+
+  it("hedef komut bloguysa hicbir sey olmaz", () => {
+    const program = [komutBloku(sag)];
+    expect(blokEkle(program, yukari, EN_FAZLA_BLOK, 0)).toEqual(program);
+  });
+
+  it("serit doluysa kutuya da eklemez", () => {
+    // Kutu (1) + govde (1) = 2 blok; sinir 2.
+    expect(blokEkle([kutu(3, sag)], yukari, 2, 0)).toEqual([kutu(3, sag)]);
   });
 });

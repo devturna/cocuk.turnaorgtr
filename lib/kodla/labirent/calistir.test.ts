@@ -177,4 +177,21 @@ describe("tekrar kutusu", () => {
     expect(sonuc.basarili).toBe(true);
     expect(sonuc.adimlar.at(-1)?.blokYolu).toEqual({ ust: 1, ic: null });
   });
+
+  it("kutu icinde carpan komut turu bitirmez, kutudan sonraki blok yine calisir", () => {
+    // .T#.H : saginda engel var, tekrar boyunca hep carpar.
+    const ENGELLI = haritayiCoz([".T#.H"], "sag");
+    const sonuc = calistir(
+      [{ tur: "tekrar", kez: 3, govde: [komutBloku(git("sag"))] }, komutBloku(git("sol"))],
+      ENGELLI,
+    );
+    expect(sonuc.adimlar.map((adim) => adim.olay)).toEqual([
+      "carpti",
+      "carpti",
+      "carpti",
+      "yurudu",
+    ]);
+    expect(sonuc.adimlar.at(-1)?.blokYolu).toEqual({ ust: 1, ic: null });
+    expect(sonuc.basarili).toBe(false);
+  });
 });

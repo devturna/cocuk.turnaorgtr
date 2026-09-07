@@ -37,9 +37,24 @@ export function blokSayisi(program: Blok[]): number {
   );
 }
 
-export function blokEkle(program: Blok[], komut: Komut, enFazla = EN_FAZLA_BLOK): Blok[] {
+export function blokEkle(
+  program: Blok[],
+  komut: Komut,
+  enFazla = EN_FAZLA_BLOK,
+  hedefKutu: number | null = null,
+): Blok[] {
   if (blokSayisi(program) >= enFazla) return program;
-  return [...program, komutBloku(komut)];
+  if (hedefKutu === null) return [...program, komutBloku(komut)];
+
+  // Kutu acikken eklenen blok kutunun ICINE duser: "icine koymak" diye ayri
+  // bir jest yok, cunku bu yasta surukleyip birakma calismiyor. Gerekcesi
+  // docs/tasarim/kodlama-arayuz.md §5 icinde.
+  if (hedefKutu < 0 || hedefKutu >= program.length) return program;
+  const kutu = program[hedefKutu];
+  if (kutu.tur !== "tekrar") return program;
+
+  const govde = [...kutu.govde, komutBloku(komut)];
+  return program.map((oge, i) => (i === hedefKutu ? { ...kutu, govde } : oge));
 }
 
 export function blokSil(program: Blok[], yol: BlokYolu): Blok[] {
@@ -109,4 +124,19 @@ export function blokTasi(program: Blok[], kaynak: BlokYolu, hedef: BlokYolu): Bl
 
 export function programiTemizle(): Blok[] {
   return [];
+}
+
+export function tekrarEkle(program: Blok[], enFazla = EN_FAZLA_BLOK): Blok[] {
+  if (blokSayisi(program) >= enFazla) return program;
+  return [...program, { tur: "tekrar", kez: EN_AZ_KEZ, govde: [] }];
+}
+
+/** Noktalara her dokunusta sayi bir artar, en fazladan sonra basa doner. */
+export function kezDegistir(program: Blok[], ust: number): Blok[] {
+  if (ust < 0 || ust >= program.length) return program;
+  const blok = program[ust];
+  if (blok.tur !== "tekrar") return program;
+
+  const kez = blok.kez >= EN_FAZLA_KEZ ? EN_AZ_KEZ : blok.kez + 1;
+  return program.map((oge, i) => (i === ust ? { ...blok, kez } : oge));
 }
