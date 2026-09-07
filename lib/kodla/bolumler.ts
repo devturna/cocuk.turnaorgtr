@@ -13,7 +13,9 @@ export type BulmacaVerisi = {
   // Kucak acik mi. Acikken idealAdim "en kisa cozumun BLOK sayisi" demektir
   // ve denetim dongulu cozumu arar; kapaliyken duz adim sayisidir.
   dongu?: boolean;
-  // Seridin aldigi blok sayisi. Yoksa EN_FAZLA_BLOK gecerlidir.
+  // Seridin aldigi blok sayisi. Yoksa EN_FAZLA_BLOK gecerlidir. Atil bir
+  // belge alani DEGIL: BolumEkrani.tsx blokEklendi bu degeri gercekten
+  // blokEkle'ye gecirir, serit siniri buradan okunur.
   enFazlaBlok?: number;
 };
 

@@ -104,6 +104,8 @@ function blokYerlestir(program: Blok[], yol: BlokYolu, blok: Blok): Blok[] | nul
   if (yol.ust < 0 || yol.ust >= program.length) return null;
   const kutu = program[yol.ust];
   if (kutu.tur !== "tekrar") return null;
+  // Ic ice dongu yok kuralinin ikinci kilidi: govdeye yerlestirilen blok da
+  // komut olmali, kutu olamaz.
   if (blok.tur !== "komut") return null;
   if (yol.ic < 0 || yol.ic > kutu.govde.length) return null;
 
@@ -111,6 +113,19 @@ function blokYerlestir(program: Blok[], yol: BlokYolu, blok: Blok): Blok[] | nul
   return program.map((oge, i) => (i === yol.ust ? { ...kutu, govde } : oge));
 }
 
+/**
+ * Blogu kaynak yolundan hedef yoluna tasir.
+ *
+ * Adres sozlesmesi: `hedef`, kaynak SILINDIKTEN SONRAKI programa gore
+ * okunur. Ileri yonde (kaynak hedeften once) tasirken bu, kaynagin
+ * bosalttigi bosluk kadar bir KAYMA demektir — cagiran taraf hedefi bu
+ * kaymayi hesaba katarak vermelidir, aksi halde hedef bir konum kayar.
+ * Bu davranis BILEREK degistirilmiyor: bugun yayindaki surukleme jesti tam
+ * boyle calisiyor ve mevcut testler onu pinliyor.
+ *
+ * Kutu baska bir kutunun icine giremez: tasinan blok "tekrar" turundeyse ve
+ * hedef bir govde ici (`ic !== null`) ise tasima yapilmaz.
+ */
 export function blokTasi(program: Blok[], kaynak: BlokYolu, hedef: BlokYolu): Blok[] {
   const tasinan = bloktaBul(program, kaynak);
   if (tasinan === null) return program;
@@ -131,7 +146,12 @@ export function tekrarEkle(program: Blok[], enFazla = EN_FAZLA_BLOK): Blok[] {
   return [...program, { tur: "tekrar", kez: EN_AZ_KEZ, govde: [] }];
 }
 
-/** Noktalara her dokunusta sayi bir artar, en fazladan sonra basa doner. */
+/**
+ * Noktalara her dokunusta sayi bir artar, en fazladan sonra basa doner.
+ *
+ * Kutu her zaman UST DUZEYDEDIR (govde icinde tekrar olamaz), bu yuzden
+ * adres olarak BlokYolu degil ciplak bir sira (ust) alir.
+ */
 export function kezDegistir(program: Blok[], ust: number): Blok[] {
   if (ust < 0 || ust >= program.length) return program;
   const blok = program[ust];

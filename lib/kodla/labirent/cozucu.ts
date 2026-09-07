@@ -130,7 +130,13 @@ export function enKisaBlokCozumu(
   return null;
 }
 
-/** Tam olarak `butce` blok tutan butun programlar. */
+/**
+ * Tam olarak `butce` blok tutan butun programlar.
+ *
+ * Cikti SALT OKUNURDUR: govde dizileri (govdeler() ile uretilir) uretilen
+ * programlar arasinda PAYLASILIR, her programa ozel bir kopya degildir.
+ * Cagiran taraf donen bir Blok[]'u yerinde degistirmemeli.
+ */
 function* programlar(butce: number, komutlar: Komut[]): Generator<Blok[]> {
   if (butce === 0) {
     yield [];

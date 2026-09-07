@@ -142,6 +142,20 @@ describe("blokTasi", () => {
     expect(blokTasi(program, { ust: 0, ic: null }, { ust: 9, ic: null })).toEqual(program);
     expect(blokTasi(program, { ust: 9, ic: null }, { ust: 0, ic: null })).toEqual(program);
   });
+
+  it("ileri yonde kutunun icine tasirken hedef silme SONRASI adrestir", () => {
+    // [komut, kutu] icinde komutu kutuya tasimak: silme sonrasi kutu 0'a kayar.
+    const program = [komutBloku(yukari), kutu(2, sag)];
+    expect(blokTasi(program, { ust: 0, ic: null }, { ust: 0, ic: 1 })).toEqual([
+      kutu(2, sag, yukari),
+    ]);
+  });
+
+  it("silme oncesi adresle cagrilirsa program degismez", () => {
+    // Ayni tasima, silme ONCESI adresle: kutu artik 1'de degil, hedef gecersiz.
+    const program = [komutBloku(yukari), kutu(2, sag)];
+    expect(blokTasi(program, { ust: 0, ic: null }, { ust: 1, ic: 1 })).toEqual(program);
+  });
 });
 
 describe("programiTemizle", () => {
@@ -227,5 +241,11 @@ describe("blokEkle, acik kutuya", () => {
   it("serit doluysa kutuya da eklemez", () => {
     // Kutu (1) + govde (1) = 2 blok; sinir 2.
     expect(blokEkle([kutu(3, sag)], yukari, 2, 0)).toEqual([kutu(3, sag)]);
+  });
+
+  it("aralik disi hedef kutu programi degistirmez", () => {
+    const program = [kutu(3, sag)];
+    expect(blokEkle(program, yukari, EN_FAZLA_BLOK, 9)).toEqual(program);
+    expect(blokEkle(program, yukari, EN_FAZLA_BLOK, -1)).toEqual(program);
   });
 });

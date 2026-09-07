@@ -24,6 +24,7 @@ import {
   komutBloku,
   programiTemizle,
   sonBlokuSil,
+  EN_FAZLA_BLOK,
   type Blok,
   type BlokYolu,
 } from "@/lib/kodla/program";
@@ -154,6 +155,11 @@ type Durum = {
   // giris animasyonu oynatirdi.
   sonEklenen: BlokYolu | null;
   oynatma: { adimlar: Adim[]; sira: number } | null;
+  // vurgulanan ve oynayanAdim durum.oynatma'dan TURETILEMEZ (oynatma'nin
+  // varligina gore hesaplanamaz): kazanma durumunda oynatma null'lanir ama
+  // vurgu BILEREK son blokta birakilir (bkz. asagidaki oynatma etkisindeki
+  // "Basarisiz bitince..." satiri) — cocuk kutlama katmani acilirken hangi
+  // blogun kosuyu bitirdigini gorsun diye.
   vurgulanan: BlokYolu | null;
   // Yol dolulugu icin oynayan adimin sirasi; vurgulanan blokla ayni omru
   // yasar ama ayri olcudur (bkz. Sahne.tsx "oynayanAdim" yorumu).
@@ -433,11 +439,16 @@ export default function BolumEkrani({
 
   function blokEklendi(komut: Komut) {
     setDurum((onceki) => {
-      const program = blokEkle(onceki.program, komut);
+      const program = blokEkle(onceki.program, komut, bulmaca.enFazlaBlok ?? EN_FAZLA_BLOK);
       // Serit doluysa blokEkle hicbir sey eklemez; boyle bir durumda
-      // "yeni" vurgusu onceki blokta kalir.
+      // "yeni" vurgusu onceki blokta kalir. Olcu BLOK sayar (program.length
+      // degil): blokEkle'nin hedefKutu yolu bir govdeye ekleyebilir, bu da
+      // ust duzey uzunlugunu DEGISTIRMEZ ama yine de bir ekleme sayilir.
+      // sonEklenen'in kutu govdesindeki bir blogu isaret edebilmesi
+      // (BlokYolu.ic doldurulmasi) sonraki dilimin isi; simdilik yalnizca
+      // ust duzey adresine dusuyor.
       const sonEklenen =
-        program.length > onceki.program.length
+        blokSayisi(program) > blokSayisi(onceki.program)
           ? { ust: program.length - 1, ic: null }
           : onceki.sonEklenen;
       return { ...onceki, program, sonEklenen };

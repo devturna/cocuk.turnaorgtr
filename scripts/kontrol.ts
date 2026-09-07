@@ -328,6 +328,18 @@ for (const kurs of kurslar) {
         continue;
       }
 
+      if ("dongu" in bulmaca && typeof bulmaca.dongu !== "boolean") {
+        hatalar.push(
+          `${kimlik}: "dongu" true ya da false olmali, "${String(bulmaca.dongu)}" yazilmis`,
+        );
+      }
+      if ("enFazlaBlok" in bulmaca && !bulmaca.dongu) {
+        hatalar.push(
+          `${kimlik}: "enFazlaBlok" yalnizca "dongu": true tasiyan bulmacada anlamli, ` +
+            `"${String(bulmaca.enFazlaBlok)}" yazilmis ama dongu yok`,
+        );
+      }
+
       const enKisa = enKisaCozum(harita, bulmaca.komutSeti as KomutSeti);
       if (enKisa === null) {
         hatalar.push(`${kimlik}: bu bolumun cozumu yok, karakter hedefe ulasamiyor`);
@@ -350,6 +362,13 @@ for (const kurs of kurslar) {
       const enFazlaBlok = bulmaca.enFazlaBlok;
       if (typeof enFazlaBlok !== "number") {
         hatalar.push(`${kimlik}: "dongu" tasiyan bulmacada "enFazlaBlok" zorunlu`);
+        continue;
+      }
+      if (enFazlaBlok < 2) {
+        hatalar.push(
+          `${kimlik}: enFazlaBlok en az 2 olmali (bir kutu + bir govde blogu), ` +
+            `${enFazlaBlok} yazilmis`,
+        );
         continue;
       }
       if (enFazlaBlok > ARAMA_BLOK_SINIRI) {

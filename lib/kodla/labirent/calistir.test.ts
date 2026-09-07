@@ -4,7 +4,7 @@ import { calistir } from "./calistir";
 import type { Komut } from "./komutlar";
 import { komutBloku, type Blok } from "../program";
 
-const k = (blok: Komut): Blok => komutBloku(blok);
+const k = (komut: Komut): Blok => komutBloku(komut);
 
 const git = (yon: "yukari" | "asagi" | "sol" | "sag"): Komut => ({ tur: "git", yon });
 const ileri: Komut = { tur: "ileri" };

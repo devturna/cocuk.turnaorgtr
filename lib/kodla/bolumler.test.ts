@@ -107,6 +107,10 @@ describe("bulmaca dizisi", () => {
 });
 
 describe("dongu alanlari", () => {
+  // Bugun turna-yolu icinde "dongu" tasiyan hicbir bulmaca yok (bu dilim
+  // icerik eklemiyor); dongu bos kumede doner, yani bu testin GECMESI tek
+  // basina bir sey kanitlamaz. Icerik dilimi gercek bir dongulu bulmaca
+  // ekleyince bu test o bulmacayi da denetleyecek.
   it("dongu tasiyan bulmacada enFazlaBlok da vardir", () => {
     for (const bolum of kursBolumleri("turna-yolu")) {
       for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {

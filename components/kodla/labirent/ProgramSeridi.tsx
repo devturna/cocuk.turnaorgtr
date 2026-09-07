@@ -66,7 +66,7 @@ export default function ProgramSeridi({
         return (
           <span
             key={`${ust}-tekrar`}
-            role="listitem"
+            role="group"
             aria-label={`${blok.kez} kez tekrarla`}
             className="tekrarKutusu"
           >
