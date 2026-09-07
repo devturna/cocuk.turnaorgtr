@@ -1,8 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { haritayiCoz } from "./harita";
 import { calistir } from "./calistir";
-import { enKisaCozum, enKisaCozumYolu } from "./cozucu";
-import { komutBloku } from "../program";
+import { ARAMA_BLOK_SINIRI, enKisaBlokCozumu, enKisaCozum, enKisaCozumYolu } from "./cozucu";
+import { blokSayisi, komutBloku } from "../program";
 
 describe("enKisaCozum, yonler seti", () => {
   it("duz yolda adim sayisini bulur", () => {
@@ -64,5 +64,51 @@ describe("enKisaCozum, donusler seti", () => {
     // ileri -> (1,1), sola don (asagi -> sag), ileri -> (2,1), ileri -> (3,1)
     const asagiBakan = haritayiCoz([".T..", "...H"], "asagi");
     expect(enKisaCozum(asagiBakan, "donusler")).toBe(4);
+  });
+});
+
+describe("enKisaBlokCozumu", () => {
+  // .T....H  ->  saga bes adim; duz yazmak bes blok ister.
+  const UZUN = haritayiCoz([".T....H"], "sag");
+
+  it("duz cozumun sigmadigi yerde dongulu cozum bulur", () => {
+    const cozum = enKisaBlokCozumu(UZUN, "yonler", 3)!;
+    expect(cozum).not.toBeNull();
+    expect(blokSayisi(cozum)).toBeLessThanOrEqual(3);
+    expect(calistir(cozum, UZUN).basarili).toBe(true);
+  });
+
+  it("en az blogu bulur", () => {
+    // Kutu (1) + tek bloklu govde (1) = 2 blok, kez 5.
+    expect(blokSayisi(enKisaBlokCozumu(UZUN, "yonler", 4)!)).toBe(2);
+  });
+
+  it("duz cozum sigiyorsa onu bulur", () => {
+    const kisa = haritayiCoz([".T.H"], "sag");
+    const cozum = enKisaBlokCozumu(kisa, "yonler", 4)!;
+    expect(blokSayisi(cozum)).toBe(2);
+    expect(calistir(cozum, kisa).basarili).toBe(true);
+  });
+
+  it("sinira sigan cozum yoksa null doner", () => {
+    // Alti adimlik yol; iki blokla (kutu + tek komut) en fazla bes adim.
+    const cokUzun = haritayiCoz([".T......H"], "sag");
+    expect(enKisaBlokCozumu(cokUzun, "yonler", 2)).toBeNull();
+  });
+
+  it("cozumu olmayan haritada null doner", () => {
+    expect(enKisaBlokCozumu(haritayiCoz([".T#H"], "sag"), "yonler", 4)).toBeNull();
+  });
+
+  it("arama sinirinin ustunde hata verir", () => {
+    expect(() => enKisaBlokCozumu(UZUN, "yonler", ARAMA_BLOK_SINIRI + 1)).toThrow(
+      /arama/,
+    );
+  });
+
+  it("donusler setiyle de calisir", () => {
+    const harita = haritayiCoz([".T....H"], "sag");
+    const cozum = enKisaBlokCozumu(harita, "donusler", 3)!;
+    expect(calistir(cozum, harita).basarili).toBe(true);
   });
 });
