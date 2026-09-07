@@ -37,27 +37,76 @@ export function blokSayisi(program: Blok[]): number {
   );
 }
 
-export function blokEkle(program: Komut[], komut: Komut, enFazla = EN_FAZLA_BLOK): Komut[] {
-  if (program.length >= enFazla) return program;
-  return [...program, komut];
+export function blokEkle(program: Blok[], komut: Komut, enFazla = EN_FAZLA_BLOK): Blok[] {
+  if (blokSayisi(program) >= enFazla) return program;
+  return [...program, komutBloku(komut)];
 }
 
-export function blokSil(program: Komut[], sira: number): Komut[] {
-  if (sira < 0 || sira >= program.length) return program;
-  return program.filter((_, i) => i !== sira);
+export function blokSil(program: Blok[], yol: BlokYolu): Blok[] {
+  if (yol.ust < 0 || yol.ust >= program.length) return program;
+
+  // Kutunun kendisi silinince govdesi de gider: seritte tek bir sey olarak
+  // gorunur, tek bir sey olarak da yok olur.
+  if (yol.ic === null) return program.filter((_, i) => i !== yol.ust);
+
+  const blok = program[yol.ust];
+  if (blok.tur !== "tekrar") return program;
+  if (yol.ic < 0 || yol.ic >= blok.govde.length) return program;
+
+  const govde = blok.govde.filter((_, i) => i !== yol.ic);
+  return program.map((oge, i) => (i === yol.ust ? { ...blok, govde } : oge));
 }
 
-export function sonBlokuSil(program: Komut[]): Komut[] {
+export function sonBlokuSil(program: Blok[]): Blok[] {
+  const son = program.at(-1);
+  if (son === undefined) return program;
+
+  // Geri alma jesti SERITTE en sonda gorunen blogu siler; dolu bir kutu
+  // sondaysa o blok kutunun kendisi degil, govdesinin son blogudur.
+  if (son.tur === "tekrar" && son.govde.length > 0) {
+    return blokSil(program, { ust: program.length - 1, ic: son.govde.length - 1 });
+  }
   return program.slice(0, -1);
 }
 
-export function blokTasi(program: Komut[], kaynak: number, hedef: number): Komut[] {
-  if (kaynak < 0 || kaynak >= program.length) return program;
-  if (hedef < 0 || hedef >= program.length) return program;
-  const kalanlar = program.filter((_, i) => i !== kaynak);
-  return [...kalanlar.slice(0, hedef), program[kaynak], ...kalanlar.slice(hedef)];
+/** Yoldaki blok; adres programa uymuyorsa null. */
+function bloktaBul(program: Blok[], yol: BlokYolu): Blok | null {
+  if (yol.ust < 0 || yol.ust >= program.length) return null;
+  const blok = program[yol.ust];
+  if (yol.ic === null) return blok;
+  if (blok.tur !== "tekrar") return null;
+  if (yol.ic < 0 || yol.ic >= blok.govde.length) return null;
+  return blok.govde[yol.ic];
 }
 
-export function programiTemizle(): Komut[] {
+/** Blogu yola yerlestirir; adres uymuyorsa null. */
+function blokYerlestir(program: Blok[], yol: BlokYolu, blok: Blok): Blok[] | null {
+  if (yol.ic === null) {
+    if (yol.ust < 0 || yol.ust > program.length) return null;
+    return [...program.slice(0, yol.ust), blok, ...program.slice(yol.ust)];
+  }
+
+  if (yol.ust < 0 || yol.ust >= program.length) return null;
+  const kutu = program[yol.ust];
+  if (kutu.tur !== "tekrar") return null;
+  if (blok.tur !== "komut") return null;
+  if (yol.ic < 0 || yol.ic > kutu.govde.length) return null;
+
+  const govde = [...kutu.govde.slice(0, yol.ic), blok, ...kutu.govde.slice(yol.ic)];
+  return program.map((oge, i) => (i === yol.ust ? { ...kutu, govde } : oge));
+}
+
+export function blokTasi(program: Blok[], kaynak: BlokYolu, hedef: BlokYolu): Blok[] {
+  const tasinan = bloktaBul(program, kaynak);
+  if (tasinan === null) return program;
+
+  // Ic ice dongu yok: kutu baska bir kutunun icine giremez.
+  if (tasinan.tur === "tekrar" && hedef.ic !== null) return program;
+
+  const kalanlar = blokSil(program, kaynak);
+  return blokYerlestir(kalanlar, hedef, tasinan) ?? program;
+}
+
+export function programiTemizle(): Blok[] {
   return [];
 }

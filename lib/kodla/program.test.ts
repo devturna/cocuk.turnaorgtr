@@ -16,59 +16,127 @@ const yukari: Komut = { tur: "git", yon: "yukari" };
 const sag: Komut = { tur: "git", yon: "sag" };
 const asagi: Komut = { tur: "git", yon: "asagi" };
 
+const kutu = (kez: number, ...komutlar: Komut[]): Blok => ({
+  tur: "tekrar",
+  kez,
+  govde: komutlar.map(komutBloku),
+});
+
 describe("blokEkle", () => {
   it("blogu sona ekler", () => {
-    expect(blokEkle([yukari], sag)).toEqual([yukari, sag]);
+    expect(blokEkle([komutBloku(yukari)], sag)).toEqual([komutBloku(yukari), komutBloku(sag)]);
   });
 
   it("girdiyi degistirmez", () => {
-    const program = [yukari];
+    const program = [komutBloku(yukari)];
     blokEkle(program, sag);
-    expect(program).toEqual([yukari]);
+    expect(program).toEqual([komutBloku(yukari)]);
   });
 
   it("ust sinira gelince eklemez", () => {
-    const dolu = Array.from({ length: EN_FAZLA_BLOK }, () => yukari);
+    const dolu = Array.from({ length: EN_FAZLA_BLOK }, () => komutBloku(yukari));
     expect(blokEkle(dolu, sag)).toHaveLength(EN_FAZLA_BLOK);
   });
 
   it("bolum kendi sinirini dusurebilir", () => {
-    expect(blokEkle([yukari, sag], asagi, 2)).toEqual([yukari, sag]);
+    expect(blokEkle([komutBloku(yukari), komutBloku(sag)], asagi, 2)).toEqual([
+      komutBloku(yukari),
+      komutBloku(sag),
+    ]);
+  });
+
+  it("sinir govdedeki bloklari da sayar", () => {
+    // Kutu (1) + govde (2) = 3 blok; sinir 3 ise yer yoktur.
+    expect(blokEkle([kutu(2, sag, yukari)], asagi, 3)).toEqual([kutu(2, sag, yukari)]);
   });
 });
 
 describe("blokSil", () => {
-  it("verilen siradaki blogu siler", () => {
-    expect(blokSil([yukari, sag, asagi], 1)).toEqual([yukari, asagi]);
+  it("verilen yoldaki ust blogu siler", () => {
+    const program = [komutBloku(yukari), komutBloku(sag), komutBloku(asagi)];
+    expect(blokSil(program, { ust: 1, ic: null })).toEqual([
+      komutBloku(yukari),
+      komutBloku(asagi),
+    ]);
   });
 
-  it("gecersiz sira programi degistirmez", () => {
-    expect(blokSil([yukari], 5)).toEqual([yukari]);
-    expect(blokSil([yukari], -1)).toEqual([yukari]);
+  it("govdedeki blogu siler, kutuyu birakir", () => {
+    expect(blokSil([kutu(3, sag, yukari)], { ust: 0, ic: 0 })).toEqual([kutu(3, yukari)]);
+  });
+
+  it("kutuyu silmek govdesini de goturur", () => {
+    expect(blokSil([kutu(3, sag, yukari)], { ust: 0, ic: null })).toEqual([]);
+  });
+
+  it("gecersiz yol programi degistirmez", () => {
+    const program = [kutu(2, sag)];
+    expect(blokSil(program, { ust: 5, ic: null })).toEqual(program);
+    expect(blokSil(program, { ust: 0, ic: 9 })).toEqual(program);
+    expect(blokSil([komutBloku(yukari)], { ust: 0, ic: 0 })).toEqual([komutBloku(yukari)]);
   });
 });
 
 describe("sonBlokuSil", () => {
   it("son blogu siler", () => {
-    expect(sonBlokuSil([yukari, sag])).toEqual([yukari]);
+    expect(sonBlokuSil([komutBloku(yukari), komutBloku(sag)])).toEqual([komutBloku(yukari)]);
   });
 
   it("bos programda bos kalir", () => {
     expect(sonBlokuSil([])).toEqual([]);
   });
+
+  it("dolu kutu sondayse govdenin son blogunu siler", () => {
+    expect(sonBlokuSil([kutu(3, sag, yukari)])).toEqual([kutu(3, sag)]);
+  });
+
+  it("bos kutu sondayse kutunun kendisi silinir", () => {
+    expect(sonBlokuSil([komutBloku(sag), kutu(2)])).toEqual([komutBloku(sag)]);
+  });
 });
 
 describe("blokTasi", () => {
-  it("blogu yeni sirasina tasir", () => {
-    expect(blokTasi([yukari, sag, asagi], 0, 2)).toEqual([sag, asagi, yukari]);
+  it("ust duzeyde ileri tasir", () => {
+    const program = [komutBloku(yukari), komutBloku(sag), komutBloku(asagi)];
+    expect(blokTasi(program, { ust: 0, ic: null }, { ust: 2, ic: null })).toEqual([
+      komutBloku(sag),
+      komutBloku(asagi),
+      komutBloku(yukari),
+    ]);
   });
 
   it("geriye dogru tasir", () => {
-    expect(blokTasi([yukari, sag, asagi], 2, 0)).toEqual([asagi, yukari, sag]);
+    const program = [komutBloku(yukari), komutBloku(sag), komutBloku(asagi)];
+    expect(blokTasi(program, { ust: 2, ic: null }, { ust: 0, ic: null })).toEqual([
+      komutBloku(asagi),
+      komutBloku(yukari),
+      komutBloku(sag),
+    ]);
   });
 
-  it("gecersiz sira programi degistirmez", () => {
-    expect(blokTasi([yukari, sag], 0, 9)).toEqual([yukari, sag]);
+  it("ust duzeydeki blogu kutunun icine tasir", () => {
+    const program = [kutu(2, sag), komutBloku(yukari)];
+    expect(blokTasi(program, { ust: 1, ic: null }, { ust: 0, ic: 1 })).toEqual([
+      kutu(2, sag, yukari),
+    ]);
+  });
+
+  it("kutudaki blogu disari tasir", () => {
+    const program = [kutu(2, sag, yukari)];
+    expect(blokTasi(program, { ust: 0, ic: 1 }, { ust: 1, ic: null })).toEqual([
+      kutu(2, sag),
+      komutBloku(yukari),
+    ]);
+  });
+
+  it("kutu kutunun icine giremez", () => {
+    const program = [kutu(2, sag), kutu(3, yukari)];
+    expect(blokTasi(program, { ust: 1, ic: null }, { ust: 0, ic: 0 })).toEqual(program);
+  });
+
+  it("gecersiz yol programi degistirmez", () => {
+    const program = [komutBloku(yukari), komutBloku(sag)];
+    expect(blokTasi(program, { ust: 0, ic: null }, { ust: 9, ic: null })).toEqual(program);
+    expect(blokTasi(program, { ust: 9, ic: null }, { ust: 0, ic: null })).toEqual(program);
   });
 });
 
