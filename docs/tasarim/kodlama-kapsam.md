@@ -248,8 +248,40 @@ açarak yürür. Dönen `Adim` listesi bugünküyle aynı biçimdedir, yani sahn
 oynatma döngüsü ve yol önizlemesi olduğu gibi çalışır.
 
 Tek gerçek değişiklik `Adim.blokSirasi`: düz dizide bir sayıyken artık bir
-**yol** olması gerekir (kaçıncı üst blok, gövdenin kaçıncı bloğu). Şeritte
-çalışan bloğu vurgulayan kod bunu kullanır.
+**yol** olması gerekir (kaçıncı üst blok, gövdenin kaçıncı bloğu). Alan
+`blokYolu` adını alır. Ad korunsaydı bugünkü her çağrı yeri sessizce
+derlenmeye devam eder ve yanlış bloğu vurgulardı; ad değişince derleyici
+hepsini tek tek gösterir. Şeritte çalışan bloğu vurgulayan kod bunu kullanır.
+
+### Blok sayımı
+
+Şerit sınırı da altın yıldız da **blok** sayar, adım değil. `blokSayisi()`
+üst düzey komutları, her tekrar kutusunu (kutunun kendisi bir) ve gövdesindeki
+blokları toplar. Ölçü, şeritte gözükenin ta kendisidir; sınırın gerekçesi
+zaten ekrana sığmaktır (bkz. `kodlama.md` "Program uzunluğu").
+
+Bu, `idealAdim`'in anlamını "en kısa çözümün **blok** sayısı" yapar. Döngüsüz
+duraklarda sayı değişmez, çünkü çözücü döngüyü yalnızca döngü açık
+bulmacalarda arar; yayındaki içerik olduğu gibi geçerli kalır. Katlayan çocuk
+altın yıldızı alır, katlamayan normal yıldızla biter — ceza yok, hedef var.
+
+### Döngü bulmacasının denetimi
+
+Bulmaca verisi iki alan kazanır: `dongu` (kucak açık mı) ve `enFazlaBlok`
+(şeridin aldığı blok sayısı; yoksa `EN_FAZLA_BLOK`).
+
+`npm run kontrol`, `dongu` taşıyan her bulmacada iki şeyi birden şart koşar:
+
+- **Sınır içinde döngülü bir çözüm vardır.** Çözücü, sınıra sığan döngülü
+  programları kaba kuvvetle tarar; uzay küçüktür (kutu sayısı sınırla, gövde
+  üç blokla, `kez` beşle, komut seti dörtle sınırlı), düz aramanın BFS'ini
+  genişletmeye gerek yoktur.
+- **Düz çözüm sınıra sığmaz.** Sığsaydı bölüm döngüyü öğretmezdi: çocuk
+  kucağa hiç dokunmadan bitirirdi.
+
+İkisi birlikte aranır çünkü tek başına hiçbiri yetmez. Yalnızca düz çözümü
+elemek çözülemeyen bir durağı yayına sokar; yalnızca döngülü çözümü aramak da
+düz yazılabilen bir durağı "döngü dersi" diye etiketler.
 
 ### Neden döngü sayısı 2'den başlıyor?
 
