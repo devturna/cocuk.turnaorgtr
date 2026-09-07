@@ -90,10 +90,12 @@ export function enKisaCozumYolu(harita: Harita, seti: KomutSeti): Komut[] | null
   return null;
 }
 
-// Blok butcesi ustten sinirlanir: arama uzayi butceyle ussel buyur ve
-// sekizin ustunde denetim script'i saniyeler yerine dakikalar surer.
-// Dongu duraklarinin serit siniri zaten dort civarindadir.
-export const ARAMA_BLOK_SINIRI = 8;
+// Blok butcesi ustten sinirlanir: arama uzayi butce basina yaklasik 8^n / 2
+// program tutar (butce 4'te 2.048, 6'da 131.072, 8'de 8.388.608) ve cozumu
+// olmayan bir haritada tavan butce TAMAMEN taranir. Altida toplam yaklasik
+// 150 bin program, saniyenin altinda; sekizde dakikalar surerdi. Dongu
+// duraklarinin serit siniri zaten dort civarindadir, tavan hic zorlanmaz.
+export const ARAMA_BLOK_SINIRI = 6;
 
 /**
  * Verilen blok siniri icinde bolumu bitiren EN AZ BLOKLU program.

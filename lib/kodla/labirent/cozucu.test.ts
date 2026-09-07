@@ -111,4 +111,10 @@ describe("enKisaBlokCozumu", () => {
     const cozum = enKisaBlokCozumu(harita, "donusler", 3)!;
     expect(calistir(cozum, harita).basarili).toBe(true);
   });
+
+  it("cozumu olmayan haritada tavan butceyi tarayip null doner", () => {
+    // Tavanin en kotu durumu: hicbir program basarili olmadigi icin butun
+    // arama uzayi taranir. Bu test yavaslarsa ARAMA_BLOK_SINIRI cok yuksektir.
+    expect(enKisaBlokCozumu(haritayiCoz([".T#H"], "sag"), "yonler", ARAMA_BLOK_SINIRI)).toBeNull();
+  });
 });

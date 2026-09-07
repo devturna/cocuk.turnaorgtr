@@ -105,3 +105,14 @@ describe("bulmaca dizisi", () => {
     expect(harita.hedef).toBeDefined();
   });
 });
+
+describe("dongu alanlari", () => {
+  it("dongu tasiyan bulmacada enFazlaBlok da vardir", () => {
+    for (const bolum of kursBolumleri("turna-yolu")) {
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        if (!bulmaca.dongu) continue;
+        expect(typeof bulmaca.enFazlaBlok, `${bolum.id} bulmaca ${sira}`).toBe("number");
+      }
+    }
+  });
+});
