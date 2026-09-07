@@ -4,21 +4,26 @@
 // calistir()'in adim listesine bakar. Boylece "onizlemede baska, calisinca
 // baska" durumu yapisal olarak imkansiz olur.
 import { calistir } from "./calistir";
-import type { Komut, Yon } from "./komutlar";
+import type { Yon } from "./komutlar";
+import type { Blok, BlokYolu } from "../program";
 import type { Harita, Kare } from "./harita";
 
+// adimSirasi, parcayi ureten adimin calistir() listesindeki sirasidir.
+// Yol dolulugu bununla olculur, blokYolu ile DEGIL: bir tekrarin butun
+// turlari ayni blokYolu'nu tasir, o yuzden blok yolu ilerlemeyi olcemez.
 export type YolParcasi =
-  | { tur: "adim"; baslangic: Kare; bitis: Kare; blokSirasi: number }
-  | { tur: "carpma"; kare: Kare; yon: Yon; blokSirasi: number };
+  | { tur: "adim"; baslangic: Kare; bitis: Kare; blokYolu: BlokYolu; adimSirasi: number }
+  | { tur: "carpma"; kare: Kare; yon: Yon; blokYolu: BlokYolu; adimSirasi: number };
 
-export function onizlemeYolu(program: Komut[], harita: Harita): YolParcasi[] {
+export function onizlemeYolu(program: Blok[], harita: Harita): YolParcasi[] {
   const { adimlar } = calistir(program, harita);
   const parcalar: YolParcasi[] = [];
 
   // Karakterin bir onceki karesi; ilk adim baslangic karesinden cikar.
   let onceki: Kare = harita.baslangic;
 
-  for (const adim of adimlar) {
+  for (let adimSirasi = 0; adimSirasi < adimlar.length; adimSirasi++) {
+    const adim = adimlar[adimSirasi];
     const kare = { x: adim.karakter.x, y: adim.karakter.y };
 
     if (adim.olay === "yurudu") {
@@ -26,7 +31,8 @@ export function onizlemeYolu(program: Komut[], harita: Harita): YolParcasi[] {
         tur: "adim",
         baslangic: onceki,
         bitis: kare,
-        blokSirasi: adim.blokSirasi,
+        blokYolu: adim.blokYolu,
+        adimSirasi,
       });
       onceki = kare;
     } else if (adim.olay === "carpti") {
@@ -34,7 +40,8 @@ export function onizlemeYolu(program: Komut[], harita: Harita): YolParcasi[] {
         tur: "carpma",
         kare,
         yon: adim.karakter.bakis,
-        blokSirasi: adim.blokSirasi,
+        blokYolu: adim.blokYolu,
+        adimSirasi,
       });
     }
     // "dondu", "topladi" ve "vardi" yolda ayri bir parca gostermez:

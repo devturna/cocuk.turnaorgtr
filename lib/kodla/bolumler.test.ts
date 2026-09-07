@@ -105,3 +105,18 @@ describe("bulmaca dizisi", () => {
     expect(harita.hedef).toBeDefined();
   });
 });
+
+describe("dongu alanlari", () => {
+  // Bugun turna-yolu icinde "dongu" tasiyan hicbir bulmaca yok (bu dilim
+  // icerik eklemiyor); dongu bos kumede doner, yani bu testin GECMESI tek
+  // basina bir sey kanitlamaz. Icerik dilimi gercek bir dongulu bulmaca
+  // ekleyince bu test o bulmacayi da denetleyecek.
+  it("dongu tasiyan bulmacada enFazlaBlok da vardir", () => {
+    for (const bolum of kursBolumleri("turna-yolu")) {
+      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
+        if (!bulmaca.dongu) continue;
+        expect(typeof bulmaca.enFazlaBlok, `${bolum.id} bulmaca ${sira}`).toBe("number");
+      }
+    }
+  });
+});

@@ -4,11 +4,11 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import ts from "typescript";
 import { haritayiCoz } from "../lib/kodla/labirent/harita";
-import { enKisaCozum } from "../lib/kodla/labirent/cozucu";
+import { ARAMA_BLOK_SINIRI, enKisaBlokCozumu, enKisaCozum } from "../lib/kodla/labirent/cozucu";
 import type { KomutSeti, Yon } from "../lib/kodla/labirent/komutlar";
 import { KOMUT_SETLERI } from "../lib/kodla/labirent/komutlar";
 import { TEMALAR } from "../lib/kodla/labirent/temalar";
-import { EN_FAZLA_BLOK } from "../lib/kodla/program";
+import { EN_FAZLA_BLOK, blokSayisi } from "../lib/kodla/program";
 // Uygulama icerigi lib/kodla/bolumler.ts icindeki KURS_BOLUMLERI kaydi
 // uzerinden okur; bu dosya "yayinda" kurslari kendi tarafindan JSON'dan
 // okur. Iki taraf ayni kurs kimligini gormezse yayinlanan bir kurs bos bir
@@ -328,16 +328,67 @@ for (const kurs of kurslar) {
         continue;
       }
 
+      if ("dongu" in bulmaca && typeof bulmaca.dongu !== "boolean") {
+        hatalar.push(
+          `${kimlik}: "dongu" true ya da false olmali, "${String(bulmaca.dongu)}" yazilmis`,
+        );
+      }
+      if ("enFazlaBlok" in bulmaca && !bulmaca.dongu) {
+        hatalar.push(
+          `${kimlik}: "enFazlaBlok" yalnizca "dongu": true tasiyan bulmacada anlamli, ` +
+            `"${String(bulmaca.enFazlaBlok)}" yazilmis ama dongu yok`,
+        );
+      }
+
       const enKisa = enKisaCozum(harita, bulmaca.komutSeti as KomutSeti);
       if (enKisa === null) {
         hatalar.push(`${kimlik}: bu bolumun cozumu yok, karakter hedefe ulasamiyor`);
         continue;
       }
-      if (bulmaca.idealAdim !== enKisa) {
-        hatalar.push(`${kimlik}: idealAdim ${String(bulmaca.idealAdim)} yazilmis ama en kisa cozum ${enKisa} adim`);
+
+      if (!bulmaca.dongu) {
+        if (bulmaca.idealAdim !== enKisa) {
+          hatalar.push(`${kimlik}: idealAdim ${String(bulmaca.idealAdim)} yazilmis ama en kisa cozum ${enKisa} adim`);
+        }
+        if (enKisa > EN_FAZLA_BLOK) {
+          hatalar.push(`${kimlik}: en kisa cozum ${enKisa} adim, program siniri ${EN_FAZLA_BLOK} blok`);
+        }
+        continue;
       }
-      if (enKisa > EN_FAZLA_BLOK) {
-        hatalar.push(`${kimlik}: en kisa cozum ${enKisa} adim, program siniri ${EN_FAZLA_BLOK} blok`);
+
+      // Dongu duraginda iki sey birlikte aranir. Yalnizca duz cozumu elemek
+      // cozulemeyen bir duragi yayina sokar; yalnizca dongulu cozumu aramak
+      // da duz yazilabilen bir duragi "dongu dersi" diye etiketler.
+      const enFazlaBlok = bulmaca.enFazlaBlok;
+      if (typeof enFazlaBlok !== "number") {
+        hatalar.push(`${kimlik}: "dongu" tasiyan bulmacada "enFazlaBlok" zorunlu`);
+        continue;
+      }
+      if (enFazlaBlok < 2) {
+        hatalar.push(
+          `${kimlik}: enFazlaBlok en az 2 olmali (bir kutu + bir govde blogu), ` +
+            `${enFazlaBlok} yazilmis`,
+        );
+        continue;
+      }
+      if (enFazlaBlok > ARAMA_BLOK_SINIRI) {
+        hatalar.push(`${kimlik}: enFazlaBlok ${String(enFazlaBlok)}, dongulu arama en fazla ${ARAMA_BLOK_SINIRI} blok tariyor`);
+        continue;
+      }
+
+      if (enKisa <= enFazlaBlok) {
+        hatalar.push(`${kimlik}: duz cozum ${enKisa} blok, sinir ${enFazlaBlok} blok — bu durak dongusuz cozulur, dongu ogretmez`);
+      }
+
+      const dongulu = enKisaBlokCozumu(harita, bulmaca.komutSeti as KomutSeti, enFazlaBlok);
+      if (dongulu === null) {
+        hatalar.push(`${kimlik}: ${enFazlaBlok} blok sinirina sigan dongulu cozum yok`);
+        continue;
+      }
+
+      const azBlok = blokSayisi(dongulu);
+      if (bulmaca.idealAdim !== azBlok) {
+        hatalar.push(`${kimlik}: idealAdim ${String(bulmaca.idealAdim)} yazilmis ama en az bloklu cozum ${azBlok} blok`);
       }
     }
   }

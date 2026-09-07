@@ -273,9 +273,10 @@ Bulmaca verisi iki alan kazanır: `dongu` (kucak açık mı) ve `enFazlaBlok`
 `npm run kontrol`, `dongu` taşıyan her bulmacada iki şeyi birden şart koşar:
 
 - **Sınır içinde döngülü bir çözüm vardır.** Çözücü, sınıra sığan döngülü
-  programları kaba kuvvetle tarar; uzay küçüktür (kutu sayısı sınırla, gövde
-  üç blokla, `kez` beşle, komut seti dörtle sınırlı), düz aramanın BFS'ini
-  genişletmeye gerek yoktur.
+  programları kaba kuvvetle tarar; uzay küçüktür (kutu ve gövde blok
+  bütçesiyle, `kez` beşle, komut seti dörtle sınırlı) ve bütçenin kendisi
+  altı blokla sınırlanır — üstünde arama üssel büyür ve denetim dakikalar
+  sürerdi.
 - **Düz çözüm sınıra sığmaz.** Sığsaydı bölüm döngüyü öğretmezdi: çocuk
   kucağa hiç dokunmadan bitirirdi.
 

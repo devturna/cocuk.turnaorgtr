@@ -18,7 +18,16 @@ import {
 import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
 import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
-import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
+import {
+  blokEkle,
+  blokSayisi,
+  komutBloku,
+  programiTemizle,
+  sonBlokuSil,
+  EN_FAZLA_BLOK,
+  type Blok,
+  type BlokYolu,
+} from "@/lib/kodla/program";
 import {
   bulmacaBul,
   bulmacaHaritasi,
@@ -109,7 +118,7 @@ const VARIS_BEKLEME_SURESI = 500;
  */
 function demoKomutuSec(seti: KomutSeti, harita: Harita): Komut | null {
   for (const komut of KOMUT_SETLERI[seti]) {
-    const sonuc = calistir([komut], harita);
+    const sonuc = calistir([komutBloku(komut)], harita);
     const yurudu = sonuc.adimlar.some((adim) => adim.olay === "yurudu");
     if (yurudu && !sonuc.basarili) return komut;
   }
@@ -138,15 +147,23 @@ function bulmacaBaslangicKonumu(
 }
 
 type Durum = {
-  program: Komut[];
+  program: Blok[];
   // Programdaki hangi blogun EN SON EKLENEN blok oldugu (ProgramSeridi'nin
   // giris animasyonu icin). Konuma gore turetilmez (program.length - 1):
   // son blogu silince onceki blok konum olarak "son" olur ama YENI EKLENMIS
   // degildir; konuma gore turetmek geri alma sonrasi onceki bloga tekrar
   // giris animasyonu oynatirdi.
-  sonEklenenSira: number | null;
+  sonEklenen: BlokYolu | null;
   oynatma: { adimlar: Adim[]; sira: number } | null;
-  vurgulanan: number | null;
+  // vurgulanan ve oynayanAdim durum.oynatma'dan TURETILEMEZ (oynatma'nin
+  // varligina gore hesaplanamaz): kazanma durumunda oynatma null'lanir ama
+  // vurgu BILEREK son blokta birakilir (bkz. asagidaki oynatma etkisindeki
+  // "Basarisiz bitince..." satiri) — cocuk kutlama katmani acilirken hangi
+  // blogun kosuyu bitirdigini gorsun diye.
+  vurgulanan: BlokYolu | null;
+  // Yol dolulugu icin oynayan adimin sirasi; vurgulanan blokla ayni omru
+  // yasar ama ayri olcudur (bkz. Sahne.tsx "oynayanAdim" yorumu).
+  oynayanAdim: number | null;
   karakterKonumu: { x: number; y: number; bakis: Yon };
   poz: KarakterPozu;
   toplananlar: string[];
@@ -192,9 +209,10 @@ export default function BolumEkrani({
   // Baslangicta bulmacaSirasi her zaman 0'dir (localStorage sunucuda yok).
   const [durum, setDurum] = useState<Durum>(() => ({
     program: [],
-    sonEklenenSira: null,
+    sonEklenen: null,
     oynatma: null,
     vurgulanan: null,
+    oynayanAdim: null,
     karakterKonumu: bulmacaBaslangicKonumu(bolum, 0),
     poz: "durus",
     toplananlar: [],
@@ -275,6 +293,12 @@ export default function BolumEkrani({
     return () => document.body.classList.remove("tamEkran");
   }, []);
 
+  // Kosu bittiginde ideal-adim karsilastirmasi icin: bir sayiya indirgenmis
+  // bagimlilik, asagidaki etkinin bagimlilik dizisinde durum.program'in
+  // kendisini (referansi her renderda degisen bir dizi) tasimasini
+  // gereksiz kilar.
+  const oynananBlokAdedi = blokSayisi(durum.program);
+
   // Adimlari sirayla oynatir. Her tik bir adimi uygular; son adimda sonucu
   // kaydeder.
   useEffect(() => {
@@ -288,7 +312,7 @@ export default function BolumEkrani({
       let sonrakiBulmacaVar = false;
       if (sonAdim) {
         if (adim.olay === "vardi") {
-          const idealMi = durum.program.length <= bulmaca.idealAdim;
+          const idealMi = oynananBlokAdedi <= bulmaca.idealAdim;
           const ilerleme = bulmacaCozuldu(kursId, bolum.id, idealMi);
           const sonrasi = bulmacaSonrasi(durum.bulmacaSirasi, toplamBulmaca, ilerleme.hepsiIdeal);
           if (sonrasi.tur === "bitti") {
@@ -322,7 +346,8 @@ export default function BolumEkrani({
                   : "adim"
                 : onceki.poz,
         // Basarisiz bitince vurgu sonsuza kadar son blokta kalmasin.
-        vurgulanan: sonAdim && !kazanilan ? null : adim.blokSirasi,
+        vurgulanan: sonAdim && !kazanilan ? null : adim.blokYolu,
+        oynayanAdim: sonAdim && !kazanilan ? null : sira,
         oynatma: sonAdim ? null : { adimlar, sira: sira + 1 },
         bitti: kazanilan,
         // gecis BURADA acilmiyor: kutlama pozu (yukarida "kutlama") once bir
@@ -334,7 +359,7 @@ export default function BolumEkrani({
     return () => clearTimeout(zamanlayici);
   }, [
     durum.oynatma,
-    durum.program.length,
+    oynananBlokAdedi,
     durum.bulmacaSirasi,
     bulmaca.idealAdim,
     toplamBulmaca,
@@ -400,8 +425,9 @@ export default function BolumEkrani({
           gecis: false,
           oynatma: null,
           program: [],
-          sonEklenenSira: null,
+          sonEklenen: null,
           vurgulanan: null,
+          oynayanAdim: null,
           toplananlar: [],
           poz: "durus",
           bitti: null,
@@ -413,13 +439,19 @@ export default function BolumEkrani({
 
   function blokEklendi(komut: Komut) {
     setDurum((onceki) => {
-      const program = blokEkle(onceki.program, komut);
-      // Serit doluysa (EN_FAZLA_BLOK) blokEkle hicbir sey eklemez; boyle bir
-      // durumda "yeni" isaretini de degistirmiyoruz, cunku gercekten yeni
-      // bir blok yok.
-      const sonEklenenSira =
-        program.length > onceki.program.length ? program.length - 1 : onceki.sonEklenenSira;
-      return { ...onceki, program, sonEklenenSira };
+      const program = blokEkle(onceki.program, komut, bulmaca.enFazlaBlok ?? EN_FAZLA_BLOK);
+      // Serit doluysa blokEkle hicbir sey eklemez; boyle bir durumda
+      // "yeni" vurgusu onceki blokta kalir. Olcu BLOK sayar (program.length
+      // degil): blokEkle'nin hedefKutu yolu bir govdeye ekleyebilir, bu da
+      // ust duzey uzunlugunu DEGISTIRMEZ ama yine de bir ekleme sayilir.
+      // sonEklenen'in kutu govdesindeki bir blogu isaret edebilmesi
+      // (BlokYolu.ic doldurulmasi) sonraki dilimin isi; simdilik yalnizca
+      // ust duzey adresine dusuyor.
+      const sonEklenen =
+        blokSayisi(program) > blokSayisi(onceki.program)
+          ? { ust: program.length - 1, ic: null }
+          : onceki.sonEklenen;
+      return { ...onceki, program, sonEklenen };
     });
   }
 
@@ -430,6 +462,7 @@ export default function BolumEkrani({
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: null,
       bitti: null,
     }));
@@ -460,10 +493,11 @@ export default function BolumEkrani({
       bulmacaSirasi: 0,
       karakterKonumu: bulmacaBaslangicKonumu(bolum, 0),
       program: [],
-      sonEklenenSira: null,
+      sonEklenen: null,
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: null,
       bitti: null,
       gecis: false,
@@ -488,6 +522,7 @@ export default function BolumEkrani({
       toplananlar: [],
       bitti: null,
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: { adimlar: sonuc.adimlar, sira: 0 },
     }));
   }
@@ -525,7 +560,7 @@ export default function BolumEkrani({
       const zamanlayici = setTimeout(() => {
         setDurum((onceki) => {
           const program = blokEkle(onceki.program, secilenKomut);
-          return { ...onceki, program, sonEklenenSira: program.length - 1 };
+          return { ...onceki, program, sonEklenen: { ust: program.length - 1, ic: null } };
         });
         setDemo("calistir");
       }, 1400);
@@ -549,11 +584,12 @@ export default function BolumEkrani({
     setDurum((onceki) => ({
       ...onceki,
       program: programiTemizle(),
-      sonEklenenSira: null,
+      sonEklenen: null,
       karakterKonumu: baslangicKarakterKonumu,
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: null,
       bitti: null,
     }));
@@ -629,7 +665,7 @@ export default function BolumEkrani({
           palet={karakter?.palet ?? VARSAYILAN_PALET}
           bekliyor={!calisiyor}
           yol={yol}
-          calisan={durum.vurgulanan}
+          oynayanAdim={durum.oynayanAdim}
           toplananlar={durum.toplananlar}
           // vardi, sahnenin en net SOZSUZ basari isaretini surer
           // (.kodlaYuva.dolu ve dolu yuva simgesi). Bu yuzden yalnizca
@@ -654,7 +690,7 @@ export default function BolumEkrani({
       <ProgramSeridi
         program={durum.program}
         vurgulanan={durum.vurgulanan}
-        sonEklenenSira={durum.sonEklenenSira}
+        sonEklenen={durum.sonEklenen}
       />
 
       <div className="bolumAltBar">
@@ -673,7 +709,7 @@ export default function BolumEkrani({
             aria-label="Son bloğu sil"
             disabled={girdiEngelli || durum.program.length === 0}
             onClick={() =>
-              setDurum((o) => ({ ...o, program: sonBlokuSil(o.program), sonEklenenSira: null }))
+              setDurum((o) => ({ ...o, program: sonBlokuSil(o.program), sonEklenen: null }))
             }
           >
             <span aria-hidden="true">↩</span>
@@ -684,7 +720,7 @@ export default function BolumEkrani({
             aria-label="Hepsini temizle"
             disabled={girdiEngelli || durum.program.length === 0}
             onClick={() =>
-              setDurum((o) => ({ ...o, program: programiTemizle(), sonEklenenSira: null }))
+              setDurum((o) => ({ ...o, program: programiTemizle(), sonEklenen: null }))
             }
           >
             <span aria-hidden="true">🗑</span>

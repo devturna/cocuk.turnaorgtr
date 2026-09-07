@@ -4,7 +4,7 @@ import { kursKarakterleri } from "../lib/kodla/karakterler";
 import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
 import { onizlemeYolu } from "../lib/kodla/labirent/onizleme";
-import { EN_FAZLA_BLOK } from "../lib/kodla/program";
+import { EN_FAZLA_BLOK, komutBloku } from "../lib/kodla/program";
 import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 
 const KURS = "turna-yolu";
@@ -134,7 +134,7 @@ test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page
   await programiDiz(page, ["git:sag", ...yol.map(komutAnahtari)]);
 
   const beklenen = onizlemeYolu(
-    [{ tur: "git", yon: "sag" }, ...yol],
+    [komutBloku({ tur: "git", yon: "sag" }), ...yol.map(komutBloku)],
     bulmacaHaritasi(bulmacaBul(bolum, 0)!),
   );
   const beklenenCarpma = beklenen.filter((p) => p.tur === "carpma").length;
