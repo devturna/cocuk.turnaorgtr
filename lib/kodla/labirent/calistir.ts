@@ -11,6 +11,7 @@ import {
   type Komut,
   type Yon,
 } from "./komutlar";
+import type { Blok, BlokYolu } from "../program";
 import {
   engelMi,
   haritaDisiMi,
@@ -21,8 +22,8 @@ import {
 } from "./harita";
 
 export type Adim = {
-  /** Bu adimi ureten blogun program icindeki sirasi. Arayuz onu vurgular. */
-  blokSirasi: number;
+  /** Bu adimi ureten blogun program icindeki YOLU. Arayuz onu vurgular. */
+  blokYolu: BlokYolu;
   karakter: { x: number; y: number; bakis: Yon };
   olay: "yurudu" | "dondu" | "carpti" | "topladi" | "vardi";
 };
@@ -32,25 +33,24 @@ export type Sonuc = {
   basarili: boolean;
 };
 
-export function calistir(program: Komut[], harita: Harita): Sonuc {
+export function calistir(program: Blok[], harita: Harita): Sonuc {
   let kare: Kare = harita.baslangic;
   let bakis: Yon = harita.bakis;
   const toplananlar = new Set<string>();
   const adimlar: Adim[] = [];
 
-  const adimEkle = (blokSirasi: number, olay: Adim["olay"]) => {
-    adimlar.push({ blokSirasi, karakter: { x: kare.x, y: kare.y, bakis }, olay });
+  const adimEkle = (blokYolu: BlokYolu, olay: Adim["olay"]) => {
+    adimlar.push({ blokYolu, karakter: { x: kare.x, y: kare.y, bakis }, olay });
   };
 
   const hepsiToplandi = () => toplananlar.size === harita.basaklar.length;
 
-  for (let sira = 0; sira < program.length; sira++) {
-    const komut = program[sira];
-
+  // true donerse hedefe varildi ve program biter.
+  const komutuYurut = (komut: Komut, yol: BlokYolu): boolean => {
     if (komut.tur === "don") {
       bakis = komut.yon === "sag" ? saatYonunde(bakis) : saatTersine(bakis);
-      adimEkle(sira, "dondu");
-      continue;
+      adimEkle(yol, "dondu");
+      return false;
     }
 
     // "git" mutlak yon verir ve karakter o yone doner; "ileri" baktigi yone yurur.
@@ -59,22 +59,41 @@ export function calistir(program: Komut[], harita: Harita): Sonuc {
 
     // Carpma cezalandirilmaz: komut etkisiz kalir, program devam eder.
     if (haritaDisiMi(harita, hedefKare) || engelMi(harita, hedefKare)) {
-      adimEkle(sira, "carpti");
-      continue;
+      adimEkle(yol, "carpti");
+      return false;
     }
 
     kare = hedefKare;
-    adimEkle(sira, "yurudu");
+    adimEkle(yol, "yurudu");
 
     const basakVar = harita.basaklar.some((basak) => kareEsit(basak, kare));
     if (basakVar && !toplananlar.has(kareAnahtari(kare))) {
       toplananlar.add(kareAnahtari(kare));
-      adimEkle(sira, "topladi");
+      adimEkle(yol, "topladi");
     }
 
     if (kareEsit(kare, harita.hedef) && hepsiToplandi()) {
-      adimEkle(sira, "vardi");
-      return { adimlar, basarili: true };
+      adimEkle(yol, "vardi");
+      return true;
+    }
+
+    return false;
+  };
+
+  for (let ust = 0; ust < program.length; ust++) {
+    const blok = program[ust];
+
+    if (blok.tur === "komut") {
+      if (komutuYurut(blok.komut, { ust, ic: null })) return { adimlar, basarili: true };
+      continue;
+    }
+
+    // Dongu, govdeyi kez defa ACARAK yurur; uretilen Adim listesi duz
+    // programdakiyle ayni bicimdedir, sahne ve oynatma degismez.
+    for (let sayac = 0; sayac < blok.kez; sayac++) {
+      for (let ic = 0; ic < blok.govde.length; ic++) {
+        if (komutuYurut(blok.govde[ic].komut, { ust, ic })) return { adimlar, basarili: true };
+      }
     }
   }
 

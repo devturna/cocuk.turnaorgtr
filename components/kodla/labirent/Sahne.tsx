@@ -68,6 +68,9 @@ export default function Sahne({
   vardi: boolean;
   bolumAdi: string;
   yol: YolParcasi[];
+  // Oynatilan adimin sirasi (calistir() listesindeki indeks). Blok sirasi
+  // DEGIL: bir tekrarin butun turlari ayni bloktan gelir, blok sirasiyla
+  // olculen doluluk butun turlari bir anda doldururdu.
   calisan: number | null;
 }) {
   const genislik = harita.genislik * KARE;
@@ -136,7 +139,7 @@ export default function Sahne({
           once nereye gidecegini gorur; duvara giden ok kisa kesilir. */}
       <g className="kodlaYol">
         {yol.map((parca, sira) => {
-          const dolu = calisan !== null && parca.blokSirasi <= calisan;
+          const dolu = calisan !== null && parca.adimSirasi <= calisan;
           const sinif = `kodlaYolParcasi${dolu ? " dolu" : ""}`;
 
           if (parca.tur === "carpma") {

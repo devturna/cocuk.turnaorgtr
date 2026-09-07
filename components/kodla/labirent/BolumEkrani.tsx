@@ -18,7 +18,7 @@ import {
 import { kareAnahtari, type Harita } from "@/lib/kodla/labirent/harita";
 import { onizlemeYolu } from "@/lib/kodla/labirent/onizleme";
 import { temaBul } from "@/lib/kodla/labirent/temalar";
-import { blokEkle, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
+import { blokEkle, komutBloku, programiTemizle, sonBlokuSil } from "@/lib/kodla/program";
 import {
   bulmacaBul,
   bulmacaHaritasi,
@@ -109,7 +109,7 @@ const VARIS_BEKLEME_SURESI = 500;
  */
 function demoKomutuSec(seti: KomutSeti, harita: Harita): Komut | null {
   for (const komut of KOMUT_SETLERI[seti]) {
-    const sonuc = calistir([komut], harita);
+    const sonuc = calistir([komutBloku(komut)], harita);
     const yurudu = sonuc.adimlar.some((adim) => adim.olay === "yurudu");
     if (yurudu && !sonuc.basarili) return komut;
   }
@@ -147,6 +147,9 @@ type Durum = {
   sonEklenenSira: number | null;
   oynatma: { adimlar: Adim[]; sira: number } | null;
   vurgulanan: number | null;
+  // Yol dolulugu icin oynayan adimin sirasi; vurgulanan blokla ayni omru
+  // yasar ama ayri olcudur (bkz. Sahne.tsx "calisan" yorumu).
+  oynayanAdim: number | null;
   karakterKonumu: { x: number; y: number; bakis: Yon };
   poz: KarakterPozu;
   toplananlar: string[];
@@ -195,6 +198,7 @@ export default function BolumEkrani({
     sonEklenenSira: null,
     oynatma: null,
     vurgulanan: null,
+    oynayanAdim: null,
     karakterKonumu: bulmacaBaslangicKonumu(bolum, 0),
     poz: "durus",
     toplananlar: [],
@@ -322,7 +326,8 @@ export default function BolumEkrani({
                   : "adim"
                 : onceki.poz,
         // Basarisiz bitince vurgu sonsuza kadar son blokta kalmasin.
-        vurgulanan: sonAdim && !kazanilan ? null : adim.blokSirasi,
+        vurgulanan: sonAdim && !kazanilan ? null : adim.blokYolu.ust,
+        oynayanAdim: sonAdim && !kazanilan ? null : sira,
         oynatma: sonAdim ? null : { adimlar, sira: sira + 1 },
         bitti: kazanilan,
         // gecis BURADA acilmiyor: kutlama pozu (yukarida "kutlama") once bir
@@ -402,6 +407,7 @@ export default function BolumEkrani({
           program: [],
           sonEklenenSira: null,
           vurgulanan: null,
+          oynayanAdim: null,
           toplananlar: [],
           poz: "durus",
           bitti: null,
@@ -430,6 +436,7 @@ export default function BolumEkrani({
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: null,
       bitti: null,
     }));
@@ -464,6 +471,7 @@ export default function BolumEkrani({
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: null,
       bitti: null,
       gecis: false,
@@ -479,7 +487,7 @@ export default function BolumEkrani({
     // sayilmis bir bulmaca bulmacaCozuldu'yu ikinci kez cagirir. Karar
     // dugmede degil burada veriliyor.
     if (girdiEngelli) return;
-    const sonuc = calistir(durum.program, harita);
+    const sonuc = calistir(durum.program.map(komutBloku), harita);
     if (sonuc.adimlar.length === 0) return;
     setDurum((onceki) => ({
       ...onceki,
@@ -488,6 +496,7 @@ export default function BolumEkrani({
       toplananlar: [],
       bitti: null,
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: { adimlar: sonuc.adimlar, sira: 0 },
     }));
   }
@@ -554,6 +563,7 @@ export default function BolumEkrani({
       poz: "durus",
       toplananlar: [],
       vurgulanan: null,
+      oynayanAdim: null,
       oynatma: null,
       bitti: null,
     }));
@@ -593,7 +603,7 @@ export default function BolumEkrani({
 
   // Onizleme, gercek calistirmayla ayni fonksiyondan uretiliyor; ikisi
   // ayrisamaz. Program kisa oldugu icin her render'da hesaplamak ucuz.
-  const yol = onizlemeYolu(durum.program, harita);
+  const yol = onizlemeYolu(durum.program.map(komutBloku), harita);
 
   return (
     <div className="bolumEkrani">
@@ -629,7 +639,7 @@ export default function BolumEkrani({
           palet={karakter?.palet ?? VARSAYILAN_PALET}
           bekliyor={!calisiyor}
           yol={yol}
-          calisan={durum.vurgulanan}
+          calisan={durum.oynayanAdim}
           toplananlar={durum.toplananlar}
           // vardi, sahnenin en net SOZSUZ basari isaretini surer
           // (.kodlaYuva.dolu ve dolu yuva simgesi). Bu yuzden yalnizca

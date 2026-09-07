@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest";
 import { haritayiCoz } from "./harita";
 import { calistir } from "./calistir";
 import { enKisaCozum, enKisaCozumYolu } from "./cozucu";
+import { komutBloku } from "../program";
 
 describe("enKisaCozum, yonler seti", () => {
   it("duz yolda adim sayisini bulur", () => {
@@ -38,7 +39,7 @@ describe("enKisaCozumYolu", () => {
     const harita = haritayiCoz(["..o..", ".T#..", "....H"], "sag");
     const yol = enKisaCozumYolu(harita, "yonler")!;
     expect(yol).not.toBeNull();
-    expect(calistir(yol, harita).basarili).toBe(true);
+    expect(calistir(yol.map(komutBloku), harita).basarili).toBe(true);
   });
 
   it("adim sayisi enKisaCozum ile ayni", () => {
