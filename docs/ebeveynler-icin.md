@@ -6,9 +6,13 @@ edebilmenizi sağlamak.
 
 ## Bu site nedir?
 
-cocuk.turna.org.tr, çocukların ücretsiz olarak boyama yapabildiği bir
-portaldır. İlerleyen aşamalarda basit oyunlar ve ebeveynle birlikte
-yapılabilecek kodlama etkinlikleri eklenecek.
+cocuk.turna.org.tr, çocukların ücretsiz olarak boyama yapabildiği, harf ve
+sayı öğrendiği, kodlama etkinlikleri yaptığı bir portaldır.
+
+**Kodlama bölümünde çocuğunuz kendi oyununu yapabilir** ("Göl Kıyısı"
+kursu). Bu oyun **paylaşılamaz**: benzer sitelerde çocuğun yaptığı şey bir
+bağlantıyla paylaşılır, bunun için de sunucuya yüklenir. Bizde hiçbir şey
+cihazdan çıkmaz, o yüzden paylaşma da yoktur — çocuk yapar ve oynar.
 
 Site ücretsizdir ve ücretli hale gelmeyecektir. Reklam yoktur ve
 eklenmeyecektir.

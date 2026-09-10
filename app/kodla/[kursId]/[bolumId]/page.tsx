@@ -4,6 +4,7 @@ import { yayindakiKurslar } from "@/lib/kodla/kurslar";
 import { bolumBul, bolumSiralamasi, kursBolumleri } from "@/lib/kodla/bolumler";
 import BolumEkrani from "@/components/kodla/labirent/BolumEkrani";
 import DesenEkrani from "@/components/kodla/desen/DesenEkrani";
+import OlayEkrani from "@/components/kodla/olay/OlayEkrani";
 
 export function generateStaticParams() {
   return yayindakiKurslar().flatMap((kurs) =>
@@ -45,6 +46,17 @@ export default async function BolumSayfasi({
   // soyler. Iki ekran ayni alt bilesenleri (serit, palet, katlama cipi,
   // nokta gostergesi) paylasir ama kendi sahnelerini ve kendi motorlarini
   // kullanir.
+  if (bolum.mekanik === "olay") {
+    return (
+      <OlayEkrani
+        key={`${kursId}/${bolumId}`}
+        kursId={kursId}
+        bolum={bolum}
+        sonrakiBolumId={sonraki}
+      />
+    );
+  }
+
   if (bolum.mekanik === "desen") {
     return (
       <DesenEkrani

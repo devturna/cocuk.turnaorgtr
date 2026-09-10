@@ -231,6 +231,32 @@ Denetim her desende iki şeyi birden arar: blok sınırına sığan bir çizim
 **var** ve kucaksız bir çizim **yok** (yoksa durak döngü öğretmez) — labirent
 tarafındaki döngü denetiminin aynısı.
 
+## 4.4 Olay durakları
+
+`"mekanik": "olay"` taşıyan durakta bulmaca ne harita ne desen taşır: bir
+**sahne** ve (varsa) bir **istek** taşır. Komut seti ve `idealAdim` yoktur —
+program bir komut dizisi değil, kural kümesidir.
+
+```json
+{
+  "sahne": [
+    { "id": "kurbaga", "ad": "Kurbağa", "simge": "🐸", "x": 25, "y": 62 },
+    { "id": "kus", "ad": "Kuş", "simge": "🐦", "x": 62, "y": 30 }
+  ],
+  "istek": { "nesne": "kurbaga", "eylem": "zipla" }
+}
+```
+
+`x`/`y` sahne kutusunun yüzdesidir. `eylem` şunlardan biri: `zipla`, `ot`,
+`don`, `buyu`. **İsteği olmayan bulmaca serbest oyundur**: çocuk istediği
+kuralı yazar, ilk kural yıldızı kazandırır. Bir durağın son bulmacası
+olarak konur (bkz. Bafa Gölü).
+
+Denetim sahnenin en az iki nesne taşıdığını, kimliklerin benzersiz
+olduğunu ve isteğin sahnede gerçekten var olan bir nesneye yazıldığını
+kontrol eder. Mekaniğin gerekçeleri
+[tasarim/kodlama-olaylar.md](tasarim/kodlama-olaylar.md) içindedir.
+
 ## 5. Denetle
 
 ```bash

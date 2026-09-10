@@ -4,9 +4,11 @@
 // buraya bir satir eklemektir.
 import turnaYolu from "@/content/kodla/turna-yolu.json";
 import kilimininIzi from "@/content/kodla/kilimin-izi.json";
+import golKiyisi from "@/content/kodla/gol-kiyisi.json";
 import { haritayiCoz, type Harita } from "./labirent/harita";
 import { anahtarKomutu, type KomutSeti, type Yon } from "./labirent/komutlar";
 import { deseniCoz, type Desen, type DesenVerisi } from "./desen/desen";
+import type { Eylem } from "./olay/kurallar";
 import { komutBloku, type Blok, type KomutBloku } from "./program";
 
 /**
@@ -64,7 +66,22 @@ export type LabirentBulmacasi = OrtakBulmaca & {
 /** Desen bulmacasi: kus izgara koselerinde yurur, cizgi birakir. */
 export type DesenBulmacasi = OrtakBulmaca & { desen: DesenVerisi };
 
-export type BulmacaVerisi = LabirentBulmacasi | DesenBulmacasi;
+/** Olay bulmacasindaki sahne nesnesi. Konum, sahne kutusunun yuzdesidir. */
+export type SahneNesnesi = { id: string; ad: string; simge: string; x: number; y: number };
+
+/**
+ * Olay bulmacasi: cocuk komut dizmez, KURAL yazar.
+ *
+ * Bu yuzden ortak alanlari (komutSeti, idealAdim, kucak) tasimaz: burada
+ * ne komut seti ne de blok sayisi vardir. "istek" yoksa durak serbest
+ * oyundur ve ilk kural yildizi kazandirir.
+ */
+export type OlayBulmacasi = {
+  sahne: SahneNesnesi[];
+  istek?: { nesne: string; eylem: Eylem };
+};
+
+export type BulmacaVerisi = LabirentBulmacasi | DesenBulmacasi | OlayBulmacasi;
 
 type OrtakBolum = {
   id: string;
@@ -84,14 +101,20 @@ export type DesenBolumu = OrtakBolum & {
   bulmacalar: DesenBulmacasi[];
 };
 
+export type OlayBolumu = OrtakBolum & {
+  mekanik: "olay";
+  bulmacalar: OlayBulmacasi[];
+};
+
 // Mekanik, durak seviyesinde ayrisir: bir durakta hem labirent hem desen
 // bulmacasi olmaz. Boylece bolum ekrani tek bir mekanigi oynatir ve
 // bulmacadan bulmacaya kabuk degistirmez.
-export type BolumVerisi = LabirentBolumu | DesenBolumu;
+export type BolumVerisi = LabirentBolumu | DesenBolumu | OlayBolumu;
 
 const KURS_BOLUMLERI: Record<string, BolumVerisi[]> = {
   "turna-yolu": turnaYolu as BolumVerisi[],
   "kilimin-izi": kilimininIzi as BolumVerisi[],
+  "gol-kiyisi": golKiyisi as BolumVerisi[],
 };
 
 export function kursBolumleri(kursId: string): BolumVerisi[] {
@@ -147,7 +170,7 @@ function anahtarBloku(anahtar: string): KomutBloku | null {
  * boyle bir anahtari zaten reddeder, calisma zamaninda cokmek yerine
  * eksik bir program gostermek daha guvenlidir.
  */
-export function baslangicProgrami(bulmaca: BulmacaVerisi): Blok[] {
+export function baslangicProgrami(bulmaca: LabirentBulmacasi | DesenBulmacasi): Blok[] {
   const bloklar: Blok[] = [];
   for (const oge of bulmaca.baslangicProgrami ?? []) {
     if (typeof oge === "string") {

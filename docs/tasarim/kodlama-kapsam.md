@@ -341,9 +341,12 @@ arayan bir kontrol bu yaşta yalnızca hüsran üretirdi.
 
 ## 9. Faz 4f — olaylar (kısa)
 
-Play Lab'in karşılığı: bir sahne, bir iki karakter, ve "şuna dokununca şu
+Play Lab'in karşılığı: bir sahne, birkaç nesne, ve "şuna dokununca şu
 olsun" kuralları. Kavram olay güdümlü programlamadır — çocuk artık ne zaman
 çalışacağını kendi belirlemediği bir program yazar.
+
+**Yayında**: "Göl Kıyısı" kursu, iki durak (dört istek + bir serbest oyun).
+Tasarımı [kodlama-olaylar.md](kodlama-olaylar.md) içindedir.
 
 **Paylaşım yok.** code.org bu dersi "oyununu bir link ile paylaş" ile
 bitirir. Biz bitiremeyiz: portalın veri toplama yasağı mutlaktır, hiçbir şey
@@ -360,6 +363,7 @@ Bu, karşılık haritasındaki tek bilinçli eksiktir.
 | 4d durumu | Tamamlandı: yapı, döngü, hata ayıklama, dönüş komutları ve on beş duraklık rotanın tamamı (58 bulmaca) | |
 | 4e | Çizim mekaniği ve desen durakları | Döngüyü gerektirir |
 | 4f | Olaylar | Bağımsız; en son çünkü en az öğretici, en çok serbest oyun |
+| 4e-4f durumu | İkisi de tamamlandı: "Kilimin İzi" (çizim) ve "Göl Kıyısı" (olaylar) kursları yayında | |
 
 4d'nin kendisi büyüktür ve uygulama planında bölünecektir: önce yapı
 (dizi durak, ilerleme kaydı, harita), sonra döngü motoru, sonra döngü

@@ -232,7 +232,9 @@ Oyun ekranının tasarım gerekçeleri ayrı belgede:
 | `lib/kodla/desen/cozucu.ts` | Bir desenin kaç blokla çizilebildiği (denetim için) |
 | `components/kodla/desen/DesenEkrani.tsx` | Desen durağının kabuğu (labirent ekranının kardeşi) |
 | `components/kodla/desen/DesenSahne.tsx` | Izgara köşeleri, hedef desen, çizilen çizgiler |
-| `components/kodla/zamanlama.ts` | İki mekaniğin paylaştığı oynatma süreleri |
+| `components/kodla/zamanlama.ts` | Mekaniklerin paylaştığı oynatma süreleri |
+| `lib/kodla/olay/kurallar.ts` | Olay mekaniğinin program modeli: kural kümesi |
+| `components/kodla/olay/OlayEkrani.tsx` | Olay durağı: sahne, kurallar, eylemler |
 | `components/kodla/labirent/Konfeti.tsx` | Kutlama parçacıkları |
 
 ### Önizleme ile çalıştırma neden ayrışamaz?

@@ -14,6 +14,13 @@
     "durum": "yayinda"
   },
   {
+    "id": "gol-kiyisi",
+    "ad": "Göl Kıyısı",
+    "yas": "4-7",
+    "ikon": "🐸",
+    "durum": "yayinda"
+  },
+  {
     "id": "anadolu-kasifi",
     "ad": "Anadolu Kâşifi",
     "yas": "7-9",

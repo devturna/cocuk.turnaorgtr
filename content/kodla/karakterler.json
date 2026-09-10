@@ -46,5 +46,29 @@
         "kanat": "#c96a8a"
       }
     }
+  ],
+  "gol-kiyisi": [
+    {
+      "id": "turna",
+      "ad": "Turna",
+      "bilgi": "Turna göl kıyısının en uzun boylu komşusudur.",
+      "palet": {
+        "govde": "#f4f1ea",
+        "gaga": "#e08a2e",
+        "bacak": "#33312e",
+        "kanat": "#c9c2b4"
+      }
+    },
+    {
+      "id": "flamingo",
+      "ad": "Flamingo",
+      "bilgi": "Flamingo sığ suda tek ayak üstünde durur.",
+      "palet": {
+        "govde": "#f2a2b8",
+        "gaga": "#e8556d",
+        "bacak": "#d4849a",
+        "kanat": "#c96a8a"
+      }
+    }
   ]
 }

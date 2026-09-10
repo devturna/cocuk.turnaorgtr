@@ -105,7 +105,7 @@ describe("bolumler", () => {
   // bu sozu tutmuyordu (on bulmacanin altisi) ve bu daldaki her yeni bulmaca
   // denetimsiz giriyordu.
   it("her bolumun her bulmacasinin idealAdim degeri en az birdir", () => {
-    for (const bolum of bolumler) {
+    for (const bolum of labirentBolumleri) {
       for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
         expect(bulmaca.idealAdim, `${bolum.id} bulmaca ${sira}`).toBeGreaterThanOrEqual(1);
       }
@@ -124,11 +124,11 @@ describe("bolumler", () => {
   // Zihinsel dondurme yaklasik yedi yasta oturur, o yuzden donusler seti
   // rotanin SONUNDA acilir: Efes'ten oncesi mutlak yonlerle oynanir.
   it("donusler seti yalnizca rotanin sonunda kullanilir", () => {
-    const donusluIlk = bolumler.findIndex((bolum) =>
+    const donusluIlk = labirentBolumleri.findIndex((bolum) =>
       bolum.bulmacalar.some((bulmaca) => bulmaca.komutSeti === "donusler"),
     );
-    expect(bolumler[donusluIlk].id).toBe("efes");
-    for (const bolum of bolumler.slice(0, donusluIlk)) {
+    expect(labirentBolumleri[donusluIlk].id).toBe("efes");
+    for (const bolum of labirentBolumleri.slice(0, donusluIlk)) {
       for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
         expect(bulmaca.komutSeti, `${bolum.id} bulmaca ${sira}`).toBe("yonler");
       }
@@ -160,8 +160,17 @@ describe("bulmaca dizisi", () => {
 });
 
 describe("kucak alanlari", () => {
-  const bulmacalar = kursBolumleri("turna-yolu").flatMap((bolum) =>
-    bolum.bulmacalar.map((bulmaca, sira) => ({ kimlik: `${bolum.id} bulmaca ${sira}`, bulmaca })),
+  // Kucak yalnizca komut dizen mekaniklerde vardir; olay duraklarinda
+  // program bir kural kumesidir, blok bile yoktur.
+  const bulmacalar = ["turna-yolu", "kilimin-izi"].flatMap((kurs) =>
+    kursBolumleri(kurs)
+      .filter((bolum) => bolum.mekanik !== "olay")
+      .flatMap((bolum) =>
+        bolum.bulmacalar.map((bulmaca, sira) => ({
+          kimlik: `${bolum.id} bulmaca ${sira}`,
+          bulmaca,
+        })),
+      ),
   );
 
   it("kucak tasiyan bulmacada enFazlaBlok da vardir", () => {
