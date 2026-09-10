@@ -6,6 +6,7 @@ import {
   bulmacaBul,
   bulmacaHaritasi,
   bulmacaSayisi,
+  baslangicProgrami,
   kursBolumleri,
 } from "./bolumler";
 import { EN_AZ_KEZ, EN_FAZLA_KEZ } from "./program";
@@ -138,11 +139,22 @@ describe("kucak alanlari", () => {
     }
   });
 
-  it("hazir kucagin kez degeri iki ile bes arasindadir", () => {
+  it("hazir asamada kucak seritte hazir bekler ve kez degeri iki ile bes arasindadir", () => {
     for (const { kimlik, bulmaca } of bulmacalar) {
       if (bulmaca.kucak?.asama !== "hazir") continue;
-      expect(bulmaca.kucak.kez, kimlik).toBeGreaterThanOrEqual(EN_AZ_KEZ);
-      expect(bulmaca.kucak.kez, kimlik).toBeLessThanOrEqual(EN_FAZLA_KEZ);
+      const kutular = baslangicProgrami(bulmaca).filter((blok) => blok.tur === "tekrar");
+      expect(kutular.length, kimlik).toBeGreaterThan(0);
+      for (const kutu of kutular) {
+        expect(kutu.kez, kimlik).toBeGreaterThanOrEqual(EN_AZ_KEZ);
+        expect(kutu.kez, kimlik).toBeLessThanOrEqual(EN_FAZLA_KEZ);
+      }
+    }
+  });
+
+  it("baslangic programi yalnizca kucakli bulmacada kucak tasir", () => {
+    for (const { kimlik, bulmaca } of bulmacalar) {
+      const kutuVar = baslangicProgrami(bulmaca).some((blok) => blok.tur === "tekrar");
+      if (kutuVar) expect(bulmaca.kucak, kimlik).toBeDefined();
     }
   });
 

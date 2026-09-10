@@ -149,9 +149,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "sag",
@@ -164,9 +169,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 4
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 4,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "asagi",
@@ -183,9 +193,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "yukari",
@@ -201,9 +216,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 5
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 5,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "sol",
@@ -229,9 +249,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "sag",
@@ -247,9 +272,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "asagi",
@@ -265,9 +295,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 4
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 4,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "sag",
@@ -284,9 +319,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 4
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 4,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "sag",

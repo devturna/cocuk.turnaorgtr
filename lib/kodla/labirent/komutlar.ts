@@ -30,6 +30,20 @@ export function komutAnahtari(komut: Komut): string {
   return `${komut.tur}:${komut.yon}`;
 }
 
+/**
+ * komutAnahtari'nin tersi: icerikte yazilan anahtari komuta cevirir.
+ *
+ * Tanimadigi anahtar icin null doner -- icerik denetimi (npm run kontrol)
+ * bunu hataya cevirir, calisma zamani ise sessizce atlar.
+ */
+export function anahtarKomutu(anahtar: string): Komut | null {
+  for (const komutlar of Object.values(KOMUT_SETLERI)) {
+    const komut = komutlar.find((aday) => komutAnahtari(aday) === anahtar);
+    if (komut !== undefined) return komut;
+  }
+  return null;
+}
+
 // Yonler saat yonunde siralidir; donmek bu dizide bir adim ilerlemektir.
 const SAAT_SIRASI: Yon[] = ["yukari", "sag", "asagi", "sol"];
 
