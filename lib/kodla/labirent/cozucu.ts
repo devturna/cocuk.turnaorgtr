@@ -104,6 +104,11 @@ export const ARAMA_BLOK_SINIRI = 6;
  * ve tekrar kutusunu da dener. "npm run kontrol" dongu duraklarinin
  * gercekten cozulebildigini bununla kanitlar.
  *
+ * `kez` verilirse arama YALNIZCA o tekrar sayisini tasiyan kutulari dener.
+ * Bu, kucagi dolu sayiyla hazir veren bulmacalar icindir: cocuk sayiya hic
+ * dokunmadan cozebilmeli, yoksa "hazir" gelen sayi yanlistir. Duz bloklar
+ * yine serbesttir; kisitlanan yalnizca kutunun kez degeridir.
+ *
  * Kaba kuvvet yeterlidir: butce kucuktur, komut seti en fazla dorttur ve
  * kez ikiyle bes arasindadir.
  */
@@ -111,6 +116,7 @@ export function enKisaBlokCozumu(
   harita: Harita,
   seti: KomutSeti,
   enFazlaBlok: number,
+  kez?: number,
 ): Blok[] | null {
   if (enFazlaBlok > ARAMA_BLOK_SINIRI) {
     throw new Error(
@@ -122,7 +128,7 @@ export function enKisaBlokCozumu(
 
   // Butce artan sirada tarandigi icin ilk bulunan cozum en az bloklu olandir.
   for (let butce = 1; butce <= enFazlaBlok; butce++) {
-    for (const program of programlar(butce, komutlar)) {
+    for (const program of programlar(butce, komutlar, kez)) {
       if (calistir(program, harita).basarili) return program;
     }
   }
@@ -137,25 +143,27 @@ export function enKisaBlokCozumu(
  * programlar arasinda PAYLASILIR, her programa ozel bir kopya degildir.
  * Cagiran taraf donen bir Blok[]'u yerinde degistirmemeli.
  */
-function* programlar(butce: number, komutlar: Komut[]): Generator<Blok[]> {
+function* programlar(butce: number, komutlar: Komut[], kez?: number): Generator<Blok[]> {
   if (butce === 0) {
     yield [];
     return;
   }
 
   for (const komut of komutlar) {
-    for (const kalan of programlar(butce - 1, komutlar)) {
+    for (const kalan of programlar(butce - 1, komutlar, kez)) {
       yield [komutBloku(komut), ...kalan];
     }
   }
 
   // Kutu kendisi bir blok tutar; govde bir blokla baslar cunku bos kutu
   // hicbir sey yapmaz ve en az bloklu cozumde asla yer almaz.
+  const ilkKez = kez ?? EN_AZ_KEZ;
+  const sonKez = kez ?? EN_FAZLA_KEZ;
   for (let govdeUzunlugu = 1; govdeUzunlugu <= butce - 1; govdeUzunlugu++) {
     for (const govde of govdeler(govdeUzunlugu, komutlar)) {
-      for (let kez = EN_AZ_KEZ; kez <= EN_FAZLA_KEZ; kez++) {
-        for (const kalan of programlar(butce - 1 - govdeUzunlugu, komutlar)) {
-          yield [{ tur: "tekrar", kez, govde }, ...kalan];
+      for (let kutuKez = ilkKez; kutuKez <= sonKez; kutuKez++) {
+        for (const kalan of programlar(butce - 1 - govdeUzunlugu, komutlar, kez)) {
+          yield [{ tur: "tekrar", kez: kutuKez, govde }, ...kalan];
         }
       }
     }

@@ -118,3 +118,24 @@ describe("enKisaBlokCozumu", () => {
     expect(enKisaBlokCozumu(haritayiCoz([".T#H"], "sag"), "yonler", ARAMA_BLOK_SINIRI)).toBeNull();
   });
 });
+
+describe("enKisaBlokCozumu, kez kapisi", () => {
+  // .T....H  ->  saga bes adim.
+  const UZUN = haritayiCoz([".T....H"], "sag");
+
+  it("verilen kez ile cozum varsa bulur", () => {
+    const cozum = enKisaBlokCozumu(UZUN, "yonler", 2, 5)!;
+    expect(cozum).not.toBeNull();
+    expect(cozum.some((blok) => blok.tur === "tekrar" && blok.kez === 5)).toBe(true);
+    expect(calistir(cozum, UZUN).basarili).toBe(true);
+  });
+
+  it("verilen kez disinda bir kez denemez", () => {
+    // Iki blokla (kutu + tek komut) bes adima yalnizca kez 5 ulasir.
+    expect(enKisaBlokCozumu(UZUN, "yonler", 2, 3)).toBeNull();
+  });
+
+  it("kez verilmeyince butun kezleri dener", () => {
+    expect(enKisaBlokCozumu(UZUN, "yonler", 2)).not.toBeNull();
+  });
+});

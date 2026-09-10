@@ -8,6 +8,7 @@ import {
   bulmacaSayisi,
   kursBolumleri,
 } from "./bolumler";
+import { EN_AZ_KEZ, EN_FAZLA_KEZ } from "./program";
 
 describe("kurslar", () => {
   it("turna-yolu kursu yayindadir", () => {
@@ -106,17 +107,37 @@ describe("bulmaca dizisi", () => {
   });
 });
 
-describe("dongu alanlari", () => {
-  // Bugun turna-yolu icinde "dongu" tasiyan hicbir bulmaca yok (bu dilim
-  // icerik eklemiyor); dongu bos kumede doner, yani bu testin GECMESI tek
-  // basina bir sey kanitlamaz. Icerik dilimi gercek bir dongulu bulmaca
-  // ekleyince bu test o bulmacayi da denetleyecek.
-  it("dongu tasiyan bulmacada enFazlaBlok da vardir", () => {
-    for (const bolum of kursBolumleri("turna-yolu")) {
-      for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
-        if (!bulmaca.dongu) continue;
-        expect(typeof bulmaca.enFazlaBlok, `${bolum.id} bulmaca ${sira}`).toBe("number");
-      }
+describe("kucak alanlari", () => {
+  const bulmacalar = kursBolumleri("turna-yolu").flatMap((bolum) =>
+    bolum.bulmacalar.map((bulmaca, sira) => ({ kimlik: `${bolum.id} bulmaca ${sira}`, bulmaca })),
+  );
+
+  it("kucak tasiyan bulmacada enFazlaBlok da vardir", () => {
+    for (const { kimlik, bulmaca } of bulmacalar) {
+      if (!bulmaca.kucak) continue;
+      expect(typeof bulmaca.enFazlaBlok, kimlik).toBe("number");
+    }
+  });
+
+  it("kucak asamasi uc degerden biridir", () => {
+    for (const { kimlik, bulmaca } of bulmacalar) {
+      if (!bulmaca.kucak) continue;
+      expect(["hazir", "oneri", "serbest"], kimlik).toContain(bulmaca.kucak.asama);
+    }
+  });
+
+  it("hazir kucagin kez degeri iki ile bes arasindadir", () => {
+    for (const { kimlik, bulmaca } of bulmacalar) {
+      if (bulmaca.kucak?.asama !== "hazir") continue;
+      expect(bulmaca.kucak.kez, kimlik).toBeGreaterThanOrEqual(EN_AZ_KEZ);
+      expect(bulmaca.kucak.kez, kimlik).toBeLessThanOrEqual(EN_FAZLA_KEZ);
+    }
+  });
+
+  it("enFazlaBlok yalnizca kucakli bulmacada anlamlidir", () => {
+    for (const { kimlik, bulmaca } of bulmacalar) {
+      if (bulmaca.enFazlaBlok === undefined) continue;
+      expect(bulmaca.kucak, kimlik).toBeDefined();
     }
   });
 });
