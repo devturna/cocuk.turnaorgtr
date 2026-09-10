@@ -101,20 +101,22 @@ kendi `harita` alanı için geçerlidir.
   koymak, iki 64 piksellik işaretin görsel olarak çakışmasından çok daha
   büyük bir hatadır.
 
-  Bilinen kısıt: harita ince olduğu için (yaklaşık 1000×422) gerçekten
-  yakın duraklar (ör. Sultansazlığı ve Kapadokya, ikisi de Orta Anadolu'da,
-  aralarında ~100 km var) küçük ekranda görsel olarak üst üste düşebilir.
-  Bu, koordinatı değil, etkileşim katmanını ilgilendiren bir sorundur ve
-  şöyle çözülür: kilitli bir durak `.gocDuragi.kilitli { pointer-events:
-  none }` sayesinde asla dokunmayı yutmaz, açık/tamamlanmış duraklar
-  arasında da `GocHaritasi.tsx` her durağa açıkça bir `z-index` verir. Faz
-  4a'da aynı anda yalnızca tek durak açık olduğu için bu her zaman
-  yeterlidir. İlerideki fazlarda durak sayısı arttıkça (nihai hedef için
-  bkz. [kodlama.md](tasarim/kodlama.md) §8) ve aynı bölgede birden fazla
-  durak açılabilir hale gelince muhtemelen **kılavuz çizgi** (leader line)
-  gerekecek: işaret gerçek noktasından hafifçe kaydırılıp kısa bir
-  çizgiyle asıl noktaya bağlanır. O zaman bile koordinatın kendisi
-  değişmez, yalnızca çizimi kaydırılır.
+  Harita ince olduğu için (yaklaşık 1000×422) gerçekten yakın duraklar
+  (ör. Sultansazlığı ve Kapadokya, aralarında ~100 km) küçük ekranda
+  görsel olarak üst üste düşer. On beş duraklı rotayla birlikte bu
+  gerçekten oldu ve öngörülen çözüm uygulandı: **kılavuz çizgi**. İşaret
+  gerçek noktasından hafifçe kaydırılır, kısa bir çizgiyle asıl noktaya
+  bağlanır ve o noktaya küçük bir halka konur. Koordinatın kendisi
+  değişmez, yalnızca çizimi kayar — hesap `lib/kodla/haritaYerlesimi.ts`
+  içindeki saf bir fonksiyondadır ve kayma sınırlıdır (harita genişliğinin
+  %5'i): sınır olmasaydı bir yerdeki itme bütün kümeye yayılır, harita
+  coğrafya olmaktan çıkardı.
+
+  İşaretin boyu durağın durumuna göre değişir — açık durak 64, tamamlanmış
+  44, kilitli 32 piksel. On beş durak aynı boyda olsaydı harita bir yığın
+  olurdu; oysa çocuğun o an işi olan tek bir durak var. Kilitli bir durak
+  ayrıca `.gocDuragi.kilitli { pointer-events: none }` sayesinde asla
+  dokunmayı yutmaz.
 - `ipucu`: çocuğa değil, yanındaki ebeveyne yazılmış tek cümle. **Yere
   dairdir, kuşa değil** — kurs birden fazla kuş sunuyorsa (bkz. §7) kuşa
   dair bir ipucu, seçilmeyen kuşlar için yanlış olur. Durakta birden fazla

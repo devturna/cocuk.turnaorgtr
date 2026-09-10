@@ -72,6 +72,11 @@
   pointer-events: none;
 }
 
+/* Isaret boyu duragin DURUMUNA gore degisir. On bes durak ayni boyda
+   olsaydi harita bir yigin olurdu; oysa cocugun su an isi olan tek bir
+   durak var. Acik durak en buyuk (64px), bitmis duraklar dokunulabilir
+   kalir ama geri ceklir (48px, dokunma hedefi asgari 44px'in ustunde),
+   kilitli olanlar yalnizca birer isaret (32px). */
 .gocDuragi {
   position: absolute;
   display: flex;
@@ -87,7 +92,26 @@
   text-decoration: none;
 }
 
-.gocDuragi.bitti { background: var(--vurgu); }
+/* Kilavuz cizginin ucundaki gercek konum. */
+.gocGercekNokta {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border: 2px solid #7d746a;
+  border-radius: 50%;
+  background: #fff;
+  z-index: 1;
+}
+
+.gocDuragi.bitti {
+  width: 44px;
+  height: 44px;
+  margin: -22px 0 0 -22px;
+  border-width: 3px;
+  background: var(--vurgu);
+  font-size: 20px;
+}
 
 /* Kilitli bir durak asla dokunmayi yutmaz: gercek koordinatlar ayni bolgede
    yakin duraklari gorsel olarak ust uste getirebilir (bkz.
@@ -96,7 +120,12 @@
    duraklarin z-index'i GocHaritasi.tsx icinde tek tek, sira numarasina gore
    acikca verilir; DOM sirasindaki dolayli esitlige guvenilmez. */
 .gocDuragi.kilitli {
-  opacity: 0.5;
+  width: 32px;
+  height: 32px;
+  margin: -16px 0 0 -16px;
+  border-width: 2px;
+  font-size: 15px;
+  opacity: 0.45;
   pointer-events: none;
   z-index: 1;
 }
