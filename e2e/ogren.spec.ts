@@ -208,3 +208,80 @@ test("sonraki rakama gecince onceki rakamin izi ekranda kalmaz", async ({ page }
   await expect(page.locator(".oyunBaslik h1")).toHaveText("Bir");
   expect(await izUzunlugu()).toBe(0);
 });
+
+// --- Say oyunu ---
+//
+// Cocuk nesnelere teker teker dokunarak sayar; soru ancak hepsi sayilinca
+// cikar. Yanlis cevap cezalandirilmaz.
+
+/** Sahnedeki butun nesnelere sirayla dokunur. */
+async function hepsiniSay(page: import("@playwright/test").Page) {
+  const nesneler = page.locator(".sayNesnesi");
+  const adet = await nesneler.count();
+  for (let sira = 0; sira < adet; sira++) await nesneler.nth(sira).click();
+  return adet;
+}
+
+test("bolum girisinden Say oyunu acilir", async ({ page }) => {
+  await page.goto("/ogren/");
+  await page.getByRole("link", { name: /Say/ }).click();
+  await expect(page.getByRole("heading", { name: "Say" })).toBeVisible();
+  // Ilk tur bir nesnedir: sayma birden baslar.
+  await expect(page.locator(".sayNesnesi")).toHaveCount(1);
+});
+
+test("soru ancak hepsi sayilinca cikar", async ({ page }) => {
+  await page.goto("/ogren/say/");
+  await page.getByRole("button", { name: "Sonraki" }).click();
+  await page.getByRole("button", { name: "Sonraki" }).click();
+  await expect(page.locator(".sayNesnesi")).toHaveCount(3);
+
+  await page.locator(".sayNesnesi").first().click();
+  await expect(page.getByText("Kaç tane?")).toHaveCount(0);
+
+  await hepsiniSay(page);
+  await expect(page.getByText("Kaç tane?")).toBeVisible();
+});
+
+test("sayilan nesne kacinci oldugunu gosterir", async ({ page }) => {
+  await page.goto("/ogren/say/");
+  await page.getByRole("button", { name: "Sonraki" }).click();
+  await page.getByRole("button", { name: "Sonraki" }).click();
+
+  const nesneler = page.locator(".sayNesnesi");
+  await nesneler.nth(1).click();
+  await expect(nesneler.nth(1)).toHaveClass(/sayildi/);
+  await expect(page.getByRole("button", { name: "1. sayıldı" })).toHaveCount(1);
+  // Ayni nesneye ikinci kez dokunmak sayaci ilerletmez.
+  await nesneler.nth(1).click();
+  await expect(page.getByRole("button", { name: /sayıldı/ })).toHaveCount(1);
+});
+
+test("dogru cevap yildiz kazandirir, yanlis cevap cezalandirmaz", async ({ page }) => {
+  await page.goto("/ogren/say/");
+  await page.getByRole("button", { name: "Sonraki" }).click();
+  const adet = await hepsiniSay(page);
+  expect(adet).toBe(2);
+
+  // Once yanlis: secenek yerinde kalir, soru kapanmaz, yildiz yazilmaz.
+  await page.getByRole("button", { name: "Üç" }).click();
+  await expect(page.getByText("Kaç tane?")).toBeVisible();
+  expect(
+    await page.evaluate(() => localStorage.getItem("ogren:yildizlar")),
+  ).toBeNull();
+
+  await page.getByRole("button", { name: "İki", exact: true }).click();
+  await expect(page.getByText("İki!")).toBeVisible();
+  const yildizlar = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("ogren:yildizlar") ?? "{}"),
+  );
+  expect(yildizlar["sayi:2"]).toContain("say");
+});
+
+test("Say oyununda kazanilan yildiz bolum girisinde gorunur", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("ogren:yildizlar", JSON.stringify({ "sayi:2": ["say"], "sayi:5": ["say"] }));
+  });
+  await page.goto("/ogren/");
+  await expect(page.getByText("2/10")).toBeVisible();
+});

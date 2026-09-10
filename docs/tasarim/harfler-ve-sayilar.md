@@ -129,10 +129,22 @@ yeniden kullanılır.
 
 ### Say
 
-Ekranda 1-10 arası nesne görünür. Çocuk her birine dokunur; dokunulan nesne
-işaretlenir ve sayaç büyür. Yani parmakla sayar — okul öncesinde kullanılan
-gerçek yöntem budur. Hepsi sayıldıktan sonra "kaç tane?" sorusu ve üç rakam
-seçeneği çıkar.
+**Yayında.** Ekranda 1-10 arası nesne görünür. Çocuk her birine dokunur;
+dokunulan nesne soluklaşır ve üstünde kaçıncı olduğu yazar, başlıktaki sayaç
+da büyür. Yani parmakla sayar — okul öncesinde kullanılan gerçek yöntem
+budur. Hepsi sayıldıktan sonra "kaç tane?" sorusu ve üç rakam seçeneği
+çıkar; seçenekler doğru cevaba **yakın** sayılardır (3 ile 9 arasında seçim
+sayma değil tahmin olurdu).
+
+Yerleşim rastgele değil, **tur numarasından türetilir** (`lib/ogren/say.ts`):
+sunucuda üretilen HTML ile tarayıcıdaki ilk çizim aynı olsun ve test gerçek
+yerleşimi ölçebilsin diye. Nesneler ızgaraya oturur ve hücre içinde biraz
+kaydırılır — düz ızgara "sayılacak nesne" değil tablo gibi görünüyordu,
+tamamen rastgele yerleşimde ise nesneler üst üste binip dokunma hedefini
+yok ediyordu.
+
+Her turda simge değişir: aynı şey on kez sayılınca çocuk sayıyı değil
+resmi hatırlar.
 
 ### Eşleştir
 
