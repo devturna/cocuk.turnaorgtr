@@ -79,18 +79,22 @@ async function seridiBosalt(page: Page) {
   }
 }
 
-/** Seritteki kucagin su anki tekrar sayisi. */
-async function kucaginKezi(page: Page): Promise<number> {
-  const etiket = (await page.locator(".tekrarNoktalari").first().getAttribute("aria-label")) ?? "";
-  return Number(etiket.replace(/\D/g, ""));
+/**
+ * En son eklenen kucak. Bir programda birden fazla kucak olabilir (ornegin
+ * Uluabat'ta iki tane); yardimcilar HER ZAMAN sonuncusuyla calisir, cunku
+ * program bastan sona sirayla kuruluyor.
+ */
+function sonKucak(page: Page) {
+  return page.locator(".tekrarKutusu").last();
 }
 
 /** Noktalara dokuna dokuna istenen tekrar sayisina getirir (2..5 arasi doner). */
 async function keziAyarla(page: Page, kez: number) {
+  const noktalar = sonKucak(page).locator(".tekrarNoktalari");
   for (let deneme = 0; deneme < 4; deneme++) {
-    const suanki = await kucaginKezi(page);
-    if (suanki === kez) return;
-    await page.getByRole("button", { name: `Kaç kez tekrarlansın: ${suanki}` }).click();
+    const etiket = (await noktalar.getAttribute("aria-label")) ?? "";
+    if (Number(etiket.replace(/\D/g, "")) === kez) return;
+    await noktalar.click();
   }
   throw new Error(`Kucak ${kez} kez'e getirilemedi`);
 }
@@ -130,7 +134,7 @@ async function programiUygula(page: Page, bulmaca: BulmacaVerisi, program: Blok[
 
     if (!hazirGeldi) await page.getByRole("button", { name: "Tekrar kucağı koy" }).click();
     await keziAyarla(page, blok.kez);
-    const ac = page.getByRole("button", { name: "Kucağı aç" });
+    const ac = sonKucak(page).getByRole("button", { name: "Kucağı aç" });
     if (await ac.count()) await ac.click();
     await programiDiz(page, blok.govde.map((govde) => komutAnahtari(govde.komut)));
   }
@@ -522,10 +526,15 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
     }
   });
 
-  // Efes hem toplanacak bir basak ("o") hem T'nin hemen saginda bir engel
-  // ("#") barindirir: tek bolumde hem carpma hem basak-toplama/kazanma
-  // durumlarina ulasilabiliyor.
-  const bolum = BOLUMLER.find((b) => b.id === "efes")!;
+  // Bu test tek bulmacalik bir durak ister: sonundaki "Harika! En kisa
+  // yol!" kutlamasi durak BITTIGINDE cikar. Pamukkale hem tek bulmacalik
+  // hem de toplanacak bir basak ("o") tasiyor; carpma, kusu harita
+  // kenarina surerek elde ediliyor (kenara carpmak ile engele carpmak
+  // calistir() icinde ayni olaydir).
+  //
+  // Efes bu isi 4d'ye kadar goruyordu; o durak artik donus komutlarini
+  // ogretiyor ve dort bulmacali.
+  const bolum = BOLUMLER.find((b) => b.id === "pamukkale")!;
 
   /** transitionDuration/animationName'i bir secici DOM'da BELIRIR belirmez
    * (ayni tarayici tikinde) yakalar; ayri bir "bul, sonra oku" adimi state
@@ -591,8 +600,8 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
     gecisYok(await anlikYakala(sec), sec);
   }
 
-  // --- Carpma: tek bir komutla duvara surulmesini tetikler ---
-  await programiDiz(sayfa, ["git:sag"]);
+  // --- Carpma: kus once bos kareye yurur, sonra harita kenarina toslar ---
+  await programiDiz(sayfa, ["git:sol", "git:sol"]);
   animasyonYok(await anlikYakala(".kodlaYolParcasi"), ".kodlaYolParcasi");
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
   animasyonYok(await anlikYakala(".kodlaKarakter.poz-carpma"), ".kodlaKarakter.poz-carpma");

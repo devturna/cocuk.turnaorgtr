@@ -616,14 +616,124 @@
     "ipucu": "Efes iki bin yıl önce denize açılan büyük bir liman şehriydi.",
     "bulmacalar": [
       {
-        "komutSeti": "yonler",
-        "idealAdim": 6,
+        "komutSeti": "donusler",
+        "idealAdim": 2,
         "harita": {
           "bakis": "sag",
           "satirlar": [
-            "..o..",
-            ".T#..",
-            "....H"
+            ".T.H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".T..",
+            "...H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "...H",
+            ".T.."
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "yukari",
+          "satirlar": [
+            "..H",
+            "...",
+            ".T."
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "uluabat-golu",
+    "ad": "Uluabat Gölü",
+    "mekanik": "labirent",
+    "tema": "sazlik",
+    "durak": {
+      "x": 15,
+      "y": 33
+    },
+    "ipucu": "Bursa'nın sığ gölü; yazın yüzeyi nilüferlerle kaplanır.",
+    "bulmacalar": [
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".T....H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".T.",
+            "...",
+            "...",
+            "...",
+            ".H."
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 4,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "..H",
+            ".#.",
+            "T.."
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 5,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "...H",
+            "....",
+            "....",
+            "T..."
           ]
         }
       }

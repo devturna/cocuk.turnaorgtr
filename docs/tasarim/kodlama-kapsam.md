@@ -147,7 +147,7 @@ kendisi.
 | 10 | Burdur Gölü | Burdur | 23, 70 | yeni |
 | 11 | Pamukkale | Denizli | 18, 68 | var |
 | 12 | Efes | İzmir | 9, 67 | var |
-| 13 | Uluabat Gölü | Bursa | 15, 33 | yeni |
+| 13 | Uluabat Gölü | Bursa | 15, 33 | var |
 | 14 | Manyas Kuş Cenneti | Balıkesir | 12, 32 | yeni |
 | 15 | Gala Gölü, Meriç Deltası | Edirne | 3, 23 | yeni |
 
@@ -197,9 +197,12 @@ yerdir ve karakter seçimindeki flamingoyu haritaya bağlar.
 
 Toplam 58 bulmaca.
 
-**Dönüşler seti nihayet kullanılıyor.** Motorda `donusler` komut seti (ileri,
-sağa dön, sola dön) 4a'dan beri yazılı ve testli, ama hiçbir durakta
-kullanılmıyor — hiçbir çocuk görmedi. Zihinsel döndürme yaklaşık 7 yaşta
+**Dönüşler seti nihayet kullanılıyor** (Efes ve Uluabat yayında). Motorda
+`donusler` komut seti (ileri, sağa dön, sola dön) 4a'dan beri yazılı ve
+testliydi ama hiçbir durakta kullanılmıyordu — hiçbir çocuk görmemişti.
+Paletteki "ileri" bir ok değil **ayak izidir** (👣): artı düzeninin üst
+hücresinde duran bir yukarı oku, mutlak yönleri yeni öğrenmiş çocuğa
+"yukarı git" diye okunurdu. Zihinsel döndürme yaklaşık 7 yaşta
 oturduğu için rotanın sonuna, 12. durağa konuyor. Çizim mekaniği de dönüş
 mantığıyla çalıştığından bu durak 4e'ye doğal bir köprü olur.
 
@@ -348,7 +351,7 @@ Bu, karşılık haritasındaki tek bilinçli eksiktir.
 | Faz | Kapsam | Neden bu sırada |
 |---|---|---|
 | 4d | Durak = bulmaca dizisi yapısı, on beş duraklık rota, hata ayıklama, döngü, dönüş komutları | Yapı değişikliği içeriğin önüne geçmeli; döngü zaten en çok beklenen kavram |
-| 4d durumu | Yapı ✓, döngü motoru ✓, döngü arayüzü ✓, döngü durakları ✓, hata ayıklama durakları ✓ — kalan: dönüş komutları, rotanın tamamı | |
+| 4d durumu | Yapı ✓, döngü ✓, hata ayıklama ✓, dönüş komutları ✓ — kalan: rotanın tamamlanması (4, 10, 11, 14, 15) | |
 | 4e | Çizim mekaniği ve desen durakları | Döngüyü gerektirir |
 | 4f | Olaylar | Bağımsız; en son çünkü en az öğretici, en çok serbest oyun |
 

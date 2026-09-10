@@ -1,12 +1,15 @@
 // Komutun ekrandaki ikonu ve okunabilir adi.
 // Hem palet hem program seridi ayni kaynagi kullanir ki ikisi ayrisamasin.
 
+// "ileri" AYAK IZIDIR, ok degil. Donusler setinde ileri "baktigin yone
+// yuru" demektir; ust hucrede duran bir yukari oku, mutlak yonleri yeni
+// ogrenmis cocuga "yukari git" diye okunurdu.
 export const KOMUT_IKONLARI: Record<string, string> = {
   "git:yukari": "⬆",
   "git:asagi": "⬇",
   "git:sol": "⬅",
   "git:sag": "➡",
-  ileri: "⬆",
+  ileri: "👣",
   "don:sol": "↺",
   "don:sag": "↻",
 };
