@@ -1,10 +1,16 @@
 import { test, expect, type Page } from "@playwright/test";
-import { bulmacaBul, bulmacaHaritasi, kursBolumleri, type BolumVerisi } from "../lib/kodla/bolumler";
+import {
+  bulmacaBul,
+  bulmacaHaritasi,
+  kursBolumleri,
+  type BolumVerisi,
+  type BulmacaVerisi,
+} from "../lib/kodla/bolumler";
 import { kursKarakterleri } from "../lib/kodla/karakterler";
-import { enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
+import { enKisaBlokCozumu, enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
 import { onizlemeYolu } from "../lib/kodla/labirent/onizleme";
-import { EN_FAZLA_BLOK, komutBloku } from "../lib/kodla/program";
+import { EN_FAZLA_BLOK, komutBloku, type Blok } from "../lib/kodla/program";
 import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 
 const KURS = "turna-yolu";
@@ -55,6 +61,63 @@ function rgbYaz(hex: string): string {
 async function programiDiz(page: Page, anahtarlar: string[]) {
   for (const anahtar of anahtarlar) {
     await page.getByRole("button", { name: KOMUT_ADLARI[anahtar], exact: true }).click();
+  }
+}
+
+/** Seritteki kucagin su anki tekrar sayisi. */
+async function kucaginKezi(page: Page): Promise<number> {
+  const etiket = (await page.locator(".tekrarNoktalari").first().getAttribute("aria-label")) ?? "";
+  return Number(etiket.replace(/\D/g, ""));
+}
+
+/** Noktalara dokuna dokuna istenen tekrar sayisina getirir (2..5 arasi doner). */
+async function keziAyarla(page: Page, kez: number) {
+  for (let deneme = 0; deneme < 4; deneme++) {
+    const suanki = await kucaginKezi(page);
+    if (suanki === kez) return;
+    await page.getByRole("button", { name: `Kaç kez tekrarlansın: ${suanki}` }).click();
+  }
+  throw new Error(`Kucak ${kez} kez'e getirilemedi`);
+}
+
+/**
+ * Bir blok programini GERCEK arayuzden surer: kucagi koyar (ya da hazir
+ * geleni kullanir), sayisini noktalarla ayarlar, govdeyi paletten doldurur.
+ *
+ * Duz programlarda programiDiz yeterlidir; bu, dongu duraklarinin cocugun
+ * parmagiyla gercekten cozulebildigini kanitlamak icin var.
+ */
+async function programiUygula(page: Page, bulmaca: BulmacaVerisi, program: Blok[]) {
+  for (const [ust, blok] of program.entries()) {
+    if (blok.tur === "komut") {
+      // Acik kucak varken paletten gelen blok ICINE duser; ust duzeye blok
+      // koymak icin once kucagi kapatmak gerekir.
+      const kapat = page.getByRole("button", { name: "Kucağı kapat" });
+      if (await kapat.count()) await kapat.click();
+      await programiDiz(page, [komutAnahtari(blok.komut)]);
+      continue;
+    }
+
+    const hazirGeldi = bulmaca.kucak?.asama === "hazir" && ust === 0;
+    if (bulmaca.kucak?.asama === "oneri") {
+      // Bu asamada palette kutu dugmesi yok: kucak yalnizca KATLAMAYLA
+      // dogar. Cocugun yolu da budur -- ayni komutu ust uste yaz, altta
+      // beliren oneriye dokun. (Denetim, bu asamadaki her bulmacanin tek
+      // komutluk govdeyle cozulebildigini ayrica sart kosuyor.)
+      expect(blok.govde, "oneri asamasinda govde tek komut olmali").toHaveLength(1);
+      await programiDiz(page, Array(3).fill(komutAnahtari(blok.govde[0].komut)));
+      await page.getByRole("button", { name: /tek kucağa topla/ }).click();
+      // Govde katlamayla ZATEN doldu; bir kez daha eklemek ikinci bir blok
+      // koyar ve cozumu ideal olmaktan cikarir.
+      await keziAyarla(page, blok.kez);
+      continue;
+    }
+
+    if (!hazirGeldi) await page.getByRole("button", { name: "Tekrar kucağı koy" }).click();
+    await keziAyarla(page, blok.kez);
+    const ac = page.getByRole("button", { name: "Kucağı aç" });
+    if (await ac.count()) await ac.click();
+    await programiDiz(page, blok.govde.map((govde) => komutAnahtari(govde.komut)));
   }
 }
 
@@ -612,9 +675,26 @@ for (const bolum of BOLUMLER) {
     await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
     for (let sira = 0; sira < bolum.bulmacalar.length; sira++) {
-      const yol = bulmacaCozumu(bolum, sira);
-      expect(yol, `${bolum.id} - ${sira}. bulmaca icin cozum bulunamadi`).not.toBeNull();
-      await programiDiz(page, yol!.map(komutAnahtari));
+      const bulmaca = bulmacaBul(bolum, sira)!;
+      if (bulmaca.kucak === undefined) {
+        const yol = bulmacaCozumu(bolum, sira);
+        expect(yol, `${bolum.id} - ${sira}. bulmaca icin cozum bulunamadi`).not.toBeNull();
+        await programiDiz(page, yol!.map(komutAnahtari));
+      } else {
+        // Dongu duraginda duz cozum serit sinirina SIGMAZ (denetim bunu sart
+        // kosuyor); cozum blok sayan aramadan gelir ve kucak arayuzunden
+        // surulur.
+        const program = enKisaBlokCozumu(
+          bulmacaHaritasi(bulmaca),
+          bulmaca.komutSeti,
+          bulmaca.enFazlaBlok!,
+          // Katlama tek komutluk govde uretir; "oneri" asamasinda cocugun
+          // baska bir kucak yapma yolu yok, o yuzden arama da oyle daralir.
+          bulmaca.kucak.asama === "oneri" ? { enFazlaGovde: 1 } : {},
+        );
+        expect(program, `${bolum.id} - ${sira}. bulmaca icin dongulu cozum yok`).not.toBeNull();
+        await programiUygula(page, bulmaca, program!);
+      }
       await page.getByRole("button", { name: "Çalıştır" }).click();
 
       if (sira < bolum.bulmacalar.length - 1) {

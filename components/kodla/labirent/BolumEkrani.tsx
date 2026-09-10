@@ -21,19 +21,22 @@ import { temaBul } from "@/lib/kodla/labirent/temalar";
 import {
   blokEkle,
   blokSayisi,
+  kezDegistir,
   komutBloku,
-  programiTemizle,
   sonBlokuSil,
+  tekrarEkle,
   EN_FAZLA_BLOK,
   type Blok,
   type BlokYolu,
 } from "@/lib/kodla/program";
+import { katla, katlamaOnerisi } from "@/lib/kodla/katlama";
 import {
   bulmacaBul,
   bulmacaHaritasi,
   bulmacaSayisi,
   bolumSiralamasi,
   type BolumVerisi,
+  type BulmacaVerisi,
 } from "@/lib/kodla/bolumler";
 import { baslangicBulmacasi, bulmacaSonrasi } from "@/lib/kodla/durak";
 import { varsayilanKarakter } from "@/lib/kodla/karakterler";
@@ -51,6 +54,7 @@ import {
 import Sahne from "./Sahne";
 import KomutPaleti from "./KomutPaleti";
 import ProgramSeridi from "./ProgramSeridi";
+import KatlamaCipi from "./KatlamaCipi";
 import BulmacaNoktalari from "./BulmacaNoktalari";
 import Konfeti from "./Konfeti";
 import { VARSAYILAN_PALET, type KarakterPozu } from "./Simgeler";
@@ -146,6 +150,27 @@ function bulmacaBaslangicKonumu(
   return { x: harita.baslangic.x, y: harita.baslangic.y, bakis: harita.bakis };
 }
 
+/**
+ * Bulmaca acildiginda seritte NE DURUYOR.
+ *
+ * "hazir" asamasindaki kucak ekranda hazir gelir: cocuk komuta dokunur,
+ * komut kucagin icine duser -- "icine koymak" diye ayri bir jest yoktur
+ * (docs/tasarim/kodlama-arayuz.md §5). Diger asamalarda serit bostur.
+ *
+ * Program'in sifirlandigi HER yer bunu cagirir (ilk durum, bulmaca gecisi,
+ * duraktan tekrar): bulmacaBaslangicKonumu ile ayni tek-kaynak disiplini,
+ * yoksa bir yol kucagi unutur ve cocuk cozulemeyen bir bulmacayla kalir.
+ */
+function bulmacaBaslangicProgrami(bulmaca: BulmacaVerisi): Blok[] {
+  if (bulmaca.kucak?.asama !== "hazir") return [];
+  return [{ tur: "tekrar", kez: bulmaca.kucak.kez, govde: [] }];
+}
+
+/** Hazir kucak seritte tek basina duruyorsa acik gelir; yoksa hicbiri acik degil. */
+function bulmacaBaslangicKutusu(bulmaca: BulmacaVerisi): number | null {
+  return bulmaca.kucak?.asama === "hazir" ? 0 : null;
+}
+
 type Durum = {
   program: Blok[];
   // Programdaki hangi blogun EN SON EKLENEN blok oldugu (ProgramSeridi'nin
@@ -168,6 +193,14 @@ type Durum = {
   poz: KarakterPozu;
   toplananlar: string[];
   bitti: YildizTuru | null;
+  /**
+   * Acik kucagin ust duzey sirasi; hicbiri acik degilse null.
+   *
+   * Acik kucak, paletten gelen blogun ICINE dustugu kucaktir. Kucaga
+   * dokunmak acar kapatir: kapaliyken bloklar seridin sonuna, yani kucagin
+   * ARKASINA duser.
+   */
+  acikKutu: number | null;
   /** Su an oynanan bulmacanin durak icindeki sirasi. */
   bulmacaSirasi: number;
   /** Bulmacalar arasi gecis katmani goruntudeyken true. */
@@ -208,7 +241,8 @@ export default function BolumEkrani({
 
   // Baslangicta bulmacaSirasi her zaman 0'dir (localStorage sunucuda yok).
   const [durum, setDurum] = useState<Durum>(() => ({
-    program: [],
+    program: bulmacaBaslangicProgrami(bolum.bulmacalar[0]),
+    acikKutu: bulmacaBaslangicKutusu(bolum.bulmacalar[0]),
     sonEklenen: null,
     oynatma: null,
     vurgulanan: null,
@@ -246,11 +280,14 @@ export default function BolumEkrani({
       durakIlerlemesiniSil(kursId, bolum.id);
     }
     if (baslangic !== 0) {
+      const acilan = bulmacaBul(bolum, baslangic) ?? bolum.bulmacalar[0];
       // eslint-disable-next-line react-hooks/set-state-in-effect
       setDurum((onceki) => ({
         ...onceki,
         bulmacaSirasi: baslangic,
         karakterKonumu: bulmacaBaslangicKonumu(bolum, baslangic),
+        program: bulmacaBaslangicProgrami(acilan),
+        acikKutu: bulmacaBaslangicKutusu(acilan),
       }));
       return;
     }
@@ -262,6 +299,11 @@ export default function BolumEkrani({
 
   const bulmaca = bulmacaBul(bolum, durum.bulmacaSirasi) ?? bolum.bulmacalar[0];
   const harita = useMemo(() => bulmacaHaritasi(bulmaca), [bulmaca]);
+  // Seridin ALT SINIRI. Geri al ve temizle bu programin altina INMEZ:
+  // hazir gelen kucak bulmacanin mobilyasidir, cocuk onu kazayla silerse
+  // geriye cozulemeyen bir bulmaca kalir. Kucaksiz bulmacada baslangic bos
+  // oldugu icin kural kendiliginden etkisizdir.
+  const baslangicProgrami = bulmacaBaslangicProgrami(bulmaca);
   const tema = temaBul(bolum.tema);
   const baslangicKarakterKonumu = { ...harita.baslangic, bakis: harita.bakis };
 
@@ -418,13 +460,15 @@ export default function BolumEkrani({
     const zamanlayici = setTimeout(() => {
       setDurum((onceki) => {
         const yeniSira = onceki.bulmacaSirasi + 1;
+        const yeniBulmaca = bulmacaBul(bolum, yeniSira) ?? bolum.bulmacalar[0];
         return {
           ...onceki,
           bulmacaSirasi: yeniSira,
           karakterKonumu: bulmacaBaslangicKonumu(bolum, yeniSira),
           gecis: false,
           oynatma: null,
-          program: [],
+          program: bulmacaBaslangicProgrami(yeniBulmaca),
+          acikKutu: bulmacaBaslangicKutusu(yeniBulmaca),
           sonEklenen: null,
           vurgulanan: null,
           oynayanAdim: null,
@@ -439,19 +483,62 @@ export default function BolumEkrani({
 
   function blokEklendi(komut: Komut) {
     setDurum((onceki) => {
-      const program = blokEkle(onceki.program, komut, bulmaca.enFazlaBlok ?? EN_FAZLA_BLOK);
+      const program = blokEkle(
+        onceki.program,
+        komut,
+        bulmaca.enFazlaBlok ?? EN_FAZLA_BLOK,
+        onceki.acikKutu,
+      );
       // Serit doluysa blokEkle hicbir sey eklemez; boyle bir durumda
       // "yeni" vurgusu onceki blokta kalir. Olcu BLOK sayar (program.length
-      // degil): blokEkle'nin hedefKutu yolu bir govdeye ekleyebilir, bu da
-      // ust duzey uzunlugunu DEGISTIRMEZ ama yine de bir ekleme sayilir.
-      // sonEklenen'in kutu govdesindeki bir blogu isaret edebilmesi
-      // (BlokYolu.ic doldurulmasi) sonraki dilimin isi; simdilik yalnizca
-      // ust duzey adresine dusuyor.
+      // degil): acik kucaga eklenen blok ust duzey uzunlugunu DEGISTIRMEZ
+      // ama yine de bir eklemedir.
+      if (blokSayisi(program) === blokSayisi(onceki.program)) return { ...onceki, program };
+
+      const acikKucak = onceki.acikKutu === null ? undefined : program[onceki.acikKutu];
       const sonEklenen =
-        blokSayisi(program) > blokSayisi(onceki.program)
-          ? { ust: program.length - 1, ic: null }
-          : onceki.sonEklenen;
+        acikKucak !== undefined && acikKucak.tur === "tekrar"
+          ? { ust: onceki.acikKutu!, ic: acikKucak.govde.length - 1 }
+          : { ust: program.length - 1, ic: null };
       return { ...onceki, program, sonEklenen };
+    });
+  }
+
+  /** Kucaga dokunmak acar kapatir; acik kucak paletten geleni ICINE alir. */
+  function kucagaDokunuldu(ust: number) {
+    setDurum((onceki) => ({ ...onceki, acikKutu: onceki.acikKutu === ust ? null : ust }));
+  }
+
+  /** Noktalara her dokunusta tekrar sayisi bir artar, bestense ikiye doner. */
+  function noktalaraDokunuldu(ust: number) {
+    setDurum((onceki) => ({
+      ...onceki,
+      program: kezDegistir(onceki.program, ust),
+      sonEklenen: null,
+    }));
+  }
+
+  /** Serbest asamada palet kutu dugmesi: bos kucak seride duser ve ACIK gelir. */
+  function kutuEklendi() {
+    setDurum((onceki) => {
+      const program = tekrarEkle(onceki.program, bulmaca.enFazlaBlok ?? EN_FAZLA_BLOK);
+      if (program === onceki.program) return onceki;
+      const ust = program.length - 1;
+      return { ...onceki, program, acikKutu: ust, sonEklenen: { ust, ic: null } };
+    });
+  }
+
+  /**
+   * Katlama onerisine dokunuldu: yazdigi tekrar tek kucaga iner.
+   *
+   * Kucak KAPALI geliyor: cocuk kucagi yer acmak icin yapti, sirada
+   * genellikle kucagin ARKASINA gelecek bir komut var.
+   */
+  function katlandi() {
+    setDurum((onceki) => {
+      const oneri = katlamaOnerisi(onceki.program);
+      if (oneri === null) return onceki;
+      return { ...onceki, program: katla(onceki.program, oneri), acikKutu: null, sonEklenen: null };
     });
   }
 
@@ -492,7 +579,8 @@ export default function BolumEkrani({
       ...onceki,
       bulmacaSirasi: 0,
       karakterKonumu: bulmacaBaslangicKonumu(bolum, 0),
-      program: [],
+      program: bulmacaBaslangicProgrami(bolum.bulmacalar[0]),
+      acikKutu: bulmacaBaslangicKutusu(bolum.bulmacalar[0]),
       sonEklenen: null,
       poz: "durus",
       toplananlar: [],
@@ -578,12 +666,13 @@ export default function BolumEkrani({
     // demo === "izliyor": kosu suruyorsa bekle. Kosu bitince "kontrol
     // cocuga gecer": tahta, cocugun hicbir seye dokunmamis gibi tertemiz
     // baslamasi icin sifirlanir (program dahil; bastanBasla programi
-    // korur, o yuzden burada ayrica programiTemizle cagriliyor).
+    // korur, o yuzden burada ayrica baslangic programina donuluyor).
     if (calisiyor) return;
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDurum((onceki) => ({
       ...onceki,
-      program: programiTemizle(),
+      program: baslangicProgrami,
+      acikKutu: bulmacaBaslangicKutusu(bulmaca),
       sonEklenen: null,
       karakterKonumu: baslangicKarakterKonumu,
       poz: "durus",
@@ -626,6 +715,16 @@ export default function BolumEkrani({
     durum.program.length,
     demo,
   ]);
+
+  const silinebilir = !girdiEngelli && oynananBlokAdedi > blokSayisi(baslangicProgrami);
+
+  // Katlama onerisi yalnizca "oneri" ve "serbest" asamalarinda dogar:
+  // "hazir" asamasinda kucak zaten ekranda durur, katlanacak bir tekrar
+  // yoktur. Kosu sirasinda da gorunmez.
+  const katlama =
+    bulmaca.kucak !== undefined && bulmaca.kucak.asama !== "hazir" && !girdiEngelli
+      ? katlamaOnerisi(durum.program)
+      : null;
 
   // Onizleme, gercek calistirmayla ayni fonksiyondan uretiliyor; ikisi
   // ayrisamaz. Program kisa oldugu icin her render'da hesaplamak ucuz.
@@ -691,13 +790,23 @@ export default function BolumEkrani({
         program={durum.program}
         vurgulanan={durum.vurgulanan}
         sonEklenen={durum.sonEklenen}
+        acikKutu={durum.acikKutu}
+        kilitli={girdiEngelli || demo !== null}
+        onKucakDokun={kucagaDokunuldu}
+        onNoktalarDokun={noktalaraDokunuldu}
       />
+
+      {katlama !== null ? (
+        <KatlamaCipi oneri={katlama} program={durum.program} onKatla={katlandi} />
+      ) : null}
 
       <div className="bolumAltBar">
         <KomutPaleti
           seti={bulmaca.komutSeti}
           kilitli={girdiEngelli || demo !== null}
           onEkle={blokEklendi}
+          kutuEklenebilir={bulmaca.kucak?.asama === "serbest"}
+          onKutuEkle={kutuEklendi}
           hayalet={demo === "yon" && demoKomut !== null ? komutAnahtari(demoKomut) : null}
           nabiz={!girdiEngelli && demo === null && durum.program.length === 0}
         />
@@ -707,7 +816,7 @@ export default function BolumEkrani({
             type="button"
             className="kodlaYardimciDugme"
             aria-label="Son bloğu sil"
-            disabled={girdiEngelli || durum.program.length === 0}
+            disabled={!silinebilir}
             onClick={() =>
               setDurum((o) => ({ ...o, program: sonBlokuSil(o.program), sonEklenen: null }))
             }
@@ -718,9 +827,14 @@ export default function BolumEkrani({
             type="button"
             className="kodlaYardimciDugme"
             aria-label="Hepsini temizle"
-            disabled={girdiEngelli || durum.program.length === 0}
+            disabled={!silinebilir}
             onClick={() =>
-              setDurum((o) => ({ ...o, program: programiTemizle(), sonEklenen: null }))
+              setDurum((o) => ({
+                ...o,
+                program: baslangicProgrami,
+                acikKutu: bulmacaBaslangicKutusu(bulmaca),
+                sonEklenen: null,
+              }))
             }
           >
             <span aria-hidden="true">🗑</span>

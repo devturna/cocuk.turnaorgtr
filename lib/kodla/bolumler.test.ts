@@ -29,8 +29,20 @@ describe("kurslar", () => {
 describe("bolumler", () => {
   const bolumler = kursBolumleri("turna-yolu");
 
-  it("faz 4a ve 4b birlikte alti bolum icerir", () => {
-    expect(bolumler).toHaveLength(6);
+  it("rota bugun sekiz durak tasir", () => {
+    expect(bolumler).toHaveLength(8);
+  });
+
+  // Dongu duraklari rotanin ORTASINA giriyor (Kapadokya'dan sonra): rota
+  // gercek gocu izliyor, yeni durak sona eklenmiyor. Ilerleme kaydi durak
+  // kimligine bagli oldugu icin bitmis duraklar bitmis kalir.
+  it("dongu duraklari Kapadokya ile Pamukkale arasindadir", () => {
+    const sira = bolumSiralamasi("turna-yolu");
+    expect(sira.slice(sira.indexOf("kapadokya") + 1, sira.indexOf("pamukkale"))).toEqual([
+      "ercek-golu",
+      "tuz-golu",
+      "beysehir-golu",
+    ]);
   });
 
   it("bolum kimlikleri benzersizdir", () => {

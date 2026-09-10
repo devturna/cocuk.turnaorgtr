@@ -124,7 +124,7 @@ describe("enKisaBlokCozumu, kez kapisi", () => {
   const UZUN = haritayiCoz([".T....H"], "sag");
 
   it("verilen kez ile cozum varsa bulur", () => {
-    const cozum = enKisaBlokCozumu(UZUN, "yonler", 2, 5)!;
+    const cozum = enKisaBlokCozumu(UZUN, "yonler", 2, { kez: 5 })!;
     expect(cozum).not.toBeNull();
     expect(cozum.some((blok) => blok.tur === "tekrar" && blok.kez === 5)).toBe(true);
     expect(calistir(cozum, UZUN).basarili).toBe(true);
@@ -132,10 +132,18 @@ describe("enKisaBlokCozumu, kez kapisi", () => {
 
   it("verilen kez disinda bir kez denemez", () => {
     // Iki blokla (kutu + tek komut) bes adima yalnizca kez 5 ulasir.
-    expect(enKisaBlokCozumu(UZUN, "yonler", 2, 3)).toBeNull();
+    expect(enKisaBlokCozumu(UZUN, "yonler", 2, { kez: 3 })).toBeNull();
   });
 
   it("kez verilmeyince butun kezleri dener", () => {
     expect(enKisaBlokCozumu(UZUN, "yonler", 2)).not.toBeNull();
+  });
+
+  it("govde siniri iki bloklu kutuyu eler", () => {
+    // Merdiven: saga bir, yukari bir, uc kez. Tek komutluk govdeyle
+    // yazilamaz, o yuzden govde siniri 1 iken cozum yoktur.
+    const merdiven = haritayiCoz(["...H", "....", "....", "T..."], "sag");
+    expect(enKisaBlokCozumu(merdiven, "yonler", 3)).not.toBeNull();
+    expect(enKisaBlokCozumu(merdiven, "yonler", 3, { enFazlaGovde: 1 })).toBeNull();
   });
 });

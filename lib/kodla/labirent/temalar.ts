@@ -50,6 +50,18 @@ export const TEMALAR: Record<string, Tema> = {
       kalinlik: 5,
     },
   },
+  // Van cevresinin volkanik arazisi: Ercek Golu'nun cevresi kara bazalt
+  // kayalarla kapli, sazlik da beyaz da o cografyayi anlatmiyordu.
+  kayalik: {
+    zeminRengi: "#ece9de",
+    cizgiRengi: "#d3cdba",
+    engel: {
+      d: "M18 88 L34 44 L48 62 L60 30 L82 88 Z",
+      dolgu: "#b9b0a0",
+      cizgi: "#6f6659",
+      kalinlik: 5,
+    },
+  },
   antiktas: {
     zeminRengi: "#f3ecdd",
     cizgiRengi: "#dfd2b8",

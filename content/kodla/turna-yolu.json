@@ -4,7 +4,10 @@
     "ad": "Göksu Deltası",
     "mekanik": "labirent",
     "tema": "sazlik",
-    "durak": { "x": 43, "y": 92 },
+    "durak": {
+      "x": 43,
+      "y": 92
+    },
     "ipucu": "Göksu Deltası Mersin'de, Türkiye'nin en zengin kuş sulak alanlarından biridir.",
     "bulmacalar": [
       {
@@ -12,7 +15,11 @@
         "idealAdim": 1,
         "harita": {
           "bakis": "sag",
-          "satirlar": ["...", ".TH", "..."]
+          "satirlar": [
+            "...",
+            ".TH",
+            "..."
+          ]
         }
       }
     ]
@@ -22,7 +29,10 @@
     "ad": "Sultansazlığı",
     "mekanik": "labirent",
     "tema": "sazlik",
-    "durak": { "x": 50, "y": 61 },
+    "durak": {
+      "x": 50,
+      "y": 61
+    },
     "ipucu": "Sultansazlığı Kayseri'de sazlıklar ve göllerden oluşan bir kuş cennetidir.",
     "bulmacalar": [
       {
@@ -30,7 +40,11 @@
         "idealAdim": 3,
         "harita": {
           "bakis": "sag",
-          "satirlar": [".....", ".T..H", "....."]
+          "satirlar": [
+            ".....",
+            ".T..H",
+            "....."
+          ]
         }
       },
       {
@@ -38,7 +52,11 @@
         "idealAdim": 4,
         "harita": {
           "bakis": "sag",
-          "satirlar": ["....H", ".T...", "....."]
+          "satirlar": [
+            "....H",
+            ".T...",
+            "....."
+          ]
         }
       },
       {
@@ -46,7 +64,11 @@
         "idealAdim": 5,
         "harita": {
           "bakis": "sag",
-          "satirlar": ["....H", ".....", ".T..."]
+          "satirlar": [
+            "....H",
+            ".....",
+            ".T..."
+          ]
         }
       }
     ]
@@ -56,7 +78,10 @@
     "ad": "Kapadokya",
     "mekanik": "labirent",
     "tema": "peribacasi",
-    "durak": { "x": 48, "y": 56 },
+    "durak": {
+      "x": 48,
+      "y": 56
+    },
     "ipucu": "Peribacaları yumuşak kayanın rüzgârla aşınmasıyla oluştu.",
     "bulmacalar": [
       {
@@ -64,7 +89,11 @@
         "idealAdim": 5,
         "harita": {
           "bakis": "sag",
-          "satirlar": ["....H", ".....", ".T#.."]
+          "satirlar": [
+            "....H",
+            ".....",
+            ".T#.."
+          ]
         }
       },
       {
@@ -72,7 +101,11 @@
         "idealAdim": 4,
         "harita": {
           "bakis": "sag",
-          "satirlar": [".T...", ".#...", "...H."]
+          "satirlar": [
+            ".T...",
+            ".#...",
+            "...H."
+          ]
         }
       },
       {
@@ -80,7 +113,11 @@
         "idealAdim": 4,
         "harita": {
           "bakis": "sag",
-          "satirlar": [".....", ".T#H.", "....."]
+          "satirlar": [
+            ".....",
+            ".T#H.",
+            "....."
+          ]
         }
       },
       {
@@ -88,7 +125,91 @@
         "idealAdim": 4,
         "harita": {
           "bakis": "sag",
-          "satirlar": ["...#H", ".T...", "..#.."]
+          "satirlar": [
+            "...#H",
+            ".T...",
+            "..#.."
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "ercek-golu",
+    "ad": "Erçek Gölü",
+    "mekanik": "labirent",
+    "tema": "kayalik",
+    "durak": {
+      "x": 91,
+      "y": 56
+    },
+    "ipucu": "Van'ın yanındaki bu tuzlu gölde flamingolar yavrularını büyütür.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 3
+        },
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".T..H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 4
+        },
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "asagi",
+          "satirlar": [
+            "..T..",
+            ".....",
+            ".....",
+            ".....",
+            "..H.."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 3
+        },
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "yukari",
+          "satirlar": [
+            ".H.",
+            "...",
+            ".o.",
+            ".T."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 5
+        },
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "sol",
+          "satirlar": [
+            "H....T"
+          ]
         }
       }
     ]
@@ -98,15 +219,159 @@
     "ad": "Tuz Gölü",
     "mekanik": "labirent",
     "tema": "beyaz",
-    "durak": { "x": 40, "y": 54 },
+    "durak": {
+      "x": 40,
+      "y": 54
+    },
     "ipucu": "Yazın suyu çekilir ve göl bembeyaz tuzla kaplanır.",
     "bulmacalar": [
       {
         "komutSeti": "yonler",
-        "idealAdim": 5,
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 3
+        },
+        "enFazlaBlok": 3,
         "harita": {
-          "bakis": "sol",
-          "satirlar": ["H....", ".#...", "...T."]
+          "bakis": "sag",
+          "satirlar": [
+            "...H",
+            "....",
+            "....",
+            "T..."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 3
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "asagi",
+          "satirlar": [
+            "...T",
+            "....",
+            "....",
+            "H..."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 4
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "....H",
+            ".....",
+            ".....",
+            ".....",
+            "T...."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "hazir",
+          "kez": 4
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "....H",
+            ".....",
+            "..o..",
+            ".....",
+            "T...."
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "beysehir-golu",
+    "ad": "Beyşehir Gölü",
+    "mekanik": "labirent",
+    "tema": "sazlik",
+    "durak": {
+      "x": 30,
+      "y": 70
+    },
+    "ipucu": "Türkiye'nin en büyük tatlı su gölü; kışın binlerce su kuşu barınır.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "oneri"
+        },
+        "enFazlaBlok": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".T....H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 4,
+        "harita": {
+          "bakis": "asagi",
+          "satirlar": [
+            ".T.",
+            "...",
+            "...",
+            "...",
+            "...",
+            ".H."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "....H",
+            "T...."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "T.....H"
+          ]
         }
       }
     ]
@@ -116,7 +381,10 @@
     "ad": "Pamukkale",
     "mekanik": "labirent",
     "tema": "beyaz",
-    "durak": { "x": 18, "y": 68 },
+    "durak": {
+      "x": 18,
+      "y": 68
+    },
     "ipucu": "Beyaz basamakları sıcak suyun bıraktığı kireç yaptı.",
     "bulmacalar": [
       {
@@ -124,7 +392,11 @@
         "idealAdim": 4,
         "harita": {
           "bakis": "sag",
-          "satirlar": [".....", ".T.o.", "....H"]
+          "satirlar": [
+            ".....",
+            ".T.o.",
+            "....H"
+          ]
         }
       }
     ]
@@ -134,7 +406,10 @@
     "ad": "Efes",
     "mekanik": "labirent",
     "tema": "antiktas",
-    "durak": { "x": 9, "y": 67 },
+    "durak": {
+      "x": 9,
+      "y": 67
+    },
     "ipucu": "Efes iki bin yıl önce denize açılan büyük bir liman şehriydi.",
     "bulmacalar": [
       {
@@ -142,7 +417,11 @@
         "idealAdim": 6,
         "harita": {
           "bakis": "sag",
-          "satirlar": ["..o..", ".T#..", "....H"]
+          "satirlar": [
+            "..o..",
+            ".T#..",
+            "....H"
+          ]
         }
       }
     ]

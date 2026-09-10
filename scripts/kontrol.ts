@@ -429,10 +429,31 @@ for (const kurs of kurslar) {
       // yalnizca verilen kez degerini tasiyan kutulari dener.
       if (kucak.asama === "hazir") {
         const kez = kucak.kez as number;
-        if (enKisaBlokCozumu(harita, bulmaca.komutSeti as KomutSeti, enFazlaBlok, kez) === null) {
+        if (
+          enKisaBlokCozumu(harita, bulmaca.komutSeti as KomutSeti, enFazlaBlok, { kez }) === null
+        ) {
           hatalar.push(
             `${kimlik}: kucak ${kez} kez ile hazir geliyor ama bu sayiyla ${enFazlaBlok} bloga ` +
               `sigan cozum yok`,
+          );
+        }
+      }
+
+      // "oneri" asamasinda palette kutu dugmesi YOKTUR: cocuk kucagi
+      // yalnizca yazdigi tekrari katlayarak yapabilir, katlama da TEK
+      // KOMUTLUK govde uretir. Iki bloklu govde isteyen bir bulmaca bu
+      // asamada cozulemez -- cocugun elinde onu yazacak arac yoktur.
+      if (kucak.asama === "oneri") {
+        const katlanabilir = enKisaBlokCozumu(
+          harita,
+          bulmaca.komutSeti as KomutSeti,
+          enFazlaBlok,
+          { enFazlaGovde: 1 },
+        );
+        if (katlanabilir === null) {
+          hatalar.push(
+            `${kimlik}: "oneri" asamasinda kucak yalnizca katlamayla dogar ve govdesi tek ` +
+              `komut olur; bu bulmaca tek komutluk govdeyle ${enFazlaBlok} bloga sigmiyor`,
           );
         }
       }
@@ -535,6 +556,7 @@ const turkceTaranacakDosyalar = [
   ...dosyalariTara(join(KOK, "app", "kodla"), [".ts", ".tsx"]),
   join(KOK, "e2e", "kodla.spec.ts"),
   join(KOK, "e2e", "kodla-demo.spec.ts"),
+  join(KOK, "e2e", "kodla-dongu.spec.ts"),
 ];
 
 for (const dosya of turkceTaranacakDosyalar) {
