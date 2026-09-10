@@ -176,3 +176,38 @@ test("kucagin icindeki bloga dokunmak kucagi degil blogu siler", async ({ page }
   await expect(kucaktakiBloklar(page)).toHaveCount(0);
   await expect(page.getByRole("group", { name: "3 kez tekrarla" })).toBeVisible();
 });
+
+test("donus setinde palet uc dugme gosterir, kucak ortada durur", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/uluabat-golu/`);
+
+  // Mutlak yon dugmeleri bu durakta yok: ileri, sola don, saga don.
+  await expect(page.getByRole("button", { name: "İleri git", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sola dön", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Sağa dön", exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Yukarı git", exact: true })).toHaveCount(0);
+
+  // Serbest asama: kucak paletten gelir ve artinin ortasindaki hucrede durur.
+  const kutu = page.getByRole("button", { name: "Tekrar kucağı koy" });
+  await expect(kutu).toBeVisible();
+  const ileri = (await page.getByRole("button", { name: "İleri git", exact: true }).boundingBox())!;
+  const sol = (await page.getByRole("button", { name: "Sola dön", exact: true }).boundingBox())!;
+  const sag = (await page.getByRole("button", { name: "Sağa dön", exact: true }).boundingBox())!;
+  const orta = (await kutu.boundingBox())!;
+  expect(orta.y).toBeGreaterThan(ileri.y);
+  expect(orta.x).toBeGreaterThan(sol.x);
+  expect(orta.x).toBeLessThan(sag.x);
+});
+
+test("donus komutlariyla dongu yazilip bulmaca bitirilir", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/uluabat-golu/`);
+
+  await page.getByRole("button", { name: "Tekrar kucağı koy" }).click();
+  for (const beklenen of [2, 3, 4]) {
+    await page.getByRole("button", { name: `Kaç kez tekrarlansın: ${beklenen}` }).click();
+  }
+  await expect(page.getByRole("group", { name: "5 kez tekrarla" })).toBeVisible();
+  await page.getByRole("button", { name: "İleri git", exact: true }).click();
+
+  await page.getByRole("button", { name: "Çalıştır" }).click();
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible({ timeout: 15000 });
+});

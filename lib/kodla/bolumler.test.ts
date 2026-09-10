@@ -30,8 +30,8 @@ describe("kurslar", () => {
 describe("bolumler", () => {
   const bolumler = kursBolumleri("turna-yolu");
 
-  it("rota bugun on durak tasir", () => {
-    expect(bolumler).toHaveLength(10);
+  it("rota bugun on bir durak tasir", () => {
+    expect(bolumler).toHaveLength(11);
   });
 
   // Hata ayiklama duraklari dongunun ONUNDE gelir: cocuk once yazilmis bir
@@ -63,7 +63,7 @@ describe("bolumler", () => {
 
   it("siralama icerik dosyasindaki sirayi korur", () => {
     expect(bolumSiralamasi("turna-yolu")[0]).toBe("goksu-deltasi");
-    expect(bolumSiralamasi("turna-yolu").at(-1)).toBe("efes");
+    expect(bolumSiralamasi("turna-yolu").at(-1)).toBe("uluabat-golu");
   });
 
   it("olmayan kurs icin bos liste doner", () => {
@@ -99,8 +99,14 @@ describe("bolumler", () => {
     }
   });
 
-  it("bugunku butun bulmacalar mutlak yon setini kullanir", () => {
-    for (const bolum of bolumler) {
+  // Zihinsel dondurme yaklasik yedi yasta oturur, o yuzden donusler seti
+  // rotanin SONUNDA acilir: Efes'ten oncesi mutlak yonlerle oynanir.
+  it("donusler seti yalnizca rotanin sonunda kullanilir", () => {
+    const donusluIlk = bolumler.findIndex((bolum) =>
+      bolum.bulmacalar.some((bulmaca) => bulmaca.komutSeti === "donusler"),
+    );
+    expect(bolumler[donusluIlk].id).toBe("efes");
+    for (const bolum of bolumler.slice(0, donusluIlk)) {
       for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
         expect(bulmaca.komutSeti, `${bolum.id} bulmaca ${sira}`).toBe("yonler");
       }
