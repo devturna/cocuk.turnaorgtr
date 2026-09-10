@@ -18,12 +18,14 @@ Altın yıldız durağın **tamamı** ideal adımda çözüldüğünde verilir. 
 bulmacada fazla blok kullanmak altını kaçırır; bu bilinçlidir, yoksa altın
 yıldız durak uzadıkça kolaylaşırdı.
 
-Bu kural yeni içerik içindir. Bugün yayında olan altı duraktan dördü
-(Göksu Deltası, Tuz Gölü, Pamukkale, Efes) hâlâ **tek** bulmaca taşıyor —
-bu bir hata değil, bilinçli bir ara durumdur: bu duraklar sonraki fazda
-yeni konular (döngü, dönüş komutları) alacak ve o zaman 3-6 bulmacaya
-çıkacaklar. Yeni bir durak eklerken örnek aldığın yer bu dördü değil,
-**Sultansazlığı** (3 bulmaca) veya **Kapadokya** (4 bulmaca) olmalı.
+Bu kural yeni içerik içindir. Bugün yayında olan sekiz duraktan üçü
+(Göksu Deltası, Pamukkale, Efes) hâlâ **tek** bulmaca taşıyor — bu bir hata
+değil, bilinçli bir ara durumdur: bu duraklar sonraki dilimlerde yeni
+konular (hata ayıklama, dönüş komutları) alacak ve o zaman 3-6 bulmacaya
+çıkacaklar. Tuz Gölü bu yolu çoktan yürüdü: tek bulmacalık bir duraktı,
+döngü dersiyle birlikte dört bulmacaya çıktı. Yeni bir durak eklerken örnek
+aldığın yer o üçü değil, **Sultansazlığı** (3 bulmaca), **Kapadokya** veya
+**Erçek Gölü** (4 bulmaca) olmalı.
 
 ## 2. Girdiyi yaz
 
@@ -70,7 +72,7 @@ somut hâlidir.
 
 `id`, `ad`, `mekanik`, `tema`, `durak`, `ipucu` **durak seviyesindedir** — o
 duraktaki bütün bulmacalar için tek bir kez yazılır. `komutSeti`,
-`idealAdim`, `harita` ise **bulmaca seviyesindedir** — dizideki her bulmaca
+`idealAdim`, `harita`, `kucak`, `enFazlaBlok` ise **bulmaca seviyesindedir** — dizideki her bulmaca
 kendi haritasını, kendi komut setini ve kendi ideal adım sayısını taşır.
 
 ## 3. Harita işaretleri
@@ -127,7 +129,43 @@ kendi `harita` alanı için geçerlidir.
 - `harita.bakis`: `yukari`, `asagi`, `sol` veya `sag` olmalı.
 - `harita.satirlar`: §3'teki işaretlerle yazılmış ızgara.
 - `idealAdim`: en kısa çözümün adım sayısı. **Tahmin etme** — denetim
-  script'i doğru değeri sana söyler.
+  script'i doğru değeri sana söyler. Bulmaca kucak taşıyorsa bu sayı adım
+  değil **blok** sayar (aşağıya bakın).
+- `kucak`: bulmaca döngü öğretiyorsa. Ayrıntısı §4.1'de.
+- `enFazlaBlok`: şeridin aldığı blok sayısı. Yalnızca kucaklı bulmacada
+  yazılır ve orada zorunludur.
+
+### 4.1 Döngü bulmacası: `kucak`
+
+Bir bulmacaya `kucak` alanı eklemek onu döngü bulmacası yapar. O andan
+itibaren `idealAdim` **blok** sayar (kutu bir blok, gövdesindeki her komut
+bir blok daha) ve denetim iki şeyi birden arar: sınıra sığan döngülü bir
+çözüm **var** ve düz çözüm sınıra **sığmıyor**. İkisi birlikte olmazsa
+bulmaca ya çözülemez ya da döngü öğretmez.
+
+Üç aşama vardır ve üst üste binerler:
+
+```json
+"kucak": { "asama": "hazir", "kez": 3 }
+"kucak": { "asama": "oneri" }
+"kucak": { "asama": "serbest" }
+```
+
+- **hazir**: kucak ekranda dolu sayıyla gelir, çocuk yalnızca içini
+  doldurur. `kez` 2-5 arasıdır ve denetim o sayıyla çözülebildiğini ayrıca
+  kanıtlar — yanlış sayıyla hazır gelen bir kucak, noktaları henüz keşfetmemiş
+  çocuğu takar.
+- **oneri**: şerit boş başlar. Çocuk aynı komutu üç kez yazınca altta
+  katlama önerisi belirir. Bu aşamada palette kutu düğmesi **yoktur**:
+  kucak yalnızca katlamayla doğar, katlama da **tek komutluk** gövde
+  üretir. Bu yüzden denetim, bu aşamadaki bulmacanın tek komutluk gövdeyle
+  çözülebildiğini şart koşar — iki bloklu gövde isteyen bir harita bu
+  aşamada çocuğun elinde çözülemez.
+- **serbest**: önerinin üstüne palet kutu düğmesi de gelir; çocuk kucağı
+  kendi koyar, sayısını noktalara dokunarak bulur.
+
+Bir durak bir aşamayı öğretir; aşama değiştirmek için genellikle yeni bir
+durak açılır (bkz. Erçek Gölü → Tuz Gölü → Beyşehir Gölü).
 
 **Bir kursun ilk durağının ilk (ve bugün tek) bulmacası öğreticidir ve her
 zaman tek adımda (`idealAdim: 1`) bitmelidir.** Çocuğun bu bölümle ilk

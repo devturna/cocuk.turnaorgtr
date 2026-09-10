@@ -42,6 +42,8 @@ geliyoruz: sıralama var, **döngü yok**, ikinci mekanik yok.
 | Program nerede görünür | Hem haritada (yol) hem çubukta (yapı) | İkisi iki ayrı soruyu cevaplar |
 | Yön düğmeleri | Artı düzeni (D-pad) | Yön, ikondan değil konumdan okunur |
 | Döngü yazımı | Üç aşamalı: hazır kucak → katlama önerisi → serbest | Sürükleyip içine bırakma bu yaşta çalışmıyor |
+| Kucağı açma | Kucağın başındaki simgeye dokunmak açar kapatır | Mod gizli kalmasın; sayı ile açma ayrı hedefler olsun |
+| Tekrar sayısı | Nokta göstergesi, dokundukça artar, 5'ten sonra 2'ye döner | Bu yaşta rakam tanıma güvenilir değil |
 | Hareket | SVG üzerinde CSS geçişi ve keyframe | En az kod, GPU'da, tek yerde tanımlı |
 | İlk temas | Sessiz demo, metin yok | Hedef kitle okumuyor |
 | Görseller | Karma: karakter dışarıdan, gerisi kodla | Çocuğun bağlandığı tek şey karakter |
@@ -100,30 +102,54 @@ uyarı yoktur; yalnızca yol oraya varmıyordur.
 Sürükleyip bir kucağın içine bırakmak bu yaş grubunda çalışmaz. Bunun yerine
 üç aşama, her biri bir öncekinin üstüne biner.
 
+Aşama, bulmacanın kendi `kucak` alanında yazılıdır (bkz.
+[kodlama-bolumu-hazirlama.md](../kodlama-bolumu-hazirlama.md) §4.1); bir
+durak bir aşamayı öğretir.
+
 ### Aşama 1 — Kucak hazır gelir
 
-Bölüm, ekranda dolu sayılı ama boş bir kucakla açılır: `🔁 4 [ ___ ]`.
+Bölüm, ekranda dolu sayılı ama boş bir kucakla açılır: `🔁 ●●● [ ___ ]`.
 Çocuk komuta dokunur, komut kucağın içine düşer. "İçine koymak" diye ayrı
 bir jest yoktur; kucak tek yer olduğu için içerisi kendiliğinden oluşur.
 
-Öğrenilen tek şey: *buraya bir şey koyarsam dört kez oluyor.*
+Öğrenilen tek şey: *buraya bir şey koyarsam üç kez oluyor.*
+
+Hazır gelen kucak bulmacanın **mobilyasıdır**: geri al ve temizle onun
+altına inmez. Silinebilseydi geriye çözülemeyen bir bulmaca kalırdı.
+
+Kucağın başında iki ayrı dokunma hedefi durur: `🔁` simgesi kucağı açar
+kapatır, noktalar sayıyı değiştirir. Tek hedef olsaydı sayıyı değiştirmek
+isteyen çocuk kucağı kapatırdı. **Açık kucak**, paletten gelen bloğun içine
+düştüğü kucaktır ve kenarındaki halkayla belli olur; kapalıyken bloklar
+kucağın arkasına düşer.
 
 ### Aşama 2 — Katlama önerisi
 
 Çocuk `➡ ➡ ➡` yazdığında çubuğun altında usulca bir öneri belirir:
-`🔁 3 ➡ ?`
+`🔁 ●●● ➡ ?`
 
 Dokunursa üç kutu tek kucağa katlanır ve **harita hiç değişmez** — yaptığı
 iş aynıdır, yazdığı kısalmıştır. Dokunmazsa hiçbir şey olmaz, bölüm normal
 biter.
+
+Öneri kuralları (`lib/kodla/katlama.ts`, hepsi testli): en az **üç** blok
+(ikiyi katlamak kutu + gövde ile yine iki blok eder, hiçbir şey
+kazandırmaz); yalnızca **üst düzey** diziler (kucağın içini önermek iç içe
+döngü olurdu, kucağın kendisi de diziyi böler); birden fazla dizi varsa
+**sonuncusu** — çocuğun az önce yazdığı odur; beş tekrardan uzun dizide
+artan bloklar kucağın arkasında düz kalır. Katlama tek komutluk gövde
+üretir, bu yüzden bu aşamadaki bulmacalar tek komutluk gövdeyle
+çözülebilmelidir; denetim bunu şart koşar.
 
 Burada öğrenilen şey döngünün ne olduğu değil, **ne işe yaradığıdır**; ve
 çocuk bunu kendi yazdığı tekrar üzerinden öğrenir.
 
 ### Aşama 3 — Serbest
 
-Kucak baştan boş gelir, tekrar sayısı ➕➖ ile ayarlanır, çocuk istediğini
-içine koyar.
+Kucak artık palettedir: artı düzeninin bugüne kadar boş duran **orta**
+hücresine oturur — yönlerin arasındaki, hiçbir yönü bozmayan tek yer.
+Dokununca şeride iki tekrarla ve **açık** düşer; sayı noktalara dokunarak
+bulunur.
 
 ### Döngüyü gerektiren bölümler
 

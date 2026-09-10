@@ -141,9 +141,9 @@ kendisi.
 | 4 | Seyfe Gölü | Kırşehir | 45, 47 | yeni |
 | 5 | Kızılırmak Deltası | Samsun | 53, 10 | yeni |
 | 6 | Kuyucuk Gölü | Kars | 91, 24 | yeni |
-| 7 | Erçek Gölü | Van | 91, 56 | yeni |
+| 7 | Erçek Gölü | Van | 91, 56 | var |
 | 8 | Tuz Gölü | Aksaray | 40, 54 | var |
-| 9 | Beyşehir Gölü | Konya | 30, 70 | yeni |
+| 9 | Beyşehir Gölü | Konya | 30, 70 | var |
 | 10 | Burdur Gölü | Burdur | 23, 70 | yeni |
 | 11 | Pamukkale | Denizli | 18, 68 | var |
 | 12 | Efes | İzmir | 9, 67 | var |
@@ -162,7 +162,10 @@ Bu formül altı mevcut durağın hepsini 1 birim içinde yeniden üretir. Yeni
 durakların karada kaldığını `npm run kontrol` zaten nokta-poligon testiyle
 denetliyor; Kars ve Edirne uçlarda olduğu için uygulamada ayrıca bakılacak.
 
-**Mevcut durakların sırası değişiyor:** Tuz Gölü dördüncüden sekizinciye,
+**Mevcut durakların sırası değişiyor** (Erçek ve Beyşehir eklendiğinde
+bunun ilk yarısı gerçekleşti: Tuz Gölü dörtten beşe, Pamukkale beşten
+yediye kaydı; 4-5-6 durakları girince numaralar bu tablodaki yerlerine
+oturacak). Tuz Gölü dördüncüden sekizinciye,
 Pamukkale beşinciden on birinciye kayıyor. İlerleme kaydı durak kimliğine
 bağlı olduğu için tamamlanmış duraklar tamamlanmış kalır; yalnızca kilit
 sırası değişir. Yoldaki bir çocuk yeni bir durağın açıldığını görür, hiçbir
@@ -220,6 +223,10 @@ Yukarıdaki program: sağa git ve yukarı git, üç kez; sonra sola git.
 - **Noktalara dokunmak sayıyı değiştirir.** 2'den başlar, her dokunuşta artar,
   en fazla 5'ten sonra 2'ye döner. Yazı yok, rakam yok: nokta sayısı sayının
   kendisidir. Bu yaşta rakam tanıma henüz güvenilir değil.
+- **Fazla tekrar cezalandırılmaz.** Kuş hedefe bastığı anda program biter
+  (`calistir()`, 4a'dan beri böyle), o yüzden gereğinden büyük bir sayı da
+  bulmacayı bitirir. Ders "en az kaç kez"dir, "tam kaç kez" değil; ceza
+  yok, uyarı yok kuralı burada da geçerli.
 - **Kutuya blok eklemek** için paletteki komuta dokunmak yeterlidir: kutu
   açıkken eklenen blok kutunun içine düşer. Kutu "açık" olma durumunu
   kenarındaki vurgu ile gösterir.
@@ -341,6 +348,7 @@ Bu, karşılık haritasındaki tek bilinçli eksiktir.
 | Faz | Kapsam | Neden bu sırada |
 |---|---|---|
 | 4d | Durak = bulmaca dizisi yapısı, on beş duraklık rota, hata ayıklama, döngü, dönüş komutları | Yapı değişikliği içeriğin önüne geçmeli; döngü zaten en çok beklenen kavram |
+| 4d durumu | Yapı ✓, döngü motoru ✓, döngü arayüzü ✓, ilk üç döngü durağı ✓ — kalan: hata ayıklama, dönüş, rotanın tamamı | |
 | 4e | Çizim mekaniği ve desen durakları | Döngüyü gerektirir |
 | 4f | Olaylar | Bağımsız; en son çünkü en az öğretici, en çok serbest oyun |
 
