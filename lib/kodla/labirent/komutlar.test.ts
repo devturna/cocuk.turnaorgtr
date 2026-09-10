@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest";
 import {
   KOMUT_SETLERI,
+  anahtarKomutu,
   komutAnahtari,
   saatYonunde,
   saatTersine,
@@ -62,5 +63,20 @@ describe("komsuKare", () => {
   it("sol ve sag x degerini degistirir", () => {
     expect(komsuKare({ x: 2, y: 2 }, "sol")).toEqual({ x: 1, y: 2 });
     expect(komsuKare({ x: 2, y: 2 }, "sag")).toEqual({ x: 3, y: 2 });
+  });
+});
+
+describe("anahtarKomutu", () => {
+  it("komutAnahtari'nin tersidir", () => {
+    for (const komutlar of Object.values(KOMUT_SETLERI)) {
+      for (const komut of komutlar) {
+        expect(anahtarKomutu(komutAnahtari(komut))).toEqual(komut);
+      }
+    }
+  });
+
+  it("tanimadigi anahtar icin null doner", () => {
+    expect(anahtarKomutu("git:ileri")).toBeNull();
+    expect(anahtarKomutu("")).toBeNull();
   });
 });

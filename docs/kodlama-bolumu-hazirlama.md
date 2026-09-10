@@ -132,6 +132,7 @@ kendi `harita` alanı için geçerlidir.
   script'i doğru değeri sana söyler. Bulmaca kucak taşıyorsa bu sayı adım
   değil **blok** sayar (aşağıya bakın).
 - `kucak`: bulmaca döngü öğretiyorsa. Ayrıntısı §4.1'de.
+- `baslangicProgrami`: şeritte hazır duran bloklar. Ayrıntısı §4.2'de.
 - `enFazlaBlok`: şeridin aldığı blok sayısı. Yalnızca kucaklı bulmacada
   yazılır ve orada zorunludur.
 
@@ -146,15 +147,18 @@ bulmaca ya çözülemez ya da döngü öğretmez.
 Üç aşama vardır ve üst üste binerler:
 
 ```json
-"kucak": { "asama": "hazir", "kez": 3 }
+"kucak": { "asama": "hazir" }
 "kucak": { "asama": "oneri" }
 "kucak": { "asama": "serbest" }
 ```
 
-- **hazir**: kucak ekranda dolu sayıyla gelir, çocuk yalnızca içini
-  doldurur. `kez` 2-5 arasıdır ve denetim o sayıyla çözülebildiğini ayrıca
-  kanıtlar — yanlış sayıyla hazır gelen bir kucak, noktaları henüz keşfetmemiş
-  çocuğu takar.
+`kucak` yalnızca **çocuğun elindeki araçları** söyler; şeritte ne durduğunu
+`baslangicProgrami` (§4.2) yazar.
+
+- **hazir**: kucak ekranda hazır bekler — `baslangicProgrami` içine boş bir
+  kucak konarak. Çocuk yalnızca içini doldurur; ne palet kutusu ne katlama
+  önerisi vardır. Denetim, kucağın hazır gelen sayısıyla çözüm olduğunu
+  ayrıca kanıtlar — yanlış sayı, noktaları henüz keşfetmemiş çocuğu takar.
 - **oneri**: şerit boş başlar. Çocuk aynı komutu üç kez yazınca altta
   katlama önerisi belirir. Bu aşamada palette kutu düğmesi **yoktur**:
   kucak yalnızca katlamayla doğar, katlama da **tek komutluk** gövde
@@ -166,6 +170,33 @@ bulmaca ya çözülemez ya da döngü öğretmez.
 
 Bir durak bir aşamayı öğretir; aşama değiştirmek için genellikle yeni bir
 durak açılır (bkz. Erçek Gölü → Tuz Gölü → Beyşehir Gölü).
+
+### 4.2 Şeritte hazır duran program: `baslangicProgrami`
+
+Bulmaca açıldığında şeritte duran bloklar. Komutlar anahtarlarıyla
+(`"git:sag"`, `"ileri"`, `"don:sol"`), kucak da `{ "kez": 3, "govde": [...] }`
+biçiminde yazılır:
+
+```json
+"baslangicProgrami": ["git:sag", "git:sag", { "kez": 3, "govde": ["git:yukari"] }]
+```
+
+İki iş görür ve ikisi de aynı ihtiyaçtır — "şerit boş başlamıyor":
+
+- **Döngü durağında** hazır kucağı koyar: `[{ "kez": 3, "govde": [] }]`.
+- **Hata ayıklama durağında** bozuk bir program verir; çocuk çalıştırır, ne
+  olduğunu görür, düzeltir. Şeritteki bloğa dokunmak onu siler, palet de
+  sona ekler; bu yüzden düzeltme **tek silme + tek ekleme** mesafesinde
+  tasarlanır (bkz. Kızılırmak Deltası: eksik blok, Kuyucuk Gölü: yanlış
+  sıralı blok).
+
+Denetim üç şeye bakar: her anahtar bulmacanın komut setinde olmalı (yoksa
+çocuk onu paletten yazamaz), kucağın `kez` değeri 2-5 arasında olmalı, ve
+**hazır program bulmacayı bitirmemeli** — bitiriyorsa çocuğa düzeltecek bir
+şey kalmaz.
+
+"Hepsini temizle" düğmesi şeridi boşaltmaz, bu programa döndürür:
+temizlemek "baştan dene" demektir, "bulmacayı sil" değil.
 
 **Bir kursun ilk durağının ilk (ve bugün tek) bulmacası öğreticidir ve her
 zaman tek adımda (`idealAdim: 1`) bitmelidir.** Çocuğun bu bölümle ilk

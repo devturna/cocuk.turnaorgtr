@@ -135,6 +135,169 @@
     ]
   },
   {
+    "id": "kizilirmak-deltasi",
+    "ad": "Kızılırmak Deltası",
+    "mekanik": "labirent",
+    "tema": "sazlik",
+    "durak": {
+      "x": 53,
+      "y": 10
+    },
+    "ipucu": "Samsun'daki bu delta, Türkiye'nin en çok kuş türü görülen sulak alanıdır.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "baslangicProgrami": [
+          "git:sag",
+          "git:sag"
+        ],
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".T..H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "baslangicProgrami": [
+          "git:sag",
+          "git:sag",
+          "git:yukari"
+        ],
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "...H",
+            "....",
+            ".T.."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "baslangicProgrami": [
+          "git:sag",
+          "git:yukari",
+          "git:sag"
+        ],
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "..o.H",
+            ".T..."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 5,
+        "baslangicProgrami": [
+          "git:sag",
+          "git:sag",
+          "git:sag",
+          "git:sag"
+        ],
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".....H",
+            ".T...."
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "kuyucuk-golu",
+    "ad": "Kuyucuk Gölü",
+    "mekanik": "labirent",
+    "tema": "kayalik",
+    "durak": {
+      "x": 91,
+      "y": 24
+    },
+    "ipucu": "Kars'ın yüksek yaylasındaki bu küçük göl, göç yolundaki kuşların dinlenme durağıdır.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "baslangicProgrami": [
+          "git:yukari",
+          "git:sag",
+          "git:sag",
+          "git:yukari"
+        ],
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".#H",
+            ".#.",
+            "T.."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "baslangicProgrami": [
+          "git:yukari",
+          "git:sol",
+          "git:sol",
+          "git:yukari"
+        ],
+        "harita": {
+          "bakis": "sol",
+          "satirlar": [
+            "H#.",
+            ".#.",
+            "..T"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "baslangicProgrami": [
+          "git:sol",
+          "git:yukari",
+          "git:yukari",
+          "git:sol"
+        ],
+        "harita": {
+          "bakis": "sol",
+          "satirlar": [
+            "H..",
+            "##.",
+            "..T"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 5,
+        "baslangicProgrami": [
+          "git:yukari",
+          "git:sag",
+          "git:sag",
+          "git:yukari",
+          "git:sag"
+        ],
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "..#H",
+            ".#..",
+            "T..."
+          ]
+        }
+      }
+    ]
+  },
+  {
     "id": "ercek-golu",
     "ad": "Erçek Gölü",
     "mekanik": "labirent",
@@ -149,9 +312,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "sag",
@@ -164,9 +332,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 4
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 4,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "asagi",
@@ -183,9 +356,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "yukari",
@@ -201,9 +379,14 @@
         "komutSeti": "yonler",
         "idealAdim": 2,
         "kucak": {
-          "asama": "hazir",
-          "kez": 5
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 5,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 2,
         "harita": {
           "bakis": "sol",
@@ -229,9 +412,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "sag",
@@ -247,9 +435,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 3
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "asagi",
@@ -265,9 +458,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 4
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 4,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "sag",
@@ -284,9 +482,14 @@
         "komutSeti": "yonler",
         "idealAdim": 3,
         "kucak": {
-          "asama": "hazir",
-          "kez": 4
+          "asama": "hazir"
         },
+        "baslangicProgrami": [
+          {
+            "kez": 4,
+            "govde": []
+          }
+        ],
         "enFazlaBlok": 3,
         "harita": {
           "bakis": "sag",

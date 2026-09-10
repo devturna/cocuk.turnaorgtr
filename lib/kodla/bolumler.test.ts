@@ -6,6 +6,7 @@ import {
   bulmacaBul,
   bulmacaHaritasi,
   bulmacaSayisi,
+  baslangicProgrami,
   kursBolumleri,
 } from "./bolumler";
 import { EN_AZ_KEZ, EN_FAZLA_KEZ } from "./program";
@@ -29,16 +30,26 @@ describe("kurslar", () => {
 describe("bolumler", () => {
   const bolumler = kursBolumleri("turna-yolu");
 
-  it("rota bugun sekiz durak tasir", () => {
-    expect(bolumler).toHaveLength(8);
+  it("rota bugun on durak tasir", () => {
+    expect(bolumler).toHaveLength(10);
+  });
+
+  // Hata ayiklama duraklari dongunun ONUNDE gelir: cocuk once yazilmis bir
+  // programi okuyup duzeltmeyi, sonra dongu yazmayi ogrenir.
+  it("hata ayiklama duraklari Kapadokya ile Ercek arasindadir", () => {
+    const sira = bolumSiralamasi("turna-yolu");
+    expect(sira.slice(sira.indexOf("kapadokya") + 1, sira.indexOf("ercek-golu"))).toEqual([
+      "kizilirmak-deltasi",
+      "kuyucuk-golu",
+    ]);
   });
 
   // Dongu duraklari rotanin ORTASINA giriyor (Kapadokya'dan sonra): rota
   // gercek gocu izliyor, yeni durak sona eklenmiyor. Ilerleme kaydi durak
   // kimligine bagli oldugu icin bitmis duraklar bitmis kalir.
-  it("dongu duraklari Kapadokya ile Pamukkale arasindadir", () => {
+  it("dongu duraklari hata ayiklama ile Pamukkale arasindadir", () => {
     const sira = bolumSiralamasi("turna-yolu");
-    expect(sira.slice(sira.indexOf("kapadokya") + 1, sira.indexOf("pamukkale"))).toEqual([
+    expect(sira.slice(sira.indexOf("kuyucuk-golu") + 1, sira.indexOf("pamukkale"))).toEqual([
       "ercek-golu",
       "tuz-golu",
       "beysehir-golu",
@@ -138,11 +149,22 @@ describe("kucak alanlari", () => {
     }
   });
 
-  it("hazir kucagin kez degeri iki ile bes arasindadir", () => {
+  it("hazir asamada kucak seritte hazir bekler ve kez degeri iki ile bes arasindadir", () => {
     for (const { kimlik, bulmaca } of bulmacalar) {
       if (bulmaca.kucak?.asama !== "hazir") continue;
-      expect(bulmaca.kucak.kez, kimlik).toBeGreaterThanOrEqual(EN_AZ_KEZ);
-      expect(bulmaca.kucak.kez, kimlik).toBeLessThanOrEqual(EN_FAZLA_KEZ);
+      const kutular = baslangicProgrami(bulmaca).filter((blok) => blok.tur === "tekrar");
+      expect(kutular.length, kimlik).toBeGreaterThan(0);
+      for (const kutu of kutular) {
+        expect(kutu.kez, kimlik).toBeGreaterThanOrEqual(EN_AZ_KEZ);
+        expect(kutu.kez, kimlik).toBeLessThanOrEqual(EN_FAZLA_KEZ);
+      }
+    }
+  });
+
+  it("baslangic programi yalnizca kucakli bulmacada kucak tasir", () => {
+    for (const { kimlik, bulmaca } of bulmacalar) {
+      const kutuVar = baslangicProgrami(bulmaca).some((blok) => blok.tur === "tekrar");
+      if (kutuVar) expect(bulmaca.kucak, kimlik).toBeDefined();
     }
   });
 

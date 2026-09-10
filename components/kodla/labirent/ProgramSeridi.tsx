@@ -15,28 +15,52 @@ function yolEsit(a: BlokYolu | null, b: BlokYolu): boolean {
   return a !== null && a.ust === b.ust && a.ic === b.ic;
 }
 
+/**
+ * Seritteki tek blok. Dokunmak onu SILER.
+ *
+ * Tek dokunusla silmek, hata ayiklama duraklarinin on sartidir: cocuk
+ * hazir gelen bozuk programdan yanlis blogu cikarabilmeli. Suruklemek bu
+ * yasta calismiyor (4a karari), sondan silme dugmesi ise ortadaki blogu
+ * hicbir zaman kurtarmiyor.
+ *
+ * Erisilebilir ad palettekinden AYRI ("... blogunu sil"): ayni olsaydi
+ * paletteki "Saga git" ile seritteki "Saga git" ayirt edilemezdi.
+ *
+ * listitem rolu SARMALAYICIDA durur, dugmenin kendisinde degil: role
+ * niteligi elemanin kendi rolunu EZER, yani dugmeye "listitem" yazmak onu
+ * erisilebilirlik agacinda dugme olmaktan cikarirdi (ve dokunulamaz
+ * yapardi).
+ */
 function KomutKutusu({
   blok,
   yol,
   vurgulanan,
   sonEklenen,
+  kilitli,
+  onDokun,
 }: {
   blok: KomutBloku;
   yol: BlokYolu;
   vurgulanan: BlokYolu | null;
   sonEklenen: BlokYolu | null;
+  kilitli: boolean;
+  onDokun: (yol: BlokYolu) => void;
 }) {
   const anahtar = komutAnahtari(blok.komut);
   return (
-    <span
-      role="listitem"
-      aria-label={KOMUT_ADLARI[anahtar]}
-      className={
-        `programBloku${yolEsit(vurgulanan, yol) ? " calisiyor" : ""}` +
-        `${yolEsit(sonEklenen, yol) ? " yeni" : ""}`
-      }
-    >
-      <span aria-hidden="true">{KOMUT_IKONLARI[anahtar]}</span>
+    <span role="listitem" className="programOgesi">
+      <button
+        type="button"
+        aria-label={`${KOMUT_ADLARI[anahtar]} bloğunu sil`}
+        disabled={kilitli}
+        onClick={() => onDokun(yol)}
+        className={
+          `programBloku${yolEsit(vurgulanan, yol) ? " calisiyor" : ""}` +
+          `${yolEsit(sonEklenen, yol) ? " yeni" : ""}`
+        }
+      >
+        <span aria-hidden="true">{KOMUT_IKONLARI[anahtar]}</span>
+      </button>
     </span>
   );
 }
@@ -49,6 +73,7 @@ export default function ProgramSeridi({
   kilitli,
   onKucakDokun,
   onNoktalarDokun,
+  onBlokDokun,
 }: {
   program: Blok[];
   vurgulanan: BlokYolu | null;
@@ -62,6 +87,8 @@ export default function ProgramSeridi({
   kilitli: boolean;
   onKucakDokun: (ust: number) => void;
   onNoktalarDokun: (ust: number) => void;
+  /** Seritteki bir bloga dokunuldu: o blok silinir. */
+  onBlokDokun: (yol: BlokYolu) => void;
 }) {
   return (
     <div className="programSeridi" role="list" aria-label="Program">
@@ -74,6 +101,8 @@ export default function ProgramSeridi({
               yol={{ ust, ic: null }}
               vurgulanan={vurgulanan}
               sonEklenen={sonEklenen}
+              kilitli={kilitli}
+              onDokun={onBlokDokun}
             />
           );
         }
@@ -125,6 +154,8 @@ export default function ProgramSeridi({
                   yol={{ ust, ic }}
                   vurgulanan={vurgulanan}
                   sonEklenen={sonEklenen}
+                  kilitli={kilitli}
+                  onDokun={onBlokDokun}
                 />
               ))
             )}
