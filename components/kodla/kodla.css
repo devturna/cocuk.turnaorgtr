@@ -338,9 +338,101 @@
   100% { opacity: 1; translate: 0 0; scale: 1; }
 }
 
+/* Kucak: bloklari ICINE ALAN kutu. Kenarligi seridin kendi kesikli
+   cercevesinden farkli (duz ve kalin) olmali ki cocuk "serit icinde ayri
+   bir yer" oldugunu gorsun. */
+.tekrarKutusu {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border: 4px solid var(--kenar);
+  border-radius: 18px;
+  background: #fdf4e3;
+}
+
+/* Acik kucak = paletten gelen blogun ICINE dustugu kucak. Halka, kutunun
+   kendi kenarligini gizlemeden disina biner. */
+.tekrarKutusu.acik {
+  background: #fff0cf;
+  box-shadow: 0 0 0 4px var(--vurgu);
+}
+
+.tekrarSimgesi,
+.tekrarNoktalari {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 6px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  font-size: 24px;
+  transition: scale var(--kodla-basma-suresi) ease-out;
+}
+
+.tekrarSimgesi:active:not(:disabled),
+.tekrarNoktalari:active:not(:disabled) { scale: 0.9; }
+
+.tekrarSimgesi:disabled,
+.tekrarNoktalari:disabled { opacity: 0.45; }
+
+/* Sayi rakamla degil noktayla yazilir: bu yasta rakam tanima henuz
+   guvenilir degil (docs/tasarim/kodlama-kapsam.md §6). */
+.tekrarNoktasi {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--kenar);
+}
+
+/* Bos kucak icinin doldurulacagini kendi gosterir. */
+.tekrarBoslugu {
+  width: 44px;
+  height: 56px;
+  border: 3px dashed var(--kenar);
+  border-radius: 12px;
+  opacity: 0.4;
+}
+
+/* Katlama onerisi: uyari degil teklif. Bu yuzden kesikli, yumusak ve
+   seridin ALTINDA -- cocugun yazdigi seyin yerini almaz, yanina gelir. */
+.katlamaSatiri {
+  display: flex;
+  justify-content: center;
+  margin-top: 6px;
+}
+
+.katlamaCipi {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 52px;
+  padding: 6px 18px;
+  border: 3px dashed var(--kenar);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--metin);
+  font-size: 24px;
+  animation: kodlaCipBelir 260ms ease-out;
+  transition: scale var(--kodla-basma-suresi) ease-out;
+}
+
+.katlamaCipi:active { scale: 0.95; }
+.katlamaSoru { opacity: 0.55; }
+
+@keyframes kodlaCipBelir {
+  0% { opacity: 0; translate: 0 -8px; }
+  100% { opacity: 1; translate: 0 0; }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .programBloku,
-  .programBloku.yeni {
+  .programBloku.yeni,
+  .katlamaCipi {
     animation: none;
     transition: none;
   }
@@ -360,7 +452,7 @@
   display: grid;
   grid-template-areas:
     ".   ust  ."
-    "sol .    sag"
+    "sol orta sag"
     ".   alt  .";
   gap: 8px;
 }
@@ -374,6 +466,9 @@
 .komutDugmesi.yer-alt { grid-area: alt; }
 .komutDugmesi.yer-sol { grid-area: sol; }
 .komutDugmesi.yer-sag { grid-area: sag; }
+/* Kucak dugmesi artinin ORTASINA oturur: yonlerin arasindaki, hicbir yonu
+   bozmayan tek hucre. */
+.komutDugmesi.yer-orta { grid-area: orta; }
 
 /* Parmagin altinda bir sey oldugu hissi. */
 .komutDugmesi:active:not(:disabled),

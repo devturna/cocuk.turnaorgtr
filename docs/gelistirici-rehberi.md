@@ -225,7 +225,9 @@ Oyun ekranının tasarım gerekçeleri ayrı belgede:
 | `components/kodla/labirent/Sahne.tsx` | Kareler, yol, Turna, toz, yuva |
 | `components/kodla/labirent/Simgeler.tsx` | Poz tabanlı çizim sözleşmesi |
 | `components/kodla/labirent/KomutPaleti.tsx` | Artı düzeninde komut düğmeleri |
-| `components/kodla/labirent/ProgramSeridi.tsx` | Çocuğun dizdiği bloklar: programın yapısı, ekleme/silme animasyonu |
+| `components/kodla/labirent/ProgramSeridi.tsx` | Çocuğun dizdiği bloklar: programın yapısı, kucağın çizimi, ekleme/silme animasyonu |
+| `components/kodla/labirent/KatlamaCipi.tsx` | Şeridin altındaki katlama önerisi |
+| `lib/kodla/katlama.ts` | Tekrarı bulup tek kucağa katlayan saf iki fonksiyon |
 | `components/kodla/labirent/Konfeti.tsx` | Kutlama parçacıkları |
 
 ### Önizleme ile çalıştırma neden ayrışamaz?

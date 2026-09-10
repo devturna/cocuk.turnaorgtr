@@ -8,7 +8,7 @@ import { ARAMA_BLOK_SINIRI, enKisaBlokCozumu, enKisaCozum } from "../lib/kodla/l
 import type { KomutSeti, Yon } from "../lib/kodla/labirent/komutlar";
 import { KOMUT_SETLERI } from "../lib/kodla/labirent/komutlar";
 import { TEMALAR } from "../lib/kodla/labirent/temalar";
-import { EN_FAZLA_BLOK, blokSayisi } from "../lib/kodla/program";
+import { EN_AZ_KEZ, EN_FAZLA_BLOK, EN_FAZLA_KEZ, blokSayisi } from "../lib/kodla/program";
 // Uygulama icerigi lib/kodla/bolumler.ts icindeki KURS_BOLUMLERI kaydi
 // uzerinden okur; bu dosya "yayinda" kurslari kendi tarafindan JSON'dan
 // okur. Iki taraf ayni kurs kimligini gormezse yayinlanan bir kurs bos bir
@@ -90,6 +90,9 @@ const KOMUT_SETLERI_ADLARI = Object.keys(KOMUT_SETLERI);
 // Bu liste olmadan yanlis yazilmis (typo) bir bakis degeri sessizce
 // varsayilan bir yone dusebilir; liste boyle bir kaymayi denetimde yakalar.
 const GECERLI_YONLER: Yon[] = ["yukari", "asagi", "sol", "sag"];
+// Kucak asamalari; lib/kodla/bolumler.ts icindeki Kucak birlesimiyle ayni
+// sirada durur (kolaydan serbeste).
+const KUCAK_ASAMALARI = ["hazir", "oneri", "serbest"];
 
 // durak.x/y'nin sadece 0-100 araliginda olmasi yetmez: bir durak bu
 // aralikta ama denizde de olabilir (bir kez, bu fazda, elle bakilarak
@@ -328,15 +331,45 @@ for (const kurs of kurslar) {
         continue;
       }
 
-      if ("dongu" in bulmaca && typeof bulmaca.dongu !== "boolean") {
-        hatalar.push(
-          `${kimlik}: "dongu" true ya da false olmali, "${String(bulmaca.dongu)}" yazilmis`,
-        );
+      // Kucak: bulmacanin dongu asamasi. Alanin VARLIGI "bu bir dongu
+      // bulmacasi" demektir; sekli bozuksa asagidaki dongu denetimlerinin
+      // hicbiri anlamli calismaz, o yuzden burada eleniyor.
+      const kucak = bulmaca.kucak as { asama?: unknown; kez?: unknown } | undefined;
+      if ("kucak" in bulmaca) {
+        if (typeof kucak !== "object" || kucak === null) {
+          hatalar.push(`${kimlik}: "kucak" bir nesne olmali ({ "asama": "hazir", "kez": 3 } gibi)`);
+          continue;
+        }
+        if (!KUCAK_ASAMALARI.includes(String(kucak.asama))) {
+          hatalar.push(
+            `${kimlik}: "kucak.asama" ${KUCAK_ASAMALARI.join(", ")} degerlerinden biri olmali, ` +
+              `"${String(kucak.asama)}" yazilmis`,
+          );
+          continue;
+        }
+        if (kucak.asama === "hazir") {
+          if (
+            typeof kucak.kez !== "number" ||
+            kucak.kez < EN_AZ_KEZ ||
+            kucak.kez > EN_FAZLA_KEZ
+          ) {
+            hatalar.push(
+              `${kimlik}: hazir kucagin "kez" degeri ${EN_AZ_KEZ} ile ${EN_FAZLA_KEZ} arasinda ` +
+                `bir sayi olmali, "${String(kucak.kez)}" yazilmis`,
+            );
+            continue;
+          }
+        } else if ("kez" in kucak) {
+          hatalar.push(
+            `${kimlik}: "kez" yalnizca hazir kucakta anlamli; "${String(kucak.asama)}" ` +
+              `asamasinda kutuyu cocuk koyar, sayisini kendi bulur`,
+          );
+        }
       }
-      if ("enFazlaBlok" in bulmaca && !bulmaca.dongu) {
+      if ("enFazlaBlok" in bulmaca && kucak === undefined) {
         hatalar.push(
-          `${kimlik}: "enFazlaBlok" yalnizca "dongu": true tasiyan bulmacada anlamli, ` +
-            `"${String(bulmaca.enFazlaBlok)}" yazilmis ama dongu yok`,
+          `${kimlik}: "enFazlaBlok" yalnizca "kucak" tasiyan bulmacada anlamli, ` +
+            `"${String(bulmaca.enFazlaBlok)}" yazilmis ama kucak yok`,
         );
       }
 
@@ -346,7 +379,7 @@ for (const kurs of kurslar) {
         continue;
       }
 
-      if (!bulmaca.dongu) {
+      if (kucak === undefined) {
         if (bulmaca.idealAdim !== enKisa) {
           hatalar.push(`${kimlik}: idealAdim ${String(bulmaca.idealAdim)} yazilmis ama en kisa cozum ${enKisa} adim`);
         }
@@ -389,6 +422,40 @@ for (const kurs of kurslar) {
       const azBlok = blokSayisi(dongulu);
       if (bulmaca.idealAdim !== azBlok) {
         hatalar.push(`${kimlik}: idealAdim ${String(bulmaca.idealAdim)} yazilmis ama en az bloklu cozum ${azBlok} blok`);
+      }
+
+      // Hazir kucak, sayiyi cocuga dolu verir: o sayiyla cozulemiyorsa
+      // cocuk noktalara dokunmayi ogrenmeden once takilir. Arama burada
+      // yalnizca verilen kez degerini tasiyan kutulari dener.
+      if (kucak.asama === "hazir") {
+        const kez = kucak.kez as number;
+        if (
+          enKisaBlokCozumu(harita, bulmaca.komutSeti as KomutSeti, enFazlaBlok, { kez }) === null
+        ) {
+          hatalar.push(
+            `${kimlik}: kucak ${kez} kez ile hazir geliyor ama bu sayiyla ${enFazlaBlok} bloga ` +
+              `sigan cozum yok`,
+          );
+        }
+      }
+
+      // "oneri" asamasinda palette kutu dugmesi YOKTUR: cocuk kucagi
+      // yalnizca yazdigi tekrari katlayarak yapabilir, katlama da TEK
+      // KOMUTLUK govde uretir. Iki bloklu govde isteyen bir bulmaca bu
+      // asamada cozulemez -- cocugun elinde onu yazacak arac yoktur.
+      if (kucak.asama === "oneri") {
+        const katlanabilir = enKisaBlokCozumu(
+          harita,
+          bulmaca.komutSeti as KomutSeti,
+          enFazlaBlok,
+          { enFazlaGovde: 1 },
+        );
+        if (katlanabilir === null) {
+          hatalar.push(
+            `${kimlik}: "oneri" asamasinda kucak yalnizca katlamayla dogar ve govdesi tek ` +
+              `komut olur; bu bulmaca tek komutluk govdeyle ${enFazlaBlok} bloga sigmiyor`,
+          );
+        }
       }
     }
   }
@@ -489,6 +556,7 @@ const turkceTaranacakDosyalar = [
   ...dosyalariTara(join(KOK, "app", "kodla"), [".ts", ".tsx"]),
   join(KOK, "e2e", "kodla.spec.ts"),
   join(KOK, "e2e", "kodla-demo.spec.ts"),
+  join(KOK, "e2e", "kodla-dongu.spec.ts"),
 ];
 
 for (const dosya of turkceTaranacakDosyalar) {

@@ -28,11 +28,18 @@ export default function KomutPaleti({
   onEkle,
   hayalet,
   nabiz,
+  kutuEklenebilir,
+  onKutuEkle,
 }: {
   seti: KomutSeti;
   kilitli: boolean;
   onEkle: (komut: Komut) => void;
   hayalet: string | null;
+  // Kucak, dongunun UCUNCU asamasinda (serbest) paletten gelir: arti
+  // duzeninin ortasi bugune kadar bos duruyordu, kutu oraya oturur --
+  // yonlerin ortasi, hicbir yonu bozmayan tek yer.
+  kutuEklenebilir: boolean;
+  onKutuEkle: () => void;
   // Yardim eden nabiz (okuma bilmeyen cocuk icin sozsuz ilk temas): program
   // bosken pad'in kendisi hafifce nabiz atar. Once bir sarmalayici div'e
   // uygulaniyordu ki hicbir CSS kurali tanimlamiyordu; nabzin haloladigi
@@ -63,6 +70,17 @@ export default function KomutPaleti({
           </button>
         );
       })}
+      {kutuEklenebilir ? (
+        <button
+          type="button"
+          className="komutDugmesi yer-orta"
+          aria-label="Tekrar kucağı koy"
+          disabled={kilitli}
+          onClick={onKutuEkle}
+        >
+          <span aria-hidden="true">🔁</span>
+        </button>
+      ) : null}
     </div>
   );
 }

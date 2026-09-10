@@ -6,13 +6,32 @@ import turnaYolu from "@/content/kodla/turna-yolu.json";
 import { haritayiCoz, type Harita } from "./labirent/harita";
 import type { KomutSeti, Yon } from "./labirent/komutlar";
 
+/**
+ * Bulmacanin kucak (tekrar kutusu) asamasi.
+ *
+ * Uc asama ust uste biner (docs/tasarim/kodlama-arayuz.md §5):
+ *   hazir   — kucak dolu sayiyla ekranda hazir gelir, cocuk icini doldurur.
+ *   oneri   — serit bos baslar; cocuk ayni komutu ust uste yazinca altta
+ *             katlama onerisi belirir.
+ *   serbest — onerinin ustune palet kutu dugmesi de gelir; cocuk kutuyu
+ *             kendi koyar, sayiyi noktalarla bulur.
+ *
+ * "serbest" asamasi "oneri"nin gosterdigi her seyi de gosterir.
+ */
+export type Kucak =
+  | { asama: "hazir"; kez: number }
+  | { asama: "oneri" }
+  | { asama: "serbest" };
+
 export type BulmacaVerisi = {
   komutSeti: KomutSeti;
   idealAdim: number;
   harita: { bakis: Yon; satirlar: string[] };
-  // Kucak acik mi. Acikken idealAdim "en kisa cozumun BLOK sayisi" demektir
-  // ve denetim dongulu cozumu arar; kapaliyken duz adim sayisidir.
-  dongu?: boolean;
+  // Kucagin VARLIGI "bu bir dongu bulmacasi" demektir: idealAdim "en kisa
+  // cozumun BLOK sayisi" olur ve denetim dongulu cozumu arar; alan yokken
+  // idealAdim duz adim sayisidir. Tek alan olmasi, dongu gerektiren ama
+  // kucagi olmayan (yani cozulemeyen) bir bulmacayi temsil edilemez kilar.
+  kucak?: Kucak;
   // Seridin aldigi blok sayisi. Yoksa EN_FAZLA_BLOK gecerlidir. Atil bir
   // belge alani DEGIL: BolumEkrani.tsx blokEklendi bu degeri gercekten
   // blokEkle'ye gecirir, serit siniri buradan okunur.
