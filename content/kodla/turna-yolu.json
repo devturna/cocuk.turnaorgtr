@@ -135,6 +135,64 @@
     ]
   },
   {
+    "id": "seyfe-golu",
+    "ad": "Seyfe Gölü",
+    "mekanik": "labirent",
+    "tema": "bozkir",
+    "durak": {
+      "x": 45,
+      "y": 47
+    },
+    "ipucu": "Kırşehir bozkırındaki sığ göl; ilkbaharda çevresi başak tarlalarıyla dolar.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "T.o.H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 6,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "..o..",
+            "T...H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 6,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".o.#.",
+            ".T...",
+            "..#.H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 8,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "o...o",
+            ".T...",
+            "....H"
+          ]
+        }
+      }
+    ]
+  },
+  {
     "id": "kizilirmak-deltasi",
     "ad": "Kızılırmak Deltası",
     "mekanik": "labirent",
@@ -580,6 +638,86 @@
     ]
   },
   {
+    "id": "burdur-golu",
+    "ad": "Burdur Gölü",
+    "mekanik": "labirent",
+    "tema": "beyaz",
+    "durak": {
+      "x": 23,
+      "y": 70
+    },
+    "ipucu": "Dünyadaki dikkuyruk ördeklerin büyük bölümü kışı bu gölde geçirir.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".T.o.H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "asagi",
+          "satirlar": [
+            ".T.",
+            "...",
+            ".o.",
+            "...",
+            ".H."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "...H",
+            "..o.",
+            "....",
+            "T..."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "asagi",
+          "satirlar": [
+            "T....",
+            ".....",
+            "..o..",
+            ".....",
+            "....H"
+          ]
+        }
+      }
+    ]
+  },
+  {
     "id": "pamukkale",
     "ad": "Pamukkale",
     "mekanik": "labirent",
@@ -592,13 +730,102 @@
     "bulmacalar": [
       {
         "komutSeti": "yonler",
-        "idealAdim": 4,
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "hazir"
+        },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": [
+              "git:sag"
+            ]
+          }
+        ],
+        "enFazlaBlok": 2,
         "harita": {
           "bakis": "sag",
           "satirlar": [
+            ".T....H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 2,
+        "kucak": {
+          "asama": "hazir"
+        },
+        "baslangicProgrami": [
+          {
+            "kez": 5,
+            "govde": [
+              "git:yukari"
+            ]
+          }
+        ],
+        "enFazlaBlok": 2,
+        "harita": {
+          "bakis": "asagi",
+          "satirlar": [
+            ".T.",
+            "...",
+            "...",
+            "...",
+            ".H."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "hazir"
+        },
+        "baslangicProgrami": [
+          {
+            "kez": 3,
+            "govde": [
+              "git:sag",
+              "git:sag"
+            ]
+          }
+        ],
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "...H",
+            "....",
+            "....",
+            "T..."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "hazir"
+        },
+        "baslangicProgrami": [
+          {
+            "kez": 4,
+            "govde": [
+              "git:sol",
+              "git:sag"
+            ]
+          }
+        ],
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "....H",
             ".....",
-            ".T.o.",
-            "....H"
+            ".....",
+            ".....",
+            "T...."
           ]
         }
       }
@@ -734,6 +961,182 @@
             "....",
             "....",
             "T..."
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "manyas-kus-cenneti",
+    "ad": "Manyas Kuş Cenneti",
+    "mekanik": "labirent",
+    "tema": "sazlik",
+    "durak": {
+      "x": 12,
+      "y": 32
+    },
+    "ipucu": "Balıkesir'deki bu göl kıyısı, Türkiye'nin ilk kuş cenneti ilan edilen yeridir.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 4,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "..o..H",
+            "T....."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "T.o.o.H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "..H",
+            ".#.",
+            "T.."
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "T.....H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "T....",
+            ".....",
+            "....H"
+          ]
+        }
+      }
+    ]
+  },
+  {
+    "id": "gala-golu",
+    "ad": "Gala Gölü",
+    "mekanik": "labirent",
+    "tema": "sazlik",
+    "durak": {
+      "x": 3,
+      "y": 23
+    },
+    "ipucu": "Meriç Deltası'ndaki son durak: buradan sonrası Avrupa.",
+    "bulmacalar": [
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 3,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "T.....H"
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 3,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "....H",
+            "..#..",
+            "..#..",
+            "T...."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "o....H",
+            "......",
+            "T....."
+          ]
+        }
+      },
+      {
+        "komutSeti": "yonler",
+        "idealAdim": 4,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            ".....H",
+            "....o.",
+            "......",
+            "T....."
+          ]
+        }
+      },
+      {
+        "komutSeti": "donusler",
+        "idealAdim": 5,
+        "kucak": {
+          "asama": "serbest"
+        },
+        "enFazlaBlok": 5,
+        "harita": {
+          "bakis": "sag",
+          "satirlar": [
+            "T......",
+            "......H"
           ]
         }
       }

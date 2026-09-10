@@ -526,15 +526,20 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
     }
   });
 
-  // Bu test tek bulmacalik bir durak ister: sonundaki "Harika! En kisa
-  // yol!" kutlamasi durak BITTIGINDE cikar. Pamukkale hem tek bulmacalik
-  // hem de toplanacak bir basak ("o") tasiyor; carpma, kusu harita
-  // kenarina surerek elde ediliyor (kenara carpmak ile engele carpmak
-  // calistir() icinde ayni olaydir).
+  // Test IKI duraga bakar, cunku tek durak ikisini birden veremiyor:
   //
-  // Efes bu isi 4d'ye kadar goruyordu; o durak artik donus komutlarini
-  // ogretiyor ve dort bulmacali.
-  const bolum = BOLUMLER.find((b) => b.id === "pamukkale")!;
+  //   Seyfe Golu — ilk bulmacasinda toplanacak bir basak ("o") var ve
+  //     cozumu birden fazla blok (serit animasyonlari icin sart). Carpma,
+  //     kusu harita kenarina surerek elde ediliyor: kenara carpmak ile
+  //     engele carpmak calistir() icinde ayni olaydir.
+  //   Goksu Deltasi — rotanin TEK bulmacalik tanitim duragi; kutlama
+  //     ("Harika! En kisa yol!") ancak durak bitince cikar, orada tek
+  //     blokla biter.
+  //
+  // Rotanin tamamlanmasindan once bu isi tek basina bir durak goruyordu;
+  // artik ogreten her durak bir bulmaca dizisi.
+  const bolum = BOLUMLER.find((b) => b.id === "seyfe-golu")!;
+  const kutlamaBolumu = BOLUMLER.find((b) => b.id === "goksu-deltasi")!;
 
   /** transitionDuration/animationName'i bir secici DOM'da BELIRIR belirmez
    * (ayni tarayici tikinde) yakalar; ayri bir "bul, sonra oku" adimi state
@@ -607,14 +612,14 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
   animasyonYok(await anlikYakala(".kodlaKarakter.poz-carpma"), ".kodlaKarakter.poz-carpma");
   animasyonYok(await anlikYakala(".kodlaToz"), ".kodlaToz");
 
-  // Tahtayi kazanma denemesi icin sifirla.
+  // Tahtayi sifirla.
   await sayfa.getByRole("button", { name: "Kuşu başa al" }).click();
   await sayfa.getByRole("button", { name: "Hepsini temizle" }).click();
   await expect(sayfa.locator(".programBloku")).toHaveCount(0);
 
-  // --- Kazanma: en kisa cozumle calistirip altin yildiz + kutlamaya ulas ---
+  // --- Serit: cok bloklu bir program diz ---
   const yol = bulmacaCozumu(bolum)!;
-  expect(yol.length, "bu testin ikinci yarisi en az iki blok gerektirir").toBeGreaterThan(1);
+  expect(yol.length, "bu testin serit yarisi en az iki blok gerektirir").toBeGreaterThan(1);
   await programiDiz(sayfa, yol.map(komutAnahtari));
 
   const yeniBlokDeger = await anlikYakala(".programBloku.yeni");
@@ -637,6 +642,11 @@ test("prefers-reduced-motion acikken kodla.css'teki ilgili tum sinif/durumlarda 
 
   await sayfa.getByRole("button", { name: "Çalıştır" }).click();
   animasyonYok(await anlikYakala(".kodlaKarakter.poz-adim"), ".kodlaKarakter.poz-adim");
+
+  // --- Kazanma: tek bulmacalik durakta altin yildiz + kutlama ---
+  await sayfa.goto(`/kodla/${KURS}/${kutlamaBolumu.id}/`);
+  await programiDiz(sayfa, bulmacaCozumu(kutlamaBolumu)!.map(komutAnahtari));
+  await sayfa.getByRole("button", { name: "Çalıştır" }).click();
   await expect(sayfa.getByText("Harika! En kısa yol!")).toBeVisible({ timeout: 15000 });
 
   animasyonYok(await anlikYakala(".kodlaYuva.dolu"), ".kodlaYuva.dolu");
@@ -696,6 +706,9 @@ test("yon dugmeleri arti duzeninde: yukari ustte, asagi altta", async ({ page })
 // gorunmez.
 for (const bolum of BOLUMLER) {
   test(`${bolum.ad} bolumu cozumle bitirilebilir`, async ({ page }) => {
+    // Bes bulmacalik bir durak, acilmis dongulerle birlikte, varsayilan 30
+    // saniyeyi asiyor: her adim 450ms, her bulmaca arasi perde 1.1s.
+    test.setTimeout(20000 + bolum.bulmacalar.length * 25000);
     await page.goto(`/kodla/${KURS}/${bolum.id}/`);
 
     for (let sira = 0; sira < bolum.bulmacalar.length; sira++) {
@@ -725,8 +738,10 @@ for (const bolum of BOLUMLER) {
       await page.getByRole("button", { name: "Çalıştır" }).click();
 
       if (sira < bolum.bulmacalar.length - 1) {
-        await expect(page.getByText("Sıradaki bulmaca")).toBeVisible();
-        await expect(page.getByText("Sıradaki bulmaca")).toBeHidden();
+        // Varsayilan 5 saniye yetmiyor: acilmis bir dongu on adima kadar
+        // cikabiliyor ve her adim ADIM_SURESI (450ms) suruyor.
+        await expect(page.getByText("Sıradaki bulmaca")).toBeVisible({ timeout: 15000 });
+        await expect(page.getByText("Sıradaki bulmaca")).toBeHidden({ timeout: 15000 });
       }
     }
 

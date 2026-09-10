@@ -30,26 +30,47 @@ describe("kurslar", () => {
 describe("bolumler", () => {
   const bolumler = kursBolumleri("turna-yolu");
 
-  it("rota bugun on bir durak tasir", () => {
-    expect(bolumler).toHaveLength(11);
+  // On bes durak, elli sekiz bulmaca: kodlama-kapsam.md §4-5'teki rotanin
+  // tamami. Sayi degisiyorsa once o belge degismeli.
+  it("rota on bes durak ve elli sekiz bulmaca tasir", () => {
+    expect(bolumler).toHaveLength(15);
+    expect(bolumler.reduce((toplam, bolum) => toplam + bolum.bulmacalar.length, 0)).toBe(58);
+  });
+
+  it("rota gercek gocun sirasini izler", () => {
+    expect(bolumSiralamasi("turna-yolu")).toEqual([
+      "goksu-deltasi",
+      "sultansazligi",
+      "kapadokya",
+      "seyfe-golu",
+      "kizilirmak-deltasi",
+      "kuyucuk-golu",
+      "ercek-golu",
+      "tuz-golu",
+      "beysehir-golu",
+      "burdur-golu",
+      "pamukkale",
+      "efes",
+      "uluabat-golu",
+      "manyas-kus-cenneti",
+      "gala-golu",
+    ]);
   });
 
   // Hata ayiklama duraklari dongunun ONUNDE gelir: cocuk once yazilmis bir
   // programi okuyup duzeltmeyi, sonra dongu yazmayi ogrenir.
-  it("hata ayiklama duraklari Kapadokya ile Ercek arasindadir", () => {
+  it("hata ayiklama duraklari dongunun onunde gelir", () => {
     const sira = bolumSiralamasi("turna-yolu");
-    expect(sira.slice(sira.indexOf("kapadokya") + 1, sira.indexOf("ercek-golu"))).toEqual([
-      "kizilirmak-deltasi",
-      "kuyucuk-golu",
-    ]);
+    expect(sira.indexOf("kizilirmak-deltasi")).toBeLessThan(sira.indexOf("ercek-golu"));
+    expect(sira.indexOf("kuyucuk-golu")).toBeLessThan(sira.indexOf("ercek-golu"));
   });
 
   // Dongu duraklari rotanin ORTASINA giriyor (Kapadokya'dan sonra): rota
   // gercek gocu izliyor, yeni durak sona eklenmiyor. Ilerleme kaydi durak
   // kimligine bagli oldugu icin bitmis duraklar bitmis kalir.
-  it("dongu duraklari hata ayiklama ile Pamukkale arasindadir", () => {
+  it("dongu ogreten uc durak arka arkaya gelir", () => {
     const sira = bolumSiralamasi("turna-yolu");
-    expect(sira.slice(sira.indexOf("kuyucuk-golu") + 1, sira.indexOf("pamukkale"))).toEqual([
+    expect(sira.slice(sira.indexOf("ercek-golu"), sira.indexOf("ercek-golu") + 3)).toEqual([
       "ercek-golu",
       "tuz-golu",
       "beysehir-golu",
@@ -63,7 +84,7 @@ describe("bolumler", () => {
 
   it("siralama icerik dosyasindaki sirayi korur", () => {
     expect(bolumSiralamasi("turna-yolu")[0]).toBe("goksu-deltasi");
-    expect(bolumSiralamasi("turna-yolu").at(-1)).toBe("uluabat-golu");
+    expect(bolumSiralamasi("turna-yolu").at(-1)).toBe("gala-golu");
   });
 
   it("olmayan kurs icin bos liste doner", () => {

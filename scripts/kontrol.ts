@@ -485,10 +485,15 @@ for (const kurs of kurslar) {
       // cocuk noktalara dokunmayi ogrenmeden once takilir. Arama burada
       // yalnizca verilen kez degerini tasiyan kutulari dener.
       if (kucak.asama === "hazir") {
-        // Hazir gelen kucagin sayisiyla cozum olmali: cocuk noktalari henuz
-        // kesfetmemis olabilir ve o sayiyla cozemezse takilir.
+        // Hazir gelen BOS kucagin sayisiyla cozum olmali: cocuk yalnizca
+        // icini doldurmaya davet ediliyor, noktalari henuz kesfetmemis
+        // olabilir ve o sayiyla cozemezse takilir.
+        //
+        // Govdesi DOLU bir kucak baska bir seydir: o, hata ayiklama
+        // bulmacasidir (Pamukkale) ve sayinin yanlis olmasi dersin ta
+        // kendisi olabilir. Orada bu sart aranmaz.
         for (const blok of hazirProgram) {
-          if (blok.tur !== "tekrar") continue;
+          if (blok.tur !== "tekrar" || blok.govde.length > 0) continue;
           const kez = blok.kez;
           if (
             enKisaBlokCozumu(harita, bulmaca.komutSeti as KomutSeti, enFazlaBlok, { kez }) === null
