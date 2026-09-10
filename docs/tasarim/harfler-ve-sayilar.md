@@ -129,23 +129,51 @@ yeniden kullanılır.
 
 ### Say
 
-Ekranda 1-10 arası nesne görünür. Çocuk her birine dokunur; dokunulan nesne
-işaretlenir ve sayaç büyür. Yani parmakla sayar — okul öncesinde kullanılan
-gerçek yöntem budur. Hepsi sayıldıktan sonra "kaç tane?" sorusu ve üç rakam
-seçeneği çıkar.
+**Yayında.** Ekranda 1-10 arası nesne görünür. Çocuk her birine dokunur;
+dokunulan nesne soluklaşır ve üstünde kaçıncı olduğu yazar, başlıktaki sayaç
+da büyür. Yani parmakla sayar — okul öncesinde kullanılan gerçek yöntem
+budur. Hepsi sayıldıktan sonra "kaç tane?" sorusu ve üç rakam seçeneği
+çıkar; seçenekler doğru cevaba **yakın** sayılardır (3 ile 9 arasında seçim
+sayma değil tahmin olurdu).
+
+Yerleşim rastgele değil, **tur numarasından türetilir** (`lib/ogren/say.ts`):
+sunucuda üretilen HTML ile tarayıcıdaki ilk çizim aynı olsun ve test gerçek
+yerleşimi ölçebilsin diye. Nesneler ızgaraya oturur ve hücre içinde biraz
+kaydırılır — düz ızgara "sayılacak nesne" değil tablo gibi görünüyordu,
+tamamen rastgele yerleşimde ise nesneler üst üste binip dokunma hedefini
+yok ediyordu.
+
+Her turda simge değişir: aynı şey on kez sayılınca çocuk sayıyı değil
+resmi hatırlar.
 
 ### Eşleştir
 
-Solda büyük harfler, sağda karışık sırayla küçük harfleri durur. Çocuk bir
-çift seçer; doğruysa ikisi de sabitlenir, yanlışsa hafifçe sallanıp geri
-döner. Bir turda dört veya beş çift olur.
+**Sayı sürümü yayında.** Solda büyük harfler, sağda karışık sırayla küçük
+harfler durur. Çocuk bir çift seçer; doğruysa ikisi de sabitlenir, yanlışsa
+hafifçe sallanıp geri döner. Bir turda dört çift olur.
 
-Sayı sürümünde rakam ile nokta grubu eşleştirilir (3 ile üç nokta).
+Sayı sürümünde rakam ile nokta grubu eşleştirilir (3 ile üç nokta). Say ve
+Bul tek bir sayıyı yoklar; Eşleştir **dört sayıyı yan yana** koyar ve çocuk
+aralarındaki farkı görmek zorunda kalır — üçü aynı bilgiyi üç farklı işle
+yokluyor.
+
+Turlar 1-10'u dörder dörder kapsar ve son tur bir öncekiyle kısmen çakışır
+(7-10): on sayı dörde tam bölünmüyor, iki çiftlik bir tur ise dördüne
+alışmış çocuğa yarım kalmış görünürdü. Çakışma tekrar demektir, tekrar da
+bu yaşta kayıp değil kazançtır.
 
 ### Bul
 
-Üstte hedef gösterilir, altta üç veya dört seçenek bulunur. Doğru seçenek
-kutlanır ve sonraki soruya geçilir. En kısa turlu, en basit oyundur.
+**Yayında (rakamlar).** Üstte hedef gösterilir, altta üç seçenek bulunur.
+Doğru seçenek kutlanır ve sonraki soruya geçilir. En kısa turlu, en basit
+oyundur.
+
+Sayı sürümü Say oyununun **tersi yönde** çalışır: orada çocuk sayar ve
+rakamı söyler, burada rakamı görür ve o kadar nesnenin olduğu grubu bulur.
+İkisi aynı bilgiyi iki yönden yoklar.
+
+Doğru seçeneğin yeri de tur numarasından türetilir: hep aynı yerde olsaydı
+çocuk sayıyı değil **konumu** öğrenirdi.
 
 ### Bütün oyunlarda geçerli kural
 

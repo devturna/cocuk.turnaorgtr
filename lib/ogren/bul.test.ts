@@ -1,0 +1,50 @@
+import { describe, it, expect } from "vitest";
+import { bulTurSayisi, bulTuruUret } from "./bul";
+
+describe("bulTuruUret", () => {
+  it("hedefler birden ona dogru ilerler", () => {
+    expect(bulTuruUret(0).hedef).toBe(1);
+    expect(bulTuruUret(9).hedef).toBe(10);
+    expect(bulTurSayisi()).toBe(10);
+  });
+
+  it("uc secenek sunar ve dogru miktar icindedir", () => {
+    for (let sira = 0; sira < bulTurSayisi(); sira++) {
+      const tur = bulTuruUret(sira);
+      expect(tur.secenekler).toHaveLength(3);
+      expect(tur.secenekler.map((secenek) => secenek.miktar)).toContain(tur.hedef);
+    }
+  });
+
+  it("secenek miktarlari benzersizdir", () => {
+    for (let sira = 0; sira < bulTurSayisi(); sira++) {
+      const miktarlar = bulTuruUret(sira).secenekler.map((secenek) => secenek.miktar);
+      expect(new Set(miktarlar).size).toBe(miktarlar.length);
+    }
+  });
+
+  it("secenekler hedefe yakindir", () => {
+    for (let sira = 0; sira < bulTurSayisi(); sira++) {
+      const tur = bulTuruUret(sira);
+      for (const secenek of tur.secenekler) {
+        expect(Math.abs(secenek.miktar - tur.hedef)).toBeLessThanOrEqual(2);
+        expect(secenek.miktar).toBeGreaterThanOrEqual(1);
+        expect(secenek.miktar).toBeLessThanOrEqual(10);
+      }
+    }
+  });
+
+  it("dogru secenek her zaman ayni yerde durmaz", () => {
+    // Konumu ogrenmek sayiyi ogrenmek degildir.
+    const yerler = new Set<number>();
+    for (let sira = 0; sira < bulTurSayisi(); sira++) {
+      const tur = bulTuruUret(sira);
+      yerler.add(tur.secenekler.findIndex((secenek) => secenek.miktar === tur.hedef));
+    }
+    expect(yerler.size).toBeGreaterThan(1);
+  });
+
+  it("ayni tur her cagrida ayni gelir", () => {
+    expect(bulTuruUret(4)).toEqual(bulTuruUret(4));
+  });
+});
