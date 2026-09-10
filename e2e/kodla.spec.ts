@@ -147,7 +147,7 @@ async function programiUygula(page: Page, bulmaca: LabirentBulmacasi, program: B
 test("ana sayfadan kodlama bolumu acilir", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Kodlama" }).click();
-  await expect(page.getByRole("heading", { name: "Kaç yaşındasın?" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Ne oynayalım?" })).toBeVisible();
 
   await page.getByRole("link", { name: /Turna'nın Yolu/ }).click();
   await expect(page.getByRole("heading", { name: "Turna'nın Yolu" })).toBeVisible();

@@ -1,6 +1,11 @@
 "use client";
 
-// Kodlama bolumunun girisi: yas gruplari.
+// Kodlama bolumunun girisi: kurslar.
+//
+// Baslik "Kac yasindasin?" degil: Faz 4a'da tek bir yayindaki kurs vardi
+// ve soru yas grubunu seciyordu. Bugun ayni yas grubunda UC kurs var
+// (Turna'nin Yolu, Kilimin Izi, Gol Kiyisi) ve secilen sey yas degil,
+// oynanacak oyun. Yas bilgisi kartin kendisinde duruyor.
 // Ilerleme yalnizca tarayicida bulunur; sayfa sunucuda uretilirken
 // localStorage yoktur, bu yuzden okuma ekran acildiktan sonra yapilir.
 import { useEffect, useState } from "react";
@@ -23,7 +28,7 @@ export default function KursKartlari() {
 
   return (
     <div className="kodlaGirisi">
-      <h1>Kaç yaşındasın?</h1>
+      <h1>Ne oynayalım?</h1>
       <div className="kursKartlari">
         {kurslar.map((kurs) => {
           const toplam = kursBolumleri(kurs.id).length;

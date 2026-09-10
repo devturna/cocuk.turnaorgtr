@@ -26,7 +26,7 @@ Bunu bize güvenerek kabul etmeniz gerekmiyor — kendiniz doğrulayabilirsiniz:
 | Boyama | Yayında |
 | Harfler ve Sayılar | Yaz oyunu yayında, diğer üç oyun geliştiriliyor |
 | Oyunlar | Planlanıyor (Faz 3) |
-| Kodlama | Faz 4d geliştiriliyor (Turna'nın Yolu, altı durak — bazıları birden çok bulmacadan oluşan dizi durak, kuş seçimi, yol önizlemeli arayüz) |
+| Kodlama | Yayında (üç kurs, üç mekanik): **Turna'nın Yolu** on beş durak, elli sekiz bulmaca — sıralama, hata ayıklama, döngü, dönüş komutları; **Kilimin İzi** dört durak — kilim ve çini motifleri çizme; **Göl Kıyısı** iki durak — "dokununca ne olsun" kuralları ve serbest oyun |
 
 Ayrıntılar: [yol haritası](docs/yol-haritasi.md)
 
@@ -65,12 +65,15 @@ components/boyama/       Arayüz bileşenleri
 components/kodla/        Kodlama arayüz bileşenleri
 lib/boyama/              Boyama mantığı (React'tan bağımsız, test edilir)
 lib/ogren/               Oyun mantığı ve içerik (React'tan bağımsız)
-lib/kodla/               Labirent motoru ve ilerleme (React'tan bağımsız)
+lib/kodla/               Üç mekaniğin motoru ve ilerleme (React'tan bağımsız)
+  labirent/                kareler arası hareket
+  desen/                   ızgara köşelerinde çizim
+  olay/                    "dokununca ne olsun" kuralları
 content/                 Boyama sayfası kataloğu
 content/kodla/           Kurs ve bölüm içeriği
 public/boyama/           Çizgi resimler (SVG)
 public/kodla/            Türkiye silueti
-scripts/                 Denetim script'i
+scripts/                 Denetim ve içerik üretim script'leri
 docs/                    Belgeler
 e2e/                     Uçtan uca testler
 ```
