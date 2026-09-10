@@ -203,6 +203,34 @@ karşılaşması "denedim" değil "başardım" olmalı; üç adımlık bir çöz
 ilk deneyim için fazladır. Bkz. `turna-yolu.json` içindeki `goksu-deltasi`
 (3×3 harita, Turna ortada, yuva hemen yanında, tek yön komutuyla biter).
 
+## 4.3 Desen durakları (çizim mekaniği)
+
+`"mekanik": "desen"` taşıyan bir durakta bulmacalar `harita` yerine `desen`
+alanı taşır ve komut seti her zaman `donusler`dir:
+
+```json
+"desen": {
+  "genislik": 3,
+  "yukseklik": 3,
+  "baslangic": { "x": 0, "y": 2, "bakis": "sag" },
+  "kenarlar": ["0,2 1,2", "1,2 1,1", "1,1 0,1", "0,1 0,2"]
+}
+```
+
+`genislik`/`yukseklik` **köşe** sayısıdır (3 köşe = 2 kare). Kenar iki komşu
+köşeyi birleştirir ve yönsüzdür. Mekaniğin gerekçeleri
+[tasarim/kodlama-cizim.md](tasarim/kodlama-cizim.md) içindedir.
+
+**Deseni elle yazma.** `npm run uret` motifleri *programdan* çizer: bir
+gövdeyi verilen sayıda tekrarlar, çizilen kenarları toplar ve `idealAdim`'i
+çözücüye hesaplatır. Böylece hedef desen tanım gereği çizilebilir olur —
+elle yazılmış bir kenar listesi kolayca "çizilemez" çıkar. Yeni motifleri
+`scripts/uret.ts` içindeki listeye ekleyip çalıştırın.
+
+Denetim her desende iki şeyi birden arar: blok sınırına sığan bir çizim
+**var** ve kucaksız bir çizim **yok** (yoksa durak döngü öğretmez) — labirent
+tarafındaki döngü denetiminin aynısı.
+
 ## 5. Denetle
 
 ```bash

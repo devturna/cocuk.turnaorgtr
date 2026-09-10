@@ -4,13 +4,47 @@
       "id": "turna",
       "ad": "Turna",
       "bilgi": "Turnalar her ilkbahar Anadolu üzerinden kuzeye göç eder.",
-      "palet": { "govde": "#f4f1ea", "gaga": "#e08a2e", "bacak": "#33312e", "kanat": "#c9c2b4" }
+      "palet": {
+        "govde": "#f4f1ea",
+        "gaga": "#e08a2e",
+        "bacak": "#33312e",
+        "kanat": "#c9c2b4"
+      }
     },
     {
       "id": "flamingo",
       "ad": "Flamingo",
       "bilgi": "Flamingolar Tuz Gölü'nde binlerce çift halinde ürer.",
-      "palet": { "govde": "#f2a2b8", "gaga": "#e8556d", "bacak": "#d4849a", "kanat": "#c96a8a" }
+      "palet": {
+        "govde": "#f2a2b8",
+        "gaga": "#e8556d",
+        "bacak": "#d4849a",
+        "kanat": "#c96a8a"
+      }
+    }
+  ],
+  "kilimin-izi": [
+    {
+      "id": "turna",
+      "ad": "Turna",
+      "bilgi": "Turna kanadının ucuyla iplik gibi çizgi bırakır.",
+      "palet": {
+        "govde": "#f4f1ea",
+        "gaga": "#e08a2e",
+        "bacak": "#33312e",
+        "kanat": "#c9c2b4"
+      }
+    },
+    {
+      "id": "flamingo",
+      "ad": "Flamingo",
+      "bilgi": "Flamingo pembe ipliği sever.",
+      "palet": {
+        "govde": "#f2a2b8",
+        "gaga": "#e8556d",
+        "bacak": "#d4849a",
+        "kanat": "#c96a8a"
+      }
     }
   ]
 }

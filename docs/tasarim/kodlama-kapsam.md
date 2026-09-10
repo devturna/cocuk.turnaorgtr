@@ -325,12 +325,19 @@ tekrarlayarak karmaşık bir şekil çıkarmak. Bizim karşılığımız Türk k
 çini motifleridir; bu, portalın kültür çerçevesine döngüden bile daha doğal
 oturur.
 
-Bu ikinci bir mekaniktir: yeni sahne, yeni komut seti (ileri, dön, kalem
-kaldır), yeni doğrulama (çizilen yol hedef desene yeterince benziyor mu).
-Kendi tasarım belgesini hak eder ve bu belge onaylandıktan sonra yazılır.
+Bu ikinci bir mekaniktir: yeni sahne ve yeni doğrulama. Tasarımı
+[kodlama-cizim.md](kodlama-cizim.md) içindedir; **yayında**, "Kilimin İzi"
+kursunda dört durak ve on altı desen.
 
-Not: doğrulamanın "yeterince benziyor mu" olması kritiktir. Piksel eşitliği
-arayan bir kontrol bu yaşta yalnızca hüsran üretir.
+İki karar burada yazılandan farklı çıktı ve gerekçeleri o belgededir:
+komut seti **yeni değil** (labirentin son iki durağında öğretilen `donusler`
+setinin aynısı — ikinci mekanik yeni bir dil öğretmemeli), ve **kalem
+kaldırma yok** (motifler tek hatta çizilebilir seçilerek o ihtiyaç içerik
+tarafında ortadan kaldırıldı).
+
+Doğrulama beklendiği gibi "yeterince benziyor mu" oldu: hedef desenin her
+kenarı çizildiyse başarılı, fazladan çizgi başarıyı bozmaz. Piksel eşitliği
+arayan bir kontrol bu yaşta yalnızca hüsran üretirdi.
 
 ## 9. Faz 4f — olaylar (kısa)
 

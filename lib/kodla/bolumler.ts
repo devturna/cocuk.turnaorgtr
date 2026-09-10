@@ -3,8 +3,10 @@
 // Her kursun bolumleri kendi JSON dosyasindadir; yeni bir yas grubu eklemek
 // buraya bir satir eklemektir.
 import turnaYolu from "@/content/kodla/turna-yolu.json";
+import kilimininIzi from "@/content/kodla/kilimin-izi.json";
 import { haritayiCoz, type Harita } from "./labirent/harita";
 import { anahtarKomutu, type KomutSeti, type Yon } from "./labirent/komutlar";
+import { deseniCoz, type Desen, type DesenVerisi } from "./desen/desen";
 import { komutBloku, type Blok, type KomutBloku } from "./program";
 
 /**
@@ -30,10 +32,10 @@ export type Kucak = { asama: "hazir" | "oneri" | "serbest" };
  */
 export type BaslangicBloku = string | { kez: number; govde: string[] };
 
-export type BulmacaVerisi = {
+/** Iki mekanigin de paylastigi bulmaca alanlari. */
+type OrtakBulmaca = {
   komutSeti: KomutSeti;
   idealAdim: number;
-  harita: { bakis: Yon; satirlar: string[] };
   // Kucagin VARLIGI "bu bir dongu bulmacasi" demektir: idealAdim "en kisa
   // cozumun BLOK sayisi" olur ve denetim dongulu cozumu arar; alan yokken
   // idealAdim duz adim sayisidir. Tek alan olmasi, dongu gerektiren ama
@@ -49,23 +51,47 @@ export type BulmacaVerisi = {
    */
   baslangicProgrami?: BaslangicBloku[];
   // Seridin aldigi blok sayisi. Yoksa EN_FAZLA_BLOK gecerlidir. Atil bir
-  // belge alani DEGIL: BolumEkrani.tsx blokEklendi bu degeri gercekten
-  // blokEkle'ye gecirir, serit siniri buradan okunur.
+  // belge alani DEGIL: bolum ekranlari bu degeri gercekten blokEkle'ye
+  // gecirir, serit siniri buradan okunur.
   enFazlaBlok?: number;
 };
 
-export type BolumVerisi = {
+/** Labirent bulmacasi: kus kareler arasinda yurur, hedefi bulur. */
+export type LabirentBulmacasi = OrtakBulmaca & {
+  harita: { bakis: Yon; satirlar: string[] };
+};
+
+/** Desen bulmacasi: kus izgara koselerinde yurur, cizgi birakir. */
+export type DesenBulmacasi = OrtakBulmaca & { desen: DesenVerisi };
+
+export type BulmacaVerisi = LabirentBulmacasi | DesenBulmacasi;
+
+type OrtakBolum = {
   id: string;
   ad: string;
-  mekanik: "labirent";
   tema: string;
   durak: { x: number; y: number };
   ipucu: string;
-  bulmacalar: BulmacaVerisi[];
 };
+
+export type LabirentBolumu = OrtakBolum & {
+  mekanik: "labirent";
+  bulmacalar: LabirentBulmacasi[];
+};
+
+export type DesenBolumu = OrtakBolum & {
+  mekanik: "desen";
+  bulmacalar: DesenBulmacasi[];
+};
+
+// Mekanik, durak seviyesinde ayrisir: bir durakta hem labirent hem desen
+// bulmacasi olmaz. Boylece bolum ekrani tek bir mekanigi oynatir ve
+// bulmacadan bulmacaya kabuk degistirmez.
+export type BolumVerisi = LabirentBolumu | DesenBolumu;
 
 const KURS_BOLUMLERI: Record<string, BolumVerisi[]> = {
   "turna-yolu": turnaYolu as BolumVerisi[],
+  "kilimin-izi": kilimininIzi as BolumVerisi[],
 };
 
 export function kursBolumleri(kursId: string): BolumVerisi[] {
@@ -85,14 +111,26 @@ export function bulmacaSayisi(bolum: BolumVerisi): number {
   return bolum.bulmacalar.length;
 }
 
-/** Sira disina cikan istek undefined doner; cagiran yeri kendi karar verir. */
-export function bulmacaBul(bolum: BolumVerisi, sira: number): BulmacaVerisi | undefined {
+/**
+ * Sira disina cikan istek undefined doner; cagiran yeri kendi karar verir.
+ *
+ * Donen tipin bolumun mekanigine gore daralmasi icin genel: labirent
+ * bolumunden labirent bulmacasi, desen bolumunden desen bulmacasi doner.
+ */
+export function bulmacaBul<B extends BolumVerisi>(
+  bolum: B,
+  sira: number,
+): B["bulmacalar"][number] | undefined {
   if (sira < 0 || sira >= bolum.bulmacalar.length) return undefined;
   return bolum.bulmacalar[sira];
 }
 
-export function bulmacaHaritasi(bulmaca: BulmacaVerisi): Harita {
+export function bulmacaHaritasi(bulmaca: LabirentBulmacasi): Harita {
   return haritayiCoz(bulmaca.harita.satirlar, bulmaca.harita.bakis);
+}
+
+export function bulmacaDeseni(bulmaca: DesenBulmacasi): Desen {
+  return deseniCoz(bulmaca.desen);
 }
 
 /** Icerikteki komut anahtarini bloga cevirir; anahtar bilinmiyorsa null. */

@@ -29,6 +29,7 @@ describe("kurslar", () => {
 
 describe("bolumler", () => {
   const bolumler = kursBolumleri("turna-yolu");
+  const labirentBolumleri = bolumler.filter((bolum) => bolum.mekanik === "labirent");
 
   // On bes durak, elli sekiz bulmaca: kodlama-kapsam.md §4-5'teki rotanin
   // tamami. Sayi degisiyorsa once o belge degismeli.
@@ -93,7 +94,7 @@ describe("bolumler", () => {
   });
 
   it("her bolumun her bulmacasinin haritasi cozumlenebilir", () => {
-    for (const bolum of bolumler) {
+    for (const bolum of labirentBolumleri) {
       for (const [sira, bulmaca] of bolum.bulmacalar.entries()) {
         expect(() => bulmacaHaritasi(bulmaca), `${bolum.id} bulmaca ${sira}`).not.toThrow();
       }
@@ -151,6 +152,7 @@ describe("bulmaca dizisi", () => {
 
   it("bulmacanin haritasi cozulebilir bir baslangic ve hedef tasir", () => {
     const bolum = kursBolumleri("turna-yolu")[0];
+    if (bolum.mekanik !== "labirent") throw new Error("ilk durak labirent olmali");
     const harita = bulmacaHaritasi(bulmacaBul(bolum, 0)!);
     expect(harita.baslangic).toBeDefined();
     expect(harita.hedef).toBeDefined();

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { yayindakiKurslar } from "@/lib/kodla/kurslar";
 import { bolumBul, bolumSiralamasi, kursBolumleri } from "@/lib/kodla/bolumler";
 import BolumEkrani from "@/components/kodla/labirent/BolumEkrani";
+import DesenEkrani from "@/components/kodla/desen/DesenEkrani";
 
 export function generateStaticParams() {
   return yayindakiKurslar().flatMap((kurs) =>
@@ -40,6 +41,21 @@ export default async function BolumSayfasi({
   // durakta durakIlerlemesiniSil'i cagirir; bulmacaSirasi'na dokunulmadigi
   // icin cocuk son bulmacayi TERTEMIZ bir kayda karsi bitirir, hepsiIdeal
   // yeniden true okunur ve ozensiz oynanmis bir durak altin alir.
+  // Mekanik durak seviyesinde ayrisir: hangi kabugun oynatilacagini icerik
+  // soyler. Iki ekran ayni alt bilesenleri (serit, palet, katlama cipi,
+  // nokta gostergesi) paylasir ama kendi sahnelerini ve kendi motorlarini
+  // kullanir.
+  if (bolum.mekanik === "desen") {
+    return (
+      <DesenEkrani
+        key={`${kursId}/${bolumId}`}
+        kursId={kursId}
+        bolum={bolum}
+        sonrakiBolumId={sonraki}
+      />
+    );
+  }
+
   return (
     <BolumEkrani
       key={`${kursId}/${bolumId}`}

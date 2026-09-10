@@ -37,8 +37,8 @@ import {
   bulmacaSayisi,
   bolumSiralamasi,
   baslangicProgrami,
-  type BolumVerisi,
-  type BulmacaVerisi,
+  type LabirentBolumu,
+  type LabirentBulmacasi,
 } from "@/lib/kodla/bolumler";
 import { baslangicBulmacasi, bulmacaSonrasi } from "@/lib/kodla/durak";
 import { varsayilanKarakter } from "@/lib/kodla/karakterler";
@@ -102,7 +102,7 @@ function demoKomutuSec(seti: KomutSeti, harita: Harita): Komut | null {
  * standart, guvenilir davranisidir).
  */
 function bulmacaBaslangicKonumu(
-  bolum: BolumVerisi,
+  bolum: LabirentBolumu,
   sira: number,
 ): { x: number; y: number; bakis: Yon } {
   const bulmaca = bulmacaBul(bolum, sira) ?? bolum.bulmacalar[0];
@@ -122,7 +122,7 @@ function bulmacaBaslangicKonumu(
  * bulmacaBaslangicKonumu ile ayni tek-kaynak disiplini, yoksa bir yol
  * kucagi unutur ve cocuk cozulemeyen bir bulmacayla kalir.
  */
-function bulmacaBaslangicKutusu(bulmaca: BulmacaVerisi): number | null {
+function bulmacaBaslangicKutusu(bulmaca: LabirentBulmacasi): number | null {
   if (bulmaca.kucak?.asama !== "hazir") return null;
   const sira = baslangicProgrami(bulmaca).findIndex((blok) => blok.tur === "tekrar");
   return sira === -1 ? null : sira;
@@ -177,7 +177,7 @@ export default function BolumEkrani({
   sonrakiBolumId,
 }: {
   kursId: string;
-  bolum: BolumVerisi;
+  bolum: LabirentBolumu;
   sonrakiBolumId: string | null;
 }) {
   const toplamBulmaca = bulmacaSayisi(bolum);

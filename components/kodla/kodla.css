@@ -44,6 +44,41 @@
   font-weight: 700;
 }
 
+/* --- Desen sahnesi ---
+   Cizim mekaniginde kus KARELERDE degil KOSELERDE durur; sahne de kareler
+   yerine kose noktalari ve kenar cizgileri gosterir. Olcek labirentle
+   aynidir (iki kose arasi 100 birim), boylece kus iki mekanikte de ayni
+   buyuklukte gorunur. */
+.desenSahne {
+  background: #fbf3e4;
+}
+
+.desenKose {
+  fill: #cdbfa6;
+}
+
+/* Hedef desen: cocuk ne cizecegini gorur, ustunden gecer. */
+.desenHedef {
+  stroke: #ded0b6;
+  stroke-width: 18;
+  stroke-linecap: round;
+}
+
+/* Onizleme, labirentteki yol onizlemesinin karsiligi: program
+   calistirilmadan once ne cizilecegini gosterir. */
+.desenOnizleme {
+  stroke: #b9a37e;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 14 16;
+}
+
+.desenCizgi {
+  stroke: #c0392b;
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+
 /* --- Goc haritasi --- */
 
 .gocEkrani {

@@ -228,6 +228,11 @@ Oyun ekranının tasarım gerekçeleri ayrı belgede:
 | `components/kodla/labirent/ProgramSeridi.tsx` | Çocuğun dizdiği bloklar: programın yapısı, kucağın çizimi, ekleme/silme animasyonu |
 | `components/kodla/labirent/KatlamaCipi.tsx` | Şeridin altındaki katlama önerisi |
 | `lib/kodla/katlama.ts` | Tekrarı bulup tek kucağa katlayan saf iki fonksiyon |
+| `lib/kodla/desen/ciz.ts` | Çizim mekaniğinin motoru: program → çizilen kenarlar |
+| `lib/kodla/desen/cozucu.ts` | Bir desenin kaç blokla çizilebildiği (denetim için) |
+| `components/kodla/desen/DesenEkrani.tsx` | Desen durağının kabuğu (labirent ekranının kardeşi) |
+| `components/kodla/desen/DesenSahne.tsx` | Izgara köşeleri, hedef desen, çizilen çizgiler |
+| `components/kodla/zamanlama.ts` | İki mekaniğin paylaştığı oynatma süreleri |
 | `components/kodla/labirent/Konfeti.tsx` | Kutlama parçacıkları |
 
 ### Önizleme ile çalıştırma neden ayrışamaz?
