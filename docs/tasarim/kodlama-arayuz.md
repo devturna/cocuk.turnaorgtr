@@ -44,6 +44,8 @@ geliyoruz: sıralama var, **döngü yok**, ikinci mekanik yok.
 | Döngü yazımı | Üç aşamalı: hazır kucak → katlama önerisi → serbest | Sürükleyip içine bırakma bu yaşta çalışmıyor |
 | Kucağı açma | Kucağın başındaki simgeye dokunmak açar kapatır | Mod gizli kalmasın; sayı ile açma ayrı hedefler olsun |
 | Tekrar sayısı | Nokta göstergesi, dokundukça artar, 5'ten sonra 2'ye döner | Bu yaşta rakam tanıma güvenilir değil |
+| Blok silme | Şeritteki bloğa dokunmak onu siler | Sürükleme bu yaşta çalışmıyor; sondan silme ortadaki bloğu kurtaramıyor |
+| Hata ayıklama | Bulmaca bozuk bir programla açılır, çocuk düzeltir | Kavramın kendisi bu: yazılmış bir programı okuyup onarmak |
 | Hareket | SVG üzerinde CSS geçişi ve keyframe | En az kod, GPU'da, tek yerde tanımlı |
 | İlk temas | Sessiz demo, metin yok | Hedef kitle okumuyor |
 | Görseller | Karma: karakter dışarıdan, gerisi kodla | Çocuğun bağlandığı tek şey karakter |

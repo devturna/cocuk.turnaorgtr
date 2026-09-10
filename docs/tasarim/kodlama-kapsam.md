@@ -139,8 +139,8 @@ kendisi.
 | 2 | Sultansazlığı | Kayseri | 50, 61 | var |
 | 3 | Kapadokya | Nevşehir | 48, 56 | var |
 | 4 | Seyfe Gölü | Kırşehir | 45, 47 | yeni |
-| 5 | Kızılırmak Deltası | Samsun | 53, 10 | yeni |
-| 6 | Kuyucuk Gölü | Kars | 91, 24 | yeni |
+| 5 | Kızılırmak Deltası | Samsun | 53, 10 | var |
+| 6 | Kuyucuk Gölü | Kars | 91, 24 | var |
 | 7 | Erçek Gölü | Van | 91, 56 | var |
 | 8 | Tuz Gölü | Aksaray | 40, 54 | var |
 | 9 | Beyşehir Gölü | Konya | 30, 70 | var |
@@ -348,7 +348,7 @@ Bu, karşılık haritasındaki tek bilinçli eksiktir.
 | Faz | Kapsam | Neden bu sırada |
 |---|---|---|
 | 4d | Durak = bulmaca dizisi yapısı, on beş duraklık rota, hata ayıklama, döngü, dönüş komutları | Yapı değişikliği içeriğin önüne geçmeli; döngü zaten en çok beklenen kavram |
-| 4d durumu | Yapı ✓, döngü motoru ✓, döngü arayüzü ✓, ilk üç döngü durağı ✓ — kalan: hata ayıklama, dönüş, rotanın tamamı | |
+| 4d durumu | Yapı ✓, döngü motoru ✓, döngü arayüzü ✓, döngü durakları ✓, hata ayıklama durakları ✓ — kalan: dönüş komutları, rotanın tamamı | |
 | 4e | Çizim mekaniği ve desen durakları | Döngüyü gerektirir |
 | 4f | Olaylar | Bağımsız; en son çünkü en az öğretici, en çok serbest oyun |
 
