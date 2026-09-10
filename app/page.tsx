@@ -14,11 +14,10 @@ export default function AnaSayfa() {
           <span className="bolumIkon" aria-hidden="true">🔤</span>
           <span className="bolumAd">Harfler ve Sayılar</span>
         </Link>
-        <div className="bolumKarti pasif">
+        <Link href="/oyunlar/" className="bolumKarti">
           <span className="bolumIkon" aria-hidden="true">🎮</span>
           <span className="bolumAd">Oyunlar</span>
-          <span className="yakinda">Yakında</span>
-        </div>
+        </Link>
         <Link href="/kodla/" className="bolumKarti">
           <span className="bolumIkon" aria-hidden="true">🧩</span>
           <span className="bolumAd">Kodlama</span>

@@ -37,12 +37,25 @@ cihazın tarayıcı hafızasında durur.
 Tasarım kararları ve gerekçeleri:
 [harfler-ve-sayilar.md](tasarim/harfler-ve-sayilar.md)
 
-## Faz 3 — Oyunlar (planlanıyor)
+## Faz 3 — Oyunlar (geliştiriliyor)
 
-Küçük yaş grubuna uygun, tek oturumda bitebilen basit oyunlar. Örneğin
-hafıza kartları, şekil-gölge eşleme.
+Küçük yaş grubuna uygun, tek oturumda bitebilen basit oyunlar. Diğer
+bölümlerden farkı: burada öğretilen bir konu yok. Bir çocuk her zaman
+öğrenmek istemez; bu bölüm o an içindir.
 
-Aynı ilkeler geçerli olacak: reklamsız, veri toplamayan, tamamen statik.
+| Oyun | Ne yapar | Durum |
+|---|---|---|
+| Hafıza | Kart çiftlerini bulma, tur turdan büyür (4→12 kart) | Yayında |
+| Gölge | Şekil ile gölgesini eşleme | Planlanıyor |
+| Sırala | Üç nesneyi küçükten büyüğe dizme | Planlanıyor |
+
+Bölümün ölçütü: **hiçbir oyun iki dakikadan uzun sürmemeli ve hiçbiri
+kaybetmeyle bitmemeli.** Kayıt da yok — burada ilerleyecek bir şey olmadığı
+için kayıt tutmak oyunu ödeve çevirirdi.
+
+Tasarım kararları: [oyunlar.md](tasarim/oyunlar.md)
+
+Aynı ilkeler geçerli: reklamsız, veri toplamayan, tamamen statik.
 
 ## Faz 4 — Kodlama (geliştiriliyor)
 

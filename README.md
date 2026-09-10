@@ -25,7 +25,7 @@ Bunu bize güvenerek kabul etmeniz gerekmiyor — kendiniz doğrulayabilirsiniz:
 |---|---|
 | Boyama | Yayında |
 | Harfler ve Sayılar | Dört oyun da rakamlarla yayında (Yaz, Say, Bul, Eşleştir); harf içeriği geliştiriliyor |
-| Oyunlar | Planlanıyor (Faz 3) |
+| Oyunlar | Hafıza oyunu yayında; Gölge ve Sırala planlanıyor |
 | Kodlama | Yayında (üç kurs, üç mekanik): **Turna'nın Yolu** on beş durak, elli sekiz bulmaca — sıralama, hata ayıklama, döngü, dönüş komutları; **Kilimin İzi** dört durak — kilim ve çini motifleri çizme; **Göl Kıyısı** iki durak — "dokununca ne olsun" kuralları ve serbest oyun |
 
 Ayrıntılar: [yol haritası](docs/yol-haritasi.md)
@@ -60,11 +60,13 @@ app/                     Sayfalar (Next.js App Router)
   boyama/page.tsx          resim galerisi
   boyama/[resimId]/        boyama ekranı
   ogren/                   harf ve sayı oyunları
+  oyunlar/                 küçük oyunlar
   kodla/                   kodlama bölümü (kurs > bölüm)
 components/boyama/       Arayüz bileşenleri
 components/kodla/        Kodlama arayüz bileşenleri
 lib/boyama/              Boyama mantığı (React'tan bağımsız, test edilir)
-lib/ogren/               Oyun mantığı ve içerik (React'tan bağımsız)
+lib/ogren/               Harf ve sayı oyunlarının mantığı (React'tan bağımsız)
+lib/oyunlar/             Küçük oyunların mantığı (React'tan bağımsız)
 lib/kodla/               Üç mekaniğin motoru ve ilerleme (React'tan bağımsız)
   labirent/                kareler arası hareket
   desen/                   ızgara köşelerinde çizim
