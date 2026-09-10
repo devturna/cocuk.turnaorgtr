@@ -44,6 +44,41 @@
   font-weight: 700;
 }
 
+/* --- Desen sahnesi ---
+   Cizim mekaniginde kus KARELERDE degil KOSELERDE durur; sahne de kareler
+   yerine kose noktalari ve kenar cizgileri gosterir. Olcek labirentle
+   aynidir (iki kose arasi 100 birim), boylece kus iki mekanikte de ayni
+   buyuklukte gorunur. */
+.desenSahne {
+  background: #fbf3e4;
+}
+
+.desenKose {
+  fill: #cdbfa6;
+}
+
+/* Hedef desen: cocuk ne cizecegini gorur, ustunden gecer. */
+.desenHedef {
+  stroke: #ded0b6;
+  stroke-width: 18;
+  stroke-linecap: round;
+}
+
+/* Onizleme, labirentteki yol onizlemesinin karsiligi: program
+   calistirilmadan once ne cizilecegini gosterir. */
+.desenOnizleme {
+  stroke: #b9a37e;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-dasharray: 14 16;
+}
+
+.desenCizgi {
+  stroke: #c0392b;
+  stroke-width: 16;
+  stroke-linecap: round;
+}
+
 /* --- Goc haritasi --- */
 
 .gocEkrani {
@@ -131,13 +166,13 @@
 }
 
 /* --- Hareket katmani ---
-   --kodla-adim-suresi, components/kodla/labirent/BolumEkrani.tsx'teki
+   --kodla-adim-suresi, components/kodla/zamanlama.ts'teki
    ADIM_SURESI (450ms) ve POZ_SIFIRLAMA_GECIKMESI (400ms) ile SIRALI bir
    uclu olusturur: bu deger < POZ_SIFIRLAMA_GECIKMESI < ADIM_SURESI olmali.
    "Yurume hizini degistir tek satirdir" DOGRU DEGIL: bu degeri tek basina
    buyutmek (ornegin 800ms'e) karakterin gecisini bir sonraki JS tikinden
    once bitirmemesine yol acar, karakter kareler arasinda ISINLANIR gibi
-   gorunur. Uc degeri birlikte, BolumEkrani.tsx'teki yorumdaki siraya gore
+   gorunur. Uc degeri birlikte, zamanlama.ts'teki yorumdaki siraya gore
    guncelleyin. */
 :root {
   --kodla-adim-suresi: 380ms;
@@ -847,7 +882,7 @@
   background: var(--kenar);
 }
 
-/* animation suresi (220ms) BolumEkrani.tsx'teki GECIS_SURESI (1100ms) ile
+/* animation suresi (220ms) zamanlama.ts'teki GECIS_SURESI (1100ms) ile
    kuplu: GECIS_SURESI bunun altina inerse katman belirme ortasinda
    kaldirilir. */
 .bulmacaGecisi {
@@ -900,10 +935,10 @@
 
 /* Yeni ulasilan nokta perde acikken parlayarak dolar: cocuk okuyamadigi
    "Sıradaki bulmaca" yazisi yerine bu hareketten ilerledigini anlar. Sure
-   (280ms) BolumEkrani.tsx'teki GECIS_SURESI ile KUPLU: GECIS_SURESI bu
+   (280ms) zamanlama.ts'teki GECIS_SURESI ile KUPLU: GECIS_SURESI bu
    animasyonun suresinden (ve .bulmacaGecisi'nin 220ms'lik belirmesinden)
    KISA OLAMAZ, yoksa nokta perde kalkmadan once yarida kesilir - kuplajin
-   tam gerekcesi BolumEkrani.tsx'teki GECIS_SURESI yorumunda. */
+   tam gerekcesi zamanlama.ts'teki GECIS_SURESI yorumunda. */
 @keyframes bulmacaNoktaDolus {
   0% { scale: 0.4; opacity: 0.5; }
   60% { scale: 1.3; }

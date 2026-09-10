@@ -10,6 +10,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "kontrol": "tsx scripts/kontrol.ts",
+    "uret": "tsx scripts/uret.ts",
     "e2e": "npm run build && playwright test"
   },
   "dependencies": {

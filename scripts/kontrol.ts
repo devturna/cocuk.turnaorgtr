@@ -5,6 +5,9 @@ import { join, extname } from "node:path";
 import ts from "typescript";
 import { haritayiCoz } from "../lib/kodla/labirent/harita";
 import { calistir } from "../lib/kodla/labirent/calistir";
+import { ciz } from "../lib/kodla/desen/ciz";
+import { deseniCoz, type DesenVerisi } from "../lib/kodla/desen/desen";
+import { DESEN_ARAMA_SINIRI, enKisaDesenCozumu } from "../lib/kodla/desen/cozucu";
 import { ARAMA_BLOK_SINIRI, enKisaBlokCozumu, enKisaCozum } from "../lib/kodla/labirent/cozucu";
 import type { KomutSeti, Yon } from "../lib/kodla/labirent/komutlar";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
@@ -267,7 +270,7 @@ for (const kurs of kurslar) {
     }
     gorulenBolumler.add(String(bolum.id));
 
-    if (bolum.mekanik !== "labirent") {
+    if (bolum.mekanik !== "labirent" && bolum.mekanik !== "desen") {
       hatalar.push(`${bolumId}: bilinmeyen mekanik "${String(bolum.mekanik)}"`);
       continue;
     }
@@ -310,25 +313,6 @@ for (const kurs of kurslar) {
 
       if (!KOMUT_SETLERI_ADLARI.includes(String(bulmaca.komutSeti))) {
         hatalar.push(`${kimlik}: "komutSeti" yonler veya donusler olmali`);
-        continue;
-      }
-
-      const haritaVerisi = bulmaca.harita as { bakis?: unknown; satirlar?: unknown } | undefined;
-      if (!Array.isArray(haritaVerisi?.satirlar)) {
-        hatalar.push(`${kimlik}: "harita.satirlar" bir dizi olmali`);
-        continue;
-      }
-
-      if (!GECERLI_YONLER.includes(haritaVerisi.bakis as Yon)) {
-        hatalar.push(`${kimlik}: "harita.bakis" gecersiz yon "${String(haritaVerisi.bakis)}"`);
-        continue;
-      }
-
-      let harita;
-      try {
-        harita = haritayiCoz(haritaVerisi.satirlar as string[], haritaVerisi.bakis as never);
-      } catch (sorun) {
-        hatalar.push(`${kimlik}: ${(sorun as Error).message}`);
         continue;
       }
 
@@ -418,6 +402,99 @@ for (const kurs of kurslar) {
           `${kimlik}: "enFazlaBlok" yalnizca "kucak" tasiyan bulmacada anlamli, ` +
             `"${String(bulmaca.enFazlaBlok)}" yazilmis ama kucak yok`,
         );
+      }
+
+      if (bolum.mekanik === "desen") {
+  // --- Desen mekanigi ---
+        //
+        // Labirentin karsiligi: orada "kus hedefe varir mi", burada "desenin
+        // butun kenarlari cizilir mi" diye ariyoruz. Ayni program uzayi,
+        // ayni blok butcesi, farkli degerlendirme.
+        if (bulmaca.komutSeti !== "donusler") {
+          hatalar.push(
+            `${kimlik}: desen bulmacasi "donusler" setiyle oynanir (ileri, saga don, sola don); ` +
+              `"${String(bulmaca.komutSeti)}" yazilmis`,
+          );
+          continue;
+        }
+
+        let desen;
+        try {
+          desen = deseniCoz(bulmaca.desen as DesenVerisi);
+        } catch (sorun) {
+          hatalar.push(`${kimlik}: ${(sorun as Error).message}`);
+          continue;
+        }
+
+        if (hazirProgram.length > 0 && ciz(hazirProgram, desen).basarili) {
+          hatalar.push(
+            `${kimlik}: baslangicProgrami deseni zaten tamamliyor; cocuga cizecek bir sey ` +
+              `kalmiyor`,
+          );
+        }
+
+        const desenSiniri = (bulmaca.enFazlaBlok as number | undefined) ?? DESEN_ARAMA_SINIRI;
+        if (desenSiniri > DESEN_ARAMA_SINIRI) {
+          hatalar.push(
+            `${kimlik}: enFazlaBlok ${desenSiniri}, desen aramasi en fazla ${DESEN_ARAMA_SINIRI} ` +
+              `blok tariyor`,
+          );
+          continue;
+        }
+
+        const desenCozumu = enKisaDesenCozumu(desen, "donusler", desenSiniri);
+        if (desenCozumu === null) {
+          hatalar.push(
+            `${kimlik}: bu desen ${desenSiniri} bloga sigan bir programla cizilemiyor`,
+          );
+          continue;
+        }
+        if (bulmaca.idealAdim !== blokSayisi(desenCozumu)) {
+          hatalar.push(
+            `${kimlik}: idealAdim ${String(bulmaca.idealAdim)} yazilmis ama en az bloklu cizim ` +
+              `${blokSayisi(desenCozumu)} blok`,
+          );
+        }
+
+        if (kucak === undefined) continue;
+
+        // Kucakli desen duraginda dongu GEREKMELI: kutusuz bir cozum sinira
+        // sigiyorsa durak dongu ogretmez. (enFazlaGovde: 0, kutuyu tamamen
+        // eler; govde en az bir blok tutar.)
+        if (enKisaDesenCozumu(desen, "donusler", desenSiniri, { enFazlaGovde: 0 }) !== null) {
+          hatalar.push(
+            `${kimlik}: bu desen ${desenSiniri} bloga kucaksiz da sigiyor -- dongu ogretmez`,
+          );
+        }
+        if (kucak.asama === "oneri") {
+          if (enKisaDesenCozumu(desen, "donusler", desenSiniri, { enFazlaGovde: 1 }) === null) {
+            hatalar.push(
+              `${kimlik}: "oneri" asamasinda kucagin govdesi tek komut olur; bu desen oyle ` +
+                `cizilemiyor`,
+            );
+          }
+        }
+
+        continue;
+      }
+
+      const haritaVerisi = bulmaca.harita as { bakis?: unknown; satirlar?: unknown } | undefined;
+      if (!Array.isArray(haritaVerisi?.satirlar)) {
+        hatalar.push(`${kimlik}: "harita.satirlar" bir dizi olmali`);
+        continue;
+      }
+
+      if (!GECERLI_YONLER.includes(haritaVerisi.bakis as Yon)) {
+        hatalar.push(`${kimlik}: "harita.bakis" gecersiz yon "${String(haritaVerisi.bakis)}"`);
+        continue;
+      }
+
+      let harita;
+      try {
+        harita = haritayiCoz(haritaVerisi.satirlar as string[], haritaVerisi.bakis as never);
+      } catch (sorun) {
+        hatalar.push(`${kimlik}: ${(sorun as Error).message}`);
+        continue;
       }
 
       // Seritte hazir duran program bulmacayi ZATEN bitiriyorsa ortada
@@ -625,6 +702,7 @@ const turkceTaranacakDosyalar = [
   join(KOK, "e2e", "kodla-demo.spec.ts"),
   join(KOK, "e2e", "kodla-dongu.spec.ts"),
   join(KOK, "e2e", "kodla-hata-ayiklama.spec.ts"),
+  join(KOK, "e2e", "kodla-desen.spec.ts"),
 ];
 
 for (const dosya of turkceTaranacakDosyalar) {

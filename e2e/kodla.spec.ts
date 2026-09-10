@@ -3,8 +3,8 @@ import {
   bulmacaBul,
   bulmacaHaritasi,
   kursBolumleri,
-  type BolumVerisi,
-  type BulmacaVerisi,
+  type LabirentBolumu,
+  type LabirentBulmacasi,
 } from "../lib/kodla/bolumler";
 import { kursKarakterleri } from "../lib/kodla/karakterler";
 import { enKisaBlokCozumu, enKisaCozumYolu } from "../lib/kodla/labirent/cozucu";
@@ -14,11 +14,15 @@ import { EN_FAZLA_BLOK, komutBloku, type Blok } from "../lib/kodla/program";
 import { KOMUT_ADLARI } from "../components/kodla/labirent/komutGorunumu";
 
 const KURS = "turna-yolu";
-const BOLUMLER = kursBolumleri(KURS);
+// Turna'nin Yolu bastan sona labirent kursudur; bu dosyanin yardimcilari
+// (harita cozumu, komut dizme) o mekanige gore yazilmistir.
+const BOLUMLER = kursBolumleri(KURS).filter(
+  (bolum): bolum is LabirentBolumu => bolum.mekanik === "labirent",
+);
 const KARAKTERLER = kursKarakterleri(KURS);
 
 /** Bir bolumun istenen bulmacasinin en kisa cozumu. Sira verilmezse ilki. */
-function bulmacaCozumu(bolum: BolumVerisi, sira = 0) {
+function bulmacaCozumu(bolum: LabirentBolumu, sira = 0) {
   const bulmaca = bulmacaBul(bolum, sira)!;
   return enKisaCozumYolu(bulmacaHaritasi(bulmaca), bulmaca.komutSeti);
 }
@@ -106,7 +110,7 @@ async function keziAyarla(page: Page, kez: number) {
  * Duz programlarda programiDiz yeterlidir; bu, dongu duraklarinin cocugun
  * parmagiyla gercekten cozulebildigini kanitlamak icin var.
  */
-async function programiUygula(page: Page, bulmaca: BulmacaVerisi, program: Blok[]) {
+async function programiUygula(page: Page, bulmaca: LabirentBulmacasi, program: Blok[]) {
   for (const [ust, blok] of program.entries()) {
     if (blok.tur === "komut") {
       // Acik kucak varken paletten gelen blok ICINE duser; ust duzeye blok
@@ -272,7 +276,7 @@ test("blok silinince haritadaki yol da kisalir", async ({ page }) => {
 });
 
 /** Verilen siradaki bulmacayi en kisa yolla cozup calistirir. */
-async function bolumuCoz(page: Page, bolum: BolumVerisi, sira: number) {
+async function bolumuCoz(page: Page, bolum: LabirentBolumu, sira: number) {
   await programiDiz(page, bulmacaCozumu(bolum, sira)!.map(komutAnahtari));
   await page.getByRole("button", { name: "Çalıştır" }).click();
 }
