@@ -13,11 +13,10 @@ export default function OyunlarSayfasi() {
           <span className="bolumIkon" aria-hidden="true">🃏</span>
           <span className="bolumAd">Hafıza</span>
         </Link>
-        <div className="bolumKarti pasif">
+        <Link href="/oyunlar/golge/" className="bolumKarti">
           <span className="bolumIkon" aria-hidden="true">🌗</span>
           <span className="bolumAd">Gölge</span>
-          <span className="yakinda">Yakında</span>
-        </div>
+        </Link>
       </div>
     </div>
   );

@@ -25,7 +25,7 @@ Bunu bize güvenerek kabul etmeniz gerekmiyor — kendiniz doğrulayabilirsiniz:
 |---|---|
 | Boyama | Yayında |
 | Harfler ve Sayılar | Dört oyun da rakamlarla yayında (Yaz, Say, Bul, Eşleştir); harf içeriği geliştiriliyor |
-| Oyunlar | Hafıza oyunu yayında; Gölge ve Sırala planlanıyor |
+| Oyunlar | Hafıza ve Gölge yayında; Sırala planlanıyor |
 | Kodlama | Yayında (üç kurs, üç mekanik): **Turna'nın Yolu** on beş durak, elli sekiz bulmaca — sıralama, hata ayıklama, döngü, dönüş komutları; **Kilimin İzi** dört durak — kilim ve çini motifleri çizme; **Göl Kıyısı** iki durak — "dokununca ne olsun" kuralları ve serbest oyun |
 
 Ayrıntılar: [yol haritası](docs/yol-haritasi.md)

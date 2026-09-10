@@ -77,3 +77,37 @@ test("butun ciftler bulununca kutlama cikar ve sonraki tur buyur", async ({ page
   await page.getByRole("status").getByRole("button", { name: "Sonraki" }).click();
   await expect(page.locator(".hafizaKarti")).toHaveCount(turdakiKartSayisi(1));
 });
+
+// --- Golge oyunu ---
+
+test("Golge oyunu bir nesne ve dort golge gosterir", async ({ page }) => {
+  await page.goto("/oyunlar/");
+  await page.getByRole("link", { name: "Gölge" }).click();
+
+  await expect(page.getByRole("heading", { name: "Gölge" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "Bunun gölgesini bul" })).toBeVisible();
+  await expect(page.locator(".golgeSecenegi")).toHaveCount(4);
+  await expect(page.getByRole("button", { name: "Doğru gölge" })).toHaveCount(1);
+});
+
+test("yanlis golge turu bitirmez, dogru golge kutlanir", async ({ page }) => {
+  await page.goto("/oyunlar/golge/");
+
+  await page.getByRole("button", { name: "Gölge", exact: true }).first().click();
+  await expect(page.getByText("Buldun!")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Doğru gölge" }).click();
+  await expect(page.getByText("Buldun!")).toBeVisible();
+
+  await page.getByRole("status").getByRole("button", { name: "Sonraki" }).click();
+  await expect(page.getByText("Buldun!")).toHaveCount(0);
+});
+
+test("golge gercekten karartilmis simgedir", async ({ page }) => {
+  await page.goto("/oyunlar/golge/");
+  const filtre = await page
+    .locator(".golgeSekli")
+    .first()
+    .evaluate((el) => getComputedStyle(el).filter);
+  expect(filtre).toContain("brightness(0)");
+});

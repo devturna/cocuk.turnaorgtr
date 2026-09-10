@@ -46,7 +46,7 @@ bölümlerden farkı: burada öğretilen bir konu yok. Bir çocuk her zaman
 | Oyun | Ne yapar | Durum |
 |---|---|---|
 | Hafıza | Kart çiftlerini bulma, tur turdan büyür (4→12 kart) | Yayında |
-| Gölge | Şekil ile gölgesini eşleme | Planlanıyor |
+| Gölge | Nesnenin gölgesini dört gölge arasından bulma | Yayında |
 | Sırala | Üç nesneyi küçükten büyüğe dizme | Planlanıyor |
 
 Bölümün ölçütü: **hiçbir oyun iki dakikadan uzun sürmemeli ve hiçbiri
