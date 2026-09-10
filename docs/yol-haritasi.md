@@ -27,7 +27,7 @@ oluşur ve parça parça açılır.
 | Yaz | Parmakla harfin veya rakamın üstünden geçme | Rakamlar (0-9) yayında |
 | Say | Ekrandaki nesneleri dokunarak sayma | 1-10 yayında |
 | Eşleştir | Büyük ↔ küçük harf, rakam ↔ miktar | Planlanıyor |
-| Bul | Seçenekler arasından doğrusuna dokunma | Planlanıyor |
+| Bul | Seçenekler arasından doğrusuna dokunma | 1-10 yayında |
 
 Tamamlanan her harf ve rakam bir yıldız kazandırır; yıldızlar yalnızca
 cihazın tarayıcı hafızasında durur.

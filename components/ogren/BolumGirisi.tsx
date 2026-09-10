@@ -10,6 +10,7 @@ import "./ogren.css";
 export default function BolumGirisi() {
   const [yazYildizi, setYazYildizi] = useState(0);
   const [sayYildizi, setSayYildizi] = useState(0);
+  const [bulYildizi, setBulYildizi] = useState(0);
 
   // Yildizlar yalnizca tarayicida bulunur; sayfa sunucuda uretilirken
   // localStorage yoktur. Bu yuzden okuma ekran acildiktan sonra yapilir.
@@ -17,6 +18,7 @@ export default function BolumGirisi() {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setYazYildizi(oyunYildizSayisi("yaz"));
     setSayYildizi(oyunYildizSayisi("say"));
+    setBulYildizi(oyunYildizSayisi("bul"));
   }, []);
 
   const toplamRakam = yazilabilirRakamlar().length;
@@ -42,7 +44,13 @@ export default function BolumGirisi() {
           ilerleme={`${sayYildizi}/${toplamMiktar}`}
         />
         <OyunKarti ad="Eşleştir" aciklama="Aynı olanları bul" ikon="🧩" yakinda />
-        <OyunKarti ad="Bul" aciklama="Doğrusuna dokun" ikon="🔍" yakinda />
+        <OyunKarti
+          ad="Bul"
+          aciklama="Doğrusuna dokun"
+          adres="/ogren/bul/"
+          ikon="🔍"
+          ilerleme={`${bulYildizi}/${toplamMiktar}`}
+        />
       </div>
     </div>
   );

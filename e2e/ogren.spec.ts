@@ -285,3 +285,48 @@ test("Say oyununda kazanilan yildiz bolum girisinde gorunur", async ({ page }) =
   await page.goto("/ogren/");
   await expect(page.getByText("2/10")).toBeVisible();
 });
+
+// --- Bul oyunu ---
+//
+// Say oyununun tersi yonu: rakami gor, o kadar nesnenin oldugu grubu bul.
+
+test("bolum girisinden Bul oyunu acilir", async ({ page }) => {
+  await page.goto("/ogren/");
+  await page.getByRole("link", { name: /Bul/ }).click();
+  await expect(page.getByRole("heading", { name: "Bul" })).toBeVisible();
+  await expect(page.getByRole("note", { name: "Bir tane bul" })).toBeVisible();
+  await expect(page.locator(".bulSecenegi")).toHaveCount(3);
+});
+
+test("dogru grup yildiz kazandirir, yanlis grup cezalandirmaz", async ({ page }) => {
+  await page.goto("/ogren/bul/");
+  await page.getByRole("button", { name: "Sonraki" }).click();
+
+  // Ikinci tur: hedef iki, secenekler bir-iki-dort. Yanlis secim ekrani
+  // degistirmez.
+  await page.getByRole("button", { name: "Dört tane" }).click();
+  await expect(page.getByText("İki!")).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("ogren:yildizlar"))).toBeNull();
+
+  await page.getByRole("button", { name: "İki tane" }).click();
+  await expect(page.getByText("İki!")).toBeVisible();
+  const yildizlar = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("ogren:yildizlar") ?? "{}"),
+  );
+  expect(yildizlar["sayi:2"]).toContain("bul");
+});
+
+test("secenekteki nesne sayisi gercekten o kadardir", async ({ page }) => {
+  await page.goto("/ogren/bul/");
+  for (let tur = 0; tur < 4; tur++) {
+    const secenekler = page.locator(".bulSecenegi");
+    const adet = await secenekler.count();
+    for (let sira = 0; sira < adet; sira++) {
+      const etiket = (await secenekler.nth(sira).getAttribute("aria-label")) ?? "";
+      const nesneSayisi = await secenekler.nth(sira).locator("span").count();
+      const adlar = ["Bir", "İki", "Üç", "Dört", "Beş", "Altı", "Yedi", "Sekiz", "Dokuz", "On"];
+      expect(adlar[nesneSayisi - 1], etiket).toBe(etiket.replace(" tane", ""));
+    }
+    await page.getByRole("button", { name: "Sonraki" }).click();
+  }
+});

@@ -156,8 +156,16 @@ Sayı sürümünde rakam ile nokta grubu eşleştirilir (3 ile üç nokta).
 
 ### Bul
 
-Üstte hedef gösterilir, altta üç veya dört seçenek bulunur. Doğru seçenek
-kutlanır ve sonraki soruya geçilir. En kısa turlu, en basit oyundur.
+**Yayında (rakamlar).** Üstte hedef gösterilir, altta üç seçenek bulunur.
+Doğru seçenek kutlanır ve sonraki soruya geçilir. En kısa turlu, en basit
+oyundur.
+
+Sayı sürümü Say oyununun **tersi yönde** çalışır: orada çocuk sayar ve
+rakamı söyler, burada rakamı görür ve o kadar nesnenin olduğu grubu bulur.
+İkisi aynı bilgiyi iki yönden yoklar.
+
+Doğru seçeneğin yeri de tur numarasından türetilir: hep aynı yerde olsaydı
+çocuk sayıyı değil **konumu** öğrenirdi.
 
 ### Bütün oyunlarda geçerli kural
 
