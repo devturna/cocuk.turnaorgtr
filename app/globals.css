@@ -93,3 +93,53 @@ body.tamEkran .altBilgi {
 .yakinda { font-size: 16px; }
 
 .altBilgi { padding: 24px; text-align: center; font-size: 14px; }
+
+/* --- Oyun kabugu ---
+   Harfler ve Sayilar ile Oyunlar bolumlerinin ortak iskeleti: ust baslik,
+   alt dugme cubugu ve kutlama katmani. Iki bolum ayni sekli kullaniyor;
+   ayri dosyalarda tutmak ikisinin zamanla birbirinden kaymasi demekti. */
+.oyunBaslik { display: flex; align-items: center; gap: 16px; }
+.oyunBaslik h1 { font-size: 24px; margin: 0; }
+
+.oyunAltBar { display: flex; gap: 12px; justify-content: center; }
+
+.oyunDugmesi {
+  min-height: 56px;
+  padding: 0 24px;
+  border: 4px solid var(--kenar);
+  border-radius: 16px;
+  background: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.oyunDugmesi.vurgulu { background: var(--vurgu); }
+
+.kutlama {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.kutlamaIcerik {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 32px;
+  border: 5px solid var(--kenar);
+  border-radius: 28px;
+  background: #fff;
+}
+
+.kutlamaIcerik p { margin: 0; font-size: 28px; font-weight: 700; }
+.kutlamaYildiz { font-size: 64px; }
