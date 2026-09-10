@@ -11,6 +11,7 @@ export default function BolumGirisi() {
   const [yazYildizi, setYazYildizi] = useState(0);
   const [sayYildizi, setSayYildizi] = useState(0);
   const [bulYildizi, setBulYildizi] = useState(0);
+  const [eslestirYildizi, setEslestirYildizi] = useState(0);
 
   // Yildizlar yalnizca tarayicida bulunur; sayfa sunucuda uretilirken
   // localStorage yoktur. Bu yuzden okuma ekran acildiktan sonra yapilir.
@@ -19,6 +20,7 @@ export default function BolumGirisi() {
     setYazYildizi(oyunYildizSayisi("yaz"));
     setSayYildizi(oyunYildizSayisi("say"));
     setBulYildizi(oyunYildizSayisi("bul"));
+    setEslestirYildizi(oyunYildizSayisi("eslestir"));
   }, []);
 
   const toplamRakam = yazilabilirRakamlar().length;
@@ -43,7 +45,13 @@ export default function BolumGirisi() {
           ikon="🔢"
           ilerleme={`${sayYildizi}/${toplamMiktar}`}
         />
-        <OyunKarti ad="Eşleştir" aciklama="Aynı olanları bul" ikon="🧩" yakinda />
+        <OyunKarti
+          ad="Eşleştir"
+          aciklama="Aynı olanları bul"
+          adres="/ogren/eslestir/"
+          ikon="🧩"
+          ilerleme={`${eslestirYildizi}/${toplamMiktar}`}
+        />
         <OyunKarti
           ad="Bul"
           aciklama="Doğrusuna dokun"

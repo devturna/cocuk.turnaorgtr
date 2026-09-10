@@ -330,3 +330,59 @@ test("secenekteki nesne sayisi gercekten o kadardir", async ({ page }) => {
     await page.getByRole("button", { name: "Sonraki" }).click();
   }
 });
+
+// --- Eslestir oyunu ---
+//
+// Dort sayi yan yana: cocuk rakam ile nokta grubunu birlestirir.
+
+test("bolum girisinden Eslestir oyunu acilir", async ({ page }) => {
+  await page.goto("/ogren/");
+  await page.getByRole("link", { name: /Eşleştir/ }).click();
+  await expect(page.getByRole("heading", { name: "Eşleştir" })).toBeVisible();
+  await expect(page.locator(".eslestirRakami")).toHaveCount(4);
+  await expect(page.locator(".eslestirGrubu")).toHaveCount(4);
+});
+
+test("nokta gruplari gercekten o kadar nokta tasir", async ({ page }) => {
+  await page.goto("/ogren/eslestir/");
+  const gruplar = page.locator(".eslestirGrubu");
+  for (let sira = 0; sira < (await gruplar.count()); sira++) {
+    const etiket = (await gruplar.nth(sira).getAttribute("aria-label")) ?? "";
+    const nokta = await gruplar.nth(sira).locator(".eslestirNoktasi").count();
+    const adlar = ["Bir", "İki", "Üç", "Dört", "Beş", "Altı", "Yedi", "Sekiz", "Dokuz", "On"];
+    expect(`${adlar[nokta - 1]} nokta`, etiket).toBe(etiket);
+  }
+});
+
+test("rakam secilmeden grup secmek bir sey yapmaz", async ({ page }) => {
+  await page.goto("/ogren/eslestir/");
+  await page.getByRole("button", { name: "Üç nokta" }).click();
+  await expect(page.locator(".eslesti")).toHaveCount(0);
+});
+
+test("dogru cift sabitlenir, yanlis cift sallanip kalir", async ({ page }) => {
+  await page.goto("/ogren/eslestir/");
+
+  await page.getByRole("button", { name: "Üç", exact: true }).click();
+  await page.getByRole("button", { name: "Dört nokta" }).click();
+  await expect(page.locator(".eslesti")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Üç nokta" }).click();
+  await expect(page.locator(".eslesti")).toHaveCount(2);
+
+  const yildizlar = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("ogren:yildizlar") ?? "{}"),
+  );
+  expect(yildizlar["sayi:3"]).toContain("eslestir");
+});
+
+test("butun ciftler eslesince kutlama cikar", async ({ page }) => {
+  await page.goto("/ogren/eslestir/");
+
+  for (const ad of ["Bir", "İki", "Üç", "Dört"]) {
+    await page.getByRole("button", { name: ad, exact: true }).click();
+    await page.getByRole("button", { name: `${ad} nokta` }).click();
+  }
+
+  await expect(page.getByText("Hepsi eşleşti!")).toBeVisible();
+});

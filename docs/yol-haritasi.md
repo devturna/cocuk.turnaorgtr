@@ -20,13 +20,15 @@ Kapsam dışı bırakılanlar: indirme ve yazdırma, ses efektleri, çok dillili
 ## Faz 2 — Harfler ve Sayılar (geliştiriliyor)
 
 Çocuğun harfleri ve sayıları oyun oynayarak öğrendiği bölüm. Dört oyundan
-oluşur ve parça parça açılır.
+oluşur ve parça parça açılır. **Dört oyunun dördü de rakamlarla yayında**;
+harf içeriği (yirmi dokuz harfin çizim yolları ve örnek kelimeleri) sonraki
+adımdır.
 
 | Oyun | Ne yapar | Durum |
 |---|---|---|
 | Yaz | Parmakla harfin veya rakamın üstünden geçme | Rakamlar (0-9) yayında |
 | Say | Ekrandaki nesneleri dokunarak sayma | 1-10 yayında |
-| Eşleştir | Büyük ↔ küçük harf, rakam ↔ miktar | Planlanıyor |
+| Eşleştir | Büyük ↔ küçük harf, rakam ↔ miktar | Rakam ↔ nokta yayında |
 | Bul | Seçenekler arasından doğrusuna dokunma | 1-10 yayında |
 
 Tamamlanan her harf ve rakam bir yıldız kazandırır; yıldızlar yalnızca

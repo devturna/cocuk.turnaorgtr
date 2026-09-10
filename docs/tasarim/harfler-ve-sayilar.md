@@ -148,11 +148,19 @@ resmi hatırlar.
 
 ### Eşleştir
 
-Solda büyük harfler, sağda karışık sırayla küçük harfleri durur. Çocuk bir
-çift seçer; doğruysa ikisi de sabitlenir, yanlışsa hafifçe sallanıp geri
-döner. Bir turda dört veya beş çift olur.
+**Sayı sürümü yayında.** Solda büyük harfler, sağda karışık sırayla küçük
+harfler durur. Çocuk bir çift seçer; doğruysa ikisi de sabitlenir, yanlışsa
+hafifçe sallanıp geri döner. Bir turda dört çift olur.
 
-Sayı sürümünde rakam ile nokta grubu eşleştirilir (3 ile üç nokta).
+Sayı sürümünde rakam ile nokta grubu eşleştirilir (3 ile üç nokta). Say ve
+Bul tek bir sayıyı yoklar; Eşleştir **dört sayıyı yan yana** koyar ve çocuk
+aralarındaki farkı görmek zorunda kalır — üçü aynı bilgiyi üç farklı işle
+yokluyor.
+
+Turlar 1-10'u dörder dörder kapsar ve son tur bir öncekiyle kısmen çakışır
+(7-10): on sayı dörde tam bölünmüyor, iki çiftlik bir tur ise dördüne
+alışmış çocuğa yarım kalmış görünürdü. Çakışma tekrar demektir, tekrar da
+bu yaşta kayıp değil kazançtır.
 
 ### Bul
 

@@ -24,7 +24,7 @@ Bunu bize güvenerek kabul etmeniz gerekmiyor — kendiniz doğrulayabilirsiniz:
 | Bölüm | Durum |
 |---|---|
 | Boyama | Yayında |
-| Harfler ve Sayılar | Yaz, Say ve Bul oyunları yayında (rakamlar); Eşleştir ve harf içeriği geliştiriliyor |
+| Harfler ve Sayılar | Dört oyun da rakamlarla yayında (Yaz, Say, Bul, Eşleştir); harf içeriği geliştiriliyor |
 | Oyunlar | Planlanıyor (Faz 3) |
 | Kodlama | Yayında (üç kurs, üç mekanik): **Turna'nın Yolu** on beş durak, elli sekiz bulmaca — sıralama, hata ayıklama, döngü, dönüş komutları; **Kilimin İzi** dört durak — kilim ve çini motifleri çizme; **Göl Kıyısı** iki durak — "dokununca ne olsun" kuralları ve serbest oyun |
 
