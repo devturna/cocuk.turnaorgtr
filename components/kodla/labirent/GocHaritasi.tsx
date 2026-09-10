@@ -5,6 +5,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import type { BolumVerisi } from "@/lib/kodla/bolumler";
+import { duraklariYay } from "@/lib/kodla/haritaYerlesimi";
 import { kursKarakterleri, varsayilanKarakter } from "@/lib/kodla/karakterler";
 import { bolumAcikMi, bolumSonucu, karakterSec, secimSorulmaliMi, seciliKarakter, type YildizTuru } from "@/lib/kodla/yerelKayit";
 import { KarakterSimgesi } from "./Simgeler";
@@ -108,6 +109,40 @@ export default function GocHaritasi({
     setAcilanlar(okunanAcilanlar);
   }, [kursId, bolumler]);
 
+  // Isaretlerin yerlesimi: gercek konumlar on bes duragi dar ekranda ust
+  // uste getirir, o yuzden cakisanlar birbirinden itilir ve gercek
+  // noktalarina kilavuz cizgiyle baglanir (bkz. lib/kodla/haritaYerlesimi.ts).
+  // Ucus yolu ise GERCEK konumlari birlestirmeye devam eder: yol cografyayi
+  // anlatir, isaret yalnizca dokunulacak yeri.
+  //
+  // Itmenin ne kadar gerektigi haritanin PIKSEL genisligine bagli: ayni
+  // yuzde, telefonda dar bir aralik, genis ekranda kocaman bir bosluktur.
+  // Sunucuda olcum yok, o yuzden telefon genisligiyle basliyoruz; ekran
+  // olculunce yerlesim yeniden hesaplanir ve genis ekranda cografya
+  // oldugu gibi kalir.
+  const [haritaGenisligi, setHaritaGenisligi] = useState(390);
+
+  useEffect(() => {
+    const el = haritaRef.current;
+    if (el === null) return;
+    const gozlemci = new ResizeObserver(([kayit]) => {
+      setHaritaGenisligi(kayit.contentRect.width);
+    });
+    gozlemci.observe(el);
+    return () => gozlemci.disconnect();
+  }, []);
+
+  const yerlesim = useMemo(
+    () =>
+      duraklariYay(
+        bolumler.map((bolum) => bolum.durak),
+        // Bitmis duraklarin isareti 44 piksel (kodla.css); yaricap onun
+        // yarisinin harita genisligine oranidir.
+        (22 / Math.max(haritaGenisligi, 1)) * 100,
+      ),
+    [bolumler, haritaGenisligi],
+  );
+
   // Bir durak tamamlandiysa kendisi ile sonraki durak arasina yol cizilir.
   const yolParcalari = bolumler.slice(0, -1).flatMap((bolum, sira) =>
     sonuclar[bolum.id] ? [{ baslangic: bolum.durak, bitis: bolumler[sira + 1].durak }] : [],
@@ -188,19 +223,51 @@ export default function GocHaritasi({
               vectorEffect="non-scaling-stroke"
             />
           ))}
+
+          {/* Kilavuz cizgi: kaydirilmis isareti gercek konumuna baglar ve o
+              noktaya kucuk bir isaret koyar. Cocuk icin "durak burada,
+              dugme surada" demektir. */}
+          {yerlesim.map((durak, sira) =>
+            durak.kaydi ? (
+              <g key={bolumler[sira].id}>
+                <line
+                  x1={durak.cizim.x}
+                  y1={durak.cizim.y}
+                  x2={durak.gercek.x}
+                  y2={durak.gercek.y}
+                  stroke="#7d746a"
+                  strokeWidth="2"
+                  vectorEffect="non-scaling-stroke"
+                />
+              </g>
+            ) : null,
+          )}
         </svg>
+
+        {/* Gercek konumun kendisi: kilavuz cizginin ucundaki nokta. SVG
+            icinde cizilemez, cunku o katman preserveAspectRatio="none" ile
+            geriliyor ve daire yumurtaya donerdi. */}
+        {yerlesim.map((durak, sira) =>
+          durak.kaydi ? (
+            <div
+              key={`nokta-${bolumler[sira].id}`}
+              className="gocGercekNokta"
+              style={{ left: `${durak.gercek.x}%`, top: `${durak.gercek.y}%` }}
+              aria-hidden="true"
+            />
+          ) : null,
+        )}
 
         {bolumler.map((bolum, sira) => {
           const sonuc = sonuclar[bolum.id];
           const acik = acilanlar[bolum.id];
-          // Gercek konumlar yakin duraklari ust uste getirebilir (Sultansazligi
-          // ve Kapadokya gibi). Kilitli olanlar zaten dokunmayi yutmaz
-          // (.gocDuragi.kilitli, pointer-events: none); acik/tamamlanmis
-          // duraklar arasindaki cizim sirasi da CSS'e veya DOM sirasina
-          // birakilmaz, her durak icin siraya gore acikca verilir.
+          // Isaret, yerlesimin verdigi yere cizilir (gercek konuma degil):
+          // cakisanlar itilmis, gercek noktalarina kilavuz cizgiyle
+          // baglanmistir. Cizim sirasi CSS'e veya DOM sirasina birakilmaz,
+          // her durak icin siraya gore acikca verilir.
           const konum = {
-            left: `${bolum.durak.x}%`,
-            top: `${bolum.durak.y}%`,
+            left: `${yerlesim[sira].cizim.x}%`,
+            top: `${yerlesim[sira].cizim.y}%`,
             zIndex: acik ? 2 + sira : 1,
           };
           const isaret = sonuc === "altin" ? "🌟" : sonuc === "yildiz" ? "⭐" : acik ? "🕊️" : "🔒";

@@ -211,3 +211,30 @@ test("donus komutlariyla dongu yazilip bulmaca bitirilir", async ({ page }) => {
   await page.getByRole("button", { name: "Çalıştır" }).click();
   await expect(page.getByText("Sıradaki bulmaca")).toBeVisible({ timeout: 15000 });
 });
+
+test("yakin duraklar birbirinin dokunmasini yutmaz", async ({ page }) => {
+  // Orta Anadolu'da uc durak birbirine cok yakin (Sultansazligi, Kapadokya,
+  // Seyfe). Hepsi acikken isaretler kilavuz cizgiyle ayrilir; ayrilmasalar
+  // ustteki isaret alttakinin dokunmasini yutardi ve asagidaki tiklama
+  // Playwright'in "ustu ortulu" denetiminde kalirdi.
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "kodla:ilerleme",
+      JSON.stringify({
+        "turna-yolu": {
+          "goksu-deltasi": "altin",
+          sultansazligi: "altin",
+          kapadokya: "yildiz",
+          "seyfe-golu": "altin",
+        },
+      }),
+    );
+  });
+  await page.goto(`/kodla/${KURS}/`);
+
+  // Kaydirilan her isaret gercek konumuna bir noktayla baglanir.
+  await expect(page.locator(".gocGercekNokta").first()).toBeVisible();
+
+  await page.getByRole("link", { name: /3\. durak/ }).click();
+  await expect(page.getByRole("heading", { name: "Kapadokya" })).toBeVisible();
+});
