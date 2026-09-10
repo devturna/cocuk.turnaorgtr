@@ -30,16 +30,26 @@ describe("kurslar", () => {
 describe("bolumler", () => {
   const bolumler = kursBolumleri("turna-yolu");
 
-  it("rota bugun sekiz durak tasir", () => {
-    expect(bolumler).toHaveLength(8);
+  it("rota bugun on durak tasir", () => {
+    expect(bolumler).toHaveLength(10);
+  });
+
+  // Hata ayiklama duraklari dongunun ONUNDE gelir: cocuk once yazilmis bir
+  // programi okuyup duzeltmeyi, sonra dongu yazmayi ogrenir.
+  it("hata ayiklama duraklari Kapadokya ile Ercek arasindadir", () => {
+    const sira = bolumSiralamasi("turna-yolu");
+    expect(sira.slice(sira.indexOf("kapadokya") + 1, sira.indexOf("ercek-golu"))).toEqual([
+      "kizilirmak-deltasi",
+      "kuyucuk-golu",
+    ]);
   });
 
   // Dongu duraklari rotanin ORTASINA giriyor (Kapadokya'dan sonra): rota
   // gercek gocu izliyor, yeni durak sona eklenmiyor. Ilerleme kaydi durak
   // kimligine bagli oldugu icin bitmis duraklar bitmis kalir.
-  it("dongu duraklari Kapadokya ile Pamukkale arasindadir", () => {
+  it("dongu duraklari hata ayiklama ile Pamukkale arasindadir", () => {
     const sira = bolumSiralamasi("turna-yolu");
-    expect(sira.slice(sira.indexOf("kapadokya") + 1, sira.indexOf("pamukkale"))).toEqual([
+    expect(sira.slice(sira.indexOf("kuyucuk-golu") + 1, sira.indexOf("pamukkale"))).toEqual([
       "ercek-golu",
       "tuz-golu",
       "beysehir-golu",

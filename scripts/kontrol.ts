@@ -4,6 +4,7 @@ import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, extname } from "node:path";
 import ts from "typescript";
 import { haritayiCoz } from "../lib/kodla/labirent/harita";
+import { calistir } from "../lib/kodla/labirent/calistir";
 import { ARAMA_BLOK_SINIRI, enKisaBlokCozumu, enKisaCozum } from "../lib/kodla/labirent/cozucu";
 import type { KomutSeti, Yon } from "../lib/kodla/labirent/komutlar";
 import { KOMUT_SETLERI, komutAnahtari } from "../lib/kodla/labirent/komutlar";
@@ -419,6 +420,16 @@ for (const kurs of kurslar) {
         );
       }
 
+      // Seritte hazir duran program bulmacayi ZATEN bitiriyorsa ortada
+      // bulmaca yok: cocuk calistir'a dokunur ve kazanir. Hata ayiklama
+      // duraklarinin butun dersi bu programin BOZUK olmasinda.
+      if (hazirProgram.length > 0 && calistir(hazirProgram, harita).basarili) {
+        hatalar.push(
+          `${kimlik}: baslangicProgrami bulmacayi zaten bitiriyor; cocuga duzeltecek ` +
+            `bir sey kalmiyor`,
+        );
+      }
+
       const enKisa = enKisaCozum(harita, bulmaca.komutSeti as KomutSeti);
       if (enKisa === null) {
         hatalar.push(`${kimlik}: bu bolumun cozumu yok, karakter hedefe ulasamiyor`);
@@ -608,6 +619,7 @@ const turkceTaranacakDosyalar = [
   join(KOK, "e2e", "kodla.spec.ts"),
   join(KOK, "e2e", "kodla-demo.spec.ts"),
   join(KOK, "e2e", "kodla-dongu.spec.ts"),
+  join(KOK, "e2e", "kodla-hata-ayiklama.spec.ts"),
 ];
 
 for (const dosya of turkceTaranacakDosyalar) {

@@ -64,6 +64,21 @@ async function programiDiz(page: Page, anahtarlar: string[]) {
   }
 }
 
+/**
+ * Seritteki butun komut bloklarini teker teker silerek serit temizler.
+ *
+ * "Hepsini temizle" dugmesi programi BASLANGIC programina dondurur (hata
+ * ayiklama duraginda bozuk programa), o yuzden sifirdan yazmak isteyen
+ * cocugun -- ve bu testin -- yolu bloklara dokunmaktir. Kucak boyle
+ * silinmez; zaten bulmacanin mobilyasidir.
+ */
+async function seridiBosalt(page: Page) {
+  const silinecek = page.getByRole("button", { name: /bloğunu sil$/ });
+  for (let kalan = await silinecek.count(); kalan > 0; kalan--) {
+    await silinecek.first().click();
+  }
+}
+
 /** Seritteki kucagin su anki tekrar sayisi. */
 async function kucaginKezi(page: Page): Promise<number> {
   const etiket = (await page.locator(".tekrarNoktalari").first().getAttribute("aria-label")) ?? "";
@@ -676,6 +691,9 @@ for (const bolum of BOLUMLER) {
 
     for (let sira = 0; sira < bolum.bulmacalar.length; sira++) {
       const bulmaca = bulmacaBul(bolum, sira)!;
+      // Bulmaca hazir bir programla acilabilir (hata ayiklama duraklari);
+      // bu test cozumu sifirdan yazdigi icin once onu temizliyor.
+      await seridiBosalt(page);
       if (bulmaca.kucak === undefined) {
         const yol = bulmacaCozumu(bolum, sira);
         expect(yol, `${bolum.id} - ${sira}. bulmaca icin cozum bulunamadi`).not.toBeNull();
