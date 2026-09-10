@@ -40,12 +40,23 @@ düşürür ve turu iki dakikanın üstüne çıkarır.
 Yanlış çiftin kapanması için beklenen süre **kısa ama sabittir** (900 ms):
 daha kısası kartı görmeye vakit bırakmaz, daha uzunu çocuğu bekletir.
 
+### Gölge (yayında)
+
+Üstte bir nesne, altta dört gölge; çocuk nesnenin gölgesini bulur.
+
+**Gölge ayrı bir görsel değildir**: aynı simge, rengi tamamen alınmış
+haliyle çizilir (`filter: brightness(0)`). Böylece oyun yeni bir varlık
+dosyası gerektirmez ve gölge ile nesne birbirinden asla sapamaz.
+
+Simgeler birbirinden **ayırt edilebilir** seçilir: gölge yalnızca dış hattı
+gösterdiği için birbirine benzeyen iki hayvan (kedi/köpek) gölge halinde
+ayırt edilemezdi.
+
 ### Sonraki oyunlar (planlanan)
 
-- **Gölge**: şekil ile gölgesini eşleme.
 - **Sırala**: üç nesneyi küçükten büyüğe dizme.
 
-İkisi de aynı ilkelere tabidir: kaybetme yok, kayıt yok, iki dakika.
+Aynı ilkelere tabidir: kaybetme yok, kayıt yok, iki dakika.
 
 ## 4. Mimari
 
