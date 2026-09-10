@@ -40,6 +40,18 @@ export const TEMALAR: Record<string, Tema> = {
       kalinlik: 5,
     },
   },
+  // Ic Anadolu bozkiri: Seyfe Golu'nun cevresi ne sazlik ne kayalik, kuru
+  // ot obekleriyle kapli acik bir duzluk.
+  bozkir: {
+    zeminRengi: "#f2eeda",
+    cizgiRengi: "#ddd6ba",
+    engel: {
+      d: "M24 88 Q34 52 30 34 M50 88 Q52 46 46 26 M70 88 Q66 54 74 38",
+      dolgu: "none",
+      cizgi: "#a9954f",
+      kalinlik: 8,
+    },
+  },
   beyaz: {
     zeminRengi: "#f2f8fb",
     cizgiRengi: "#d5e4ec",

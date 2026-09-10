@@ -18,14 +18,11 @@ Altın yıldız durağın **tamamı** ideal adımda çözüldüğünde verilir. 
 bulmacada fazla blok kullanmak altını kaçırır; bu bilinçlidir, yoksa altın
 yıldız durak uzadıkça kolaylaşırdı.
 
-Bu kural yeni içerik içindir. Bugün yayında olan sekiz duraktan üçü
-(Göksu Deltası, Pamukkale, Efes) hâlâ **tek** bulmaca taşıyor — bu bir hata
-değil, bilinçli bir ara durumdur: bu duraklar sonraki dilimlerde yeni
-konular (hata ayıklama, dönüş komutları) alacak ve o zaman 3-6 bulmacaya
-çıkacaklar. Tuz Gölü bu yolu çoktan yürüdü: tek bulmacalık bir duraktı,
-döngü dersiyle birlikte dört bulmacaya çıktı. Yeni bir durak eklerken örnek
-aldığın yer o üçü değil, **Sultansazlığı** (3 bulmaca), **Kapadokya** veya
-**Erçek Gölü** (4 bulmaca) olmalı.
+Bugün rotadaki tek istisna **Göksu Deltası**: rotanın girişindeki tek
+dokunuşluk tanıtım durağı kavram öğretmez, mekaniği tanıtır ve gösterge de
+taşımaz. Öğreten her durak bir dizidir. Yeni bir durak eklerken örnek
+aldığın yer **Sultansazlığı** (3 bulmaca) veya **Kapadokya**, **Erçek
+Gölü** (4 bulmaca) olmalı.
 
 ## 2. Girdiyi yaz
 
