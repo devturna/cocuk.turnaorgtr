@@ -308,6 +308,10 @@
   background: #fff;
 }
 
+/* Blogun listitem sarmalayicisi: gorunume karismaz, yalnizca dugmenin
+   kendi rolunu korumak icin var (bkz. ProgramSeridi.tsx). */
+.programOgesi { display: inline-flex; }
+
 .programBloku {
   display: flex;
   align-items: center;
@@ -321,6 +325,11 @@
   font-size: 26px;
   transition: scale 140ms ease-out, background-color 140ms ease-out;
 }
+
+/* Blok bir dugme: dokunmak onu siler. Kosu sirasinda kapali olsa da
+   solmaz -- o an calisan blogun vurgusu (asagida) gorunur kalmali. */
+.programBloku:disabled { opacity: 1; }
+.programBloku:active:not(:disabled) { scale: 0.9; }
 
 .programBloku.calisiyor {
   background: var(--vurgu);

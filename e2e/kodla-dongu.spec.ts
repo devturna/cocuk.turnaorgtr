@@ -25,7 +25,7 @@ function kucaktakiBloklar(page: Page) {
 
 /** Kucagin DISINDA, ust duzeyde duran bloklar. */
 function seritteki(page: Page) {
-  return page.locator(".programSeridi > .programBloku");
+  return page.locator(".programSeridi > .programOgesi > .programBloku");
 }
 
 test("hazir kucak ekranda gelir ve paletten gelen blok icine duser", async ({ page }) => {
@@ -148,4 +148,31 @@ test("katlanan kucagin sayisi buyutulup bulmaca bitirilir, sonrasinda kutu palet
   await expect(page.getByRole("group", { name: "2 kez tekrarla" })).toBeVisible();
   await page.getByRole("button", { name: "Aşağı git", exact: true }).click();
   await expect(kucaktakiBloklar(page)).toHaveCount(1);
+});
+
+test("seritteki bloga dokunmak onu siler", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/beysehir-golu/`);
+
+  await page.getByRole("button", { name: "Sağa git", exact: true }).click();
+  await page.getByRole("button", { name: "Yukarı git", exact: true }).click();
+  await page.getByRole("button", { name: "Sağa git", exact: true }).click();
+  await expect(seritteki(page)).toHaveCount(3);
+
+  // Ortadaki blok: sondan silme dugmesi onu hicbir zaman kurtaramaz.
+  await page.getByRole("button", { name: "Yukarı git bloğunu sil" }).click();
+
+  await expect(seritteki(page)).toHaveCount(2);
+  await expect(page.getByRole("button", { name: "Yukarı git bloğunu sil" })).toHaveCount(0);
+});
+
+test("kucagin icindeki bloga dokunmak kucagi degil blogu siler", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/ercek-golu/`);
+
+  await page.getByRole("button", { name: "Sağa git", exact: true }).click();
+  await expect(kucaktakiBloklar(page)).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Sağa git bloğunu sil" }).click();
+
+  await expect(kucaktakiBloklar(page)).toHaveCount(0);
+  await expect(page.getByRole("group", { name: "3 kez tekrarla" })).toBeVisible();
 });

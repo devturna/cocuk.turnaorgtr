@@ -21,6 +21,7 @@ import { temaBul } from "@/lib/kodla/labirent/temalar";
 import {
   blokEkle,
   blokSayisi,
+  blokSil,
   kezDegistir,
   komutBloku,
   sonBlokuSil,
@@ -502,6 +503,27 @@ export default function BolumEkrani({
     });
   }
 
+  /**
+   * Seritteki bloga dokunmak onu siler.
+   *
+   * Kutunun KENDISI boyle silinmez (kutunun basindaki hedefler acma ve sayi
+   * icindir): hazir gelen bir kucak bulmacanin mobilyasidir.
+   */
+  function blogaDokunuldu(yol: BlokYolu) {
+    setDurum((onceki) => {
+      const program = blokSil(onceki.program, yol);
+      if (program === onceki.program) return onceki;
+      // Ust duzeyde bir blok silinince ondan SONRAKI kutularin sirasi bir
+      // kayar; acik kutu adresi de kaymali, yoksa acikligi baska bir kutuya
+      // gecer.
+      const acikKutu =
+        onceki.acikKutu !== null && yol.ic === null && yol.ust < onceki.acikKutu
+          ? onceki.acikKutu - 1
+          : onceki.acikKutu;
+      return { ...onceki, program, acikKutu, sonEklenen: null };
+    });
+  }
+
   /** Kucaga dokunmak acar kapatir; acik kucak paletten geleni ICINE alir. */
   function kucagaDokunuldu(ust: number) {
     setDurum((onceki) => ({ ...onceki, acikKutu: onceki.acikKutu === ust ? null : ust }));
@@ -792,6 +814,7 @@ export default function BolumEkrani({
         kilitli={girdiEngelli || demo !== null}
         onKucakDokun={kucagaDokunuldu}
         onNoktalarDokun={noktalaraDokunuldu}
+        onBlokDokun={blogaDokunuldu}
       />
 
       {katlama !== null ? (
