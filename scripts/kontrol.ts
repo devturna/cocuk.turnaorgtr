@@ -18,7 +18,13 @@ import { EN_AZ_KEZ, EN_FAZLA_BLOK, EN_FAZLA_KEZ, blokSayisi } from "../lib/kodla
 // okur. Iki taraf ayni kurs kimligini gormezse yayinlanan bir kurs bos bir
 // harita olarak sitede belirir, hicbir hata vermeden. Asagidaki kontrol bu
 // kaymayi yakalar.
-import { baslangicProgrami, kursBolumleri, type BulmacaVerisi } from "../lib/kodla/bolumler";
+import {
+  baslangicProgrami,
+  kursBolumleri,
+  type DesenBulmacasi,
+  type LabirentBulmacasi,
+} from "../lib/kodla/bolumler";
+import { EYLEMLER } from "../lib/kodla/olay/kurallar";
 
 type Girdi = Record<string, unknown>;
 
@@ -270,7 +276,11 @@ for (const kurs of kurslar) {
     }
     gorulenBolumler.add(String(bolum.id));
 
-    if (bolum.mekanik !== "labirent" && bolum.mekanik !== "desen") {
+    if (
+      bolum.mekanik !== "labirent" &&
+      bolum.mekanik !== "desen" &&
+      bolum.mekanik !== "olay"
+    ) {
       hatalar.push(`${bolumId}: bilinmeyen mekanik "${String(bolum.mekanik)}"`);
       continue;
     }
@@ -310,6 +320,64 @@ for (const kurs of kurslar) {
     for (let sira = 0; sira < bulmacalar.length; sira++) {
       const bulmaca = bulmacalar[sira] as Girdi;
       const kimlik = `${bolumId} bulmaca ${sira + 1}`;
+
+      // --- Olay mekanigi ---
+      //
+      // Burada program bir komut dizisi degil KURAL KUMESI: komut seti de
+      // idealAdim da yok. Denetlenen sey sahnenin tutarli olmasi ve
+      // istegin gercekten yazilabilir bir kural olmasi.
+      if (bolum.mekanik === "olay") {
+        const sahne = bulmaca.sahne;
+        if (!Array.isArray(sahne) || sahne.length < 2) {
+          hatalar.push(`${kimlik}: "sahne" en az iki nesne tasimali`);
+          continue;
+        }
+        const nesneKimlikleri = new Set<string>();
+        let sahneGecerli = true;
+        for (const ham of sahne) {
+          const nesne = ham as Record<string, unknown>;
+          for (const alan of ["id", "ad", "simge"]) {
+            if (typeof nesne[alan] !== "string" || String(nesne[alan]).trim() === "") {
+              hatalar.push(`${kimlik}: sahne nesnesinin "${alan}" alani bos veya eksik`);
+              sahneGecerli = false;
+            }
+          }
+          for (const eksen of ["x", "y"] as const) {
+            const deger = nesne[eksen];
+            if (typeof deger !== "number" || deger < 0 || deger > 100) {
+              hatalar.push(`${kimlik}: sahne nesnesi "${String(nesne.id)}" icin ${eksen} 0-100 arasi olmali`);
+              sahneGecerli = false;
+            }
+          }
+          if (nesneKimlikleri.has(String(nesne.id))) {
+            hatalar.push(`${kimlik}: sahnede "${String(nesne.id)}" kimligi birden fazla kez var`);
+            sahneGecerli = false;
+          }
+          nesneKimlikleri.add(String(nesne.id));
+        }
+        if (!sahneGecerli) continue;
+
+        if ("istek" in bulmaca) {
+          const istek = bulmaca.istek as { nesne?: unknown; eylem?: unknown };
+          if (!nesneKimlikleri.has(String(istek?.nesne))) {
+            hatalar.push(
+              `${kimlik}: istek "${String(istek?.nesne)}" nesnesine yazilmis ama sahnede oyle ` +
+                `bir nesne yok`,
+            );
+          }
+          if (!EYLEMLER.includes(istek?.eylem as never)) {
+            hatalar.push(
+              `${kimlik}: istegin eylemi ${EYLEMLER.join(", ")} degerlerinden biri olmali, ` +
+                `"${String(istek?.eylem)}" yazilmis`,
+            );
+          }
+        }
+
+        // Serbest oyun duragi istegi OLMAYAN bulmacadir; bu bilincli bir
+        // durum, o yuzden burada hata degil. Ama duragin BUTUN bulmacalari
+        // isteksizse durak hicbir sey ogretmez.
+        continue;
+      }
 
       if (!KOMUT_SETLERI_ADLARI.includes(String(bulmaca.komutSeti))) {
         hatalar.push(`${kimlik}: "komutSeti" yonler veya donusler olmali`);
@@ -377,7 +445,9 @@ for (const kurs of kurslar) {
       }
       if (!baslangicGecerli) continue;
 
-      const hazirProgram = baslangicProgrami(bulmaca as unknown as BulmacaVerisi);
+      const hazirProgram = baslangicProgrami(
+        bulmaca as unknown as LabirentBulmacasi | DesenBulmacasi,
+      );
       const kutuSayisi = hazirProgram.filter((blok) => blok.tur === "tekrar").length;
 
       // "hazir" asamasinin sozu, kucagin ekranda HAZIR beklemesidir: o
@@ -703,6 +773,7 @@ const turkceTaranacakDosyalar = [
   join(KOK, "e2e", "kodla-dongu.spec.ts"),
   join(KOK, "e2e", "kodla-hata-ayiklama.spec.ts"),
   join(KOK, "e2e", "kodla-desen.spec.ts"),
+  join(KOK, "e2e", "kodla-olay.spec.ts"),
 ];
 
 for (const dosya of turkceTaranacakDosyalar) {

@@ -1,0 +1,183 @@
+[
+  {
+    "id": "egirdir-golu",
+    "ad": "Eğirdir Gölü",
+    "mekanik": "olay",
+    "tema": "sazlik",
+    "durak": {
+      "x": 27,
+      "y": 68
+    },
+    "ipucu": "Göl kıyısında her canlının kendi sesi ve hareketi vardır.",
+    "bulmacalar": [
+      {
+        "sahne": [
+          {
+            "id": "kurbaga",
+            "ad": "Kurbağa",
+            "simge": "🐸",
+            "x": 25,
+            "y": 62
+          },
+          {
+            "id": "kus",
+            "ad": "Kuş",
+            "simge": "🐦",
+            "x": 62,
+            "y": 30
+          },
+          {
+            "id": "cicek",
+            "ad": "Çiçek",
+            "simge": "🌼",
+            "x": 78,
+            "y": 68
+          }
+        ],
+        "istek": {
+          "nesne": "kurbaga",
+          "eylem": "zipla"
+        }
+      },
+      {
+        "sahne": [
+          {
+            "id": "kurbaga",
+            "ad": "Kurbağa",
+            "simge": "🐸",
+            "x": 22,
+            "y": 66
+          },
+          {
+            "id": "kus",
+            "ad": "Kuş",
+            "simge": "🐦",
+            "x": 55,
+            "y": 26
+          },
+          {
+            "id": "balik",
+            "ad": "Balık",
+            "simge": "🐟",
+            "x": 76,
+            "y": 72
+          }
+        ],
+        "istek": {
+          "nesne": "kus",
+          "eylem": "ot"
+        }
+      },
+      {
+        "sahne": [
+          {
+            "id": "bulut",
+            "ad": "Bulut",
+            "simge": "☁️",
+            "x": 28,
+            "y": 20
+          },
+          {
+            "id": "kelebek",
+            "ad": "Kelebek",
+            "simge": "🦋",
+            "x": 60,
+            "y": 44
+          },
+          {
+            "id": "kaplumbaga",
+            "ad": "Kaplumbağa",
+            "simge": "🐢",
+            "x": 40,
+            "y": 74
+          }
+        ],
+        "istek": {
+          "nesne": "bulut",
+          "eylem": "don"
+        }
+      },
+      {
+        "sahne": [
+          {
+            "id": "cicek",
+            "ad": "Çiçek",
+            "simge": "🌼",
+            "x": 24,
+            "y": 70
+          },
+          {
+            "id": "ari",
+            "ad": "Arı",
+            "simge": "🐝",
+            "x": 58,
+            "y": 36
+          },
+          {
+            "id": "agac",
+            "ad": "Ağaç",
+            "simge": "🌳",
+            "x": 80,
+            "y": 58
+          }
+        ],
+        "istek": {
+          "nesne": "cicek",
+          "eylem": "buyu"
+        }
+      }
+    ]
+  },
+  {
+    "id": "bafa-golu",
+    "ad": "Bafa Gölü",
+    "mekanik": "olay",
+    "tema": "kayalik",
+    "durak": {
+      "x": 10,
+      "y": 74
+    },
+    "ipucu": "Burada istek yok: çocuk kendi oyununu kurar ve oynar.",
+    "bulmacalar": [
+      {
+        "sahne": [
+          {
+            "id": "kus",
+            "ad": "Kuş",
+            "simge": "🐦",
+            "x": 20,
+            "y": 24
+          },
+          {
+            "id": "kurbaga",
+            "ad": "Kurbağa",
+            "simge": "🐸",
+            "x": 44,
+            "y": 66
+          },
+          {
+            "id": "balik",
+            "ad": "Balık",
+            "simge": "🐟",
+            "x": 70,
+            "y": 76
+          },
+          {
+            "id": "kelebek",
+            "ad": "Kelebek",
+            "simge": "🦋",
+            "x": 74,
+            "y": 32
+          },
+          {
+            "id": "cicek",
+            "ad": "Çiçek",
+            "simge": "🌼",
+            "x": 30,
+            "y": 78
+          }
+        ]
+      }
+    ]
+  }
+]

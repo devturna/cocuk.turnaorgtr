@@ -50,7 +50,9 @@ code.org'un 4-7 yaş kurslarının Türkçe ve Türkiye coğrafyası temalı kar
 Bölüm yaş gruplarına (kurs) ayrılır. İlk kurs "Turna'nın Yolu" (4-7 yaş):
 Türkiye haritasında durak durak ilerleyen bir göç yolu. İkinci kurs
 "Kilimin İzi" (4-7 yaş): aynı haritada dokuma ve çini şehirleri; komutlar
-aynı, ama kuş bu kez arkasında çizgi bırakır.
+aynı, ama kuş bu kez arkasında çizgi bırakır. Üçüncü kurs "Göl Kıyısı"
+(4-7 yaş): çocuk komut dizmez, "şuna dokununca şu olsun" kuralları yazar
+ve kendi oyununu oynar.
 
 Hedef, code.org'un aynı yaş grubuna sunduğu Pre-reader Express kursundan
 belirgin biçimde daha iyi bir deneyim.
@@ -62,7 +64,7 @@ belirgin biçimde daha iyi bir deneyim.
 | 4c | Karakter seçimi: çocuk hangi kuşla uçacağını seçer | Tamamlandı (turna ve flamingo yayında) |
 | 4d | Dizi duraklar, on beş duraklık rota, hata ayıklama, döngü, dönüş komutları | Tamamlandı (on beş durak, elli sekiz bulmaca) |
 | 4e | İkinci mekanik: desen çizme (Türk kilim ve çini motifleri) | Tamamlandı ("Kilimin İzi" kursu, dört durak) |
-| 4f | Olaylar: dokununca ne olsun | Planlanıyor |
+| 4f | Olaylar: dokununca ne olsun | Tamamlandı ("Göl Kıyısı" kursu, iki durak) |
 
 Kapsamın ölçütü code.org'un Pre-reader Express kursudur: o kursun öğrettiği
 her kavram bu bölümde de öğretilir. Hangi dersin hangi durağa düştüğü
