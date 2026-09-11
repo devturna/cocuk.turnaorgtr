@@ -18,6 +18,16 @@ export type BulTuru = {
 
 const SIMGELER = ["🐟", "🍏", "🦋", "🌻", "🐤", "🍇", "🐌", "🌰", "🐠", "🍄"];
 
+/** Tohumlu Fisher-Yates: ayni tohum ayni sirayi verir. */
+function karistir<T>(dizi: T[], rastgele: () => number): T[] {
+  const kopya = [...dizi];
+  for (let i = kopya.length - 1; i > 0; i--) {
+    const j = Math.floor(rastgele() * (i + 1));
+    [kopya[i], kopya[j]] = [kopya[j], kopya[i]];
+  }
+  return kopya;
+}
+
 function tohumluSayi(tohum: number): () => number {
   let durum = tohum * 2246822519 + 3;
   return () => {
@@ -47,9 +57,13 @@ export function bulTuruUret(sira: number): BulTuru {
 
   // Siralamayi da tohum belirler: dogru secenek her zaman ayni yerde
   // olsaydi cocuk sayiyi degil KONUMU ogrenirdi.
-  const siralanmis = [...secilenMiktarlar].sort(
-    (a, b) => rastgele() - 0.5 || a - b,
-  );
+  //
+  // Karistirma Fisher-Yates ile yapiliyor, "sort(() => rastgele() - 0.5)"
+  // ile DEGIL: o karsilastirici tutarsizdir, sonucu motorun sort
+  // uygulamasina birakir (sunucuda uretilen HTML ile tarayicidakinin
+  // ayrisma riski) ve pratikte dengesiz dagilir -- bu oyunda dogru
+  // secenegi son bes turun hepsinde basa koyuyordu.
+  const siralanmis = karistir([...secilenMiktarlar], rastgele);
 
   const simge = SIMGELER[sira % SIMGELER.length];
   return { hedef, secenekler: siralanmis.map((miktar) => ({ miktar, simge })) };

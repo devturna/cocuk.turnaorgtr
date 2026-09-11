@@ -23,6 +23,7 @@ import {
   blokSayisi,
   blokSil,
   kezDegistir,
+  programAyniMi,
   komutBloku,
   sonBlokuSil,
   tekrarEkle,
@@ -482,6 +483,27 @@ export default function BolumEkrani({
     });
   }
 
+  /**
+   * Geri al: seritte en sonda gorunen blogu siler.
+   *
+   * Acik kucagin adresi de yenileniyor: silinen blok kucagin KENDISIYSE ya
+   * da onunden bir blok gittiyse, eski adres ya bos bir yeri ya da baska
+   * bir blogu gosterirdi. O adres bozuk kalirsa paletten eklenen her blok
+   * sessizce kaybolur (blokEkle gecersiz hedef kutuyu reddeder).
+   */
+  function sonBlokSilindi() {
+    setDurum((onceki) => {
+      const program = sonBlokuSil(onceki.program);
+      const kutu = onceki.acikKutu === null ? undefined : program[onceki.acikKutu];
+      return {
+        ...onceki,
+        program,
+        acikKutu: kutu !== undefined && kutu.tur === "tekrar" ? onceki.acikKutu : null,
+        sonEklenen: null,
+      };
+    });
+  }
+
   /** Kucaga dokunmak acar kapatir; acik kucak paletten geleni ICINE alir. */
   function kucagaDokunuldu(ust: number) {
     setDurum((onceki) => ({ ...onceki, acikKutu: onceki.acikKutu === ust ? null : ust }));
@@ -694,7 +716,14 @@ export default function BolumEkrani({
     demo,
   ]);
 
+  // Geri al, baslangic programinin ALTINA inmez: hazir gelen kucak
+  // bulmacanin mobilyasidir. Temizle ise BASKA bir soruya cevap verir --
+  // "bastan dene" -- ve program baslangictan her farkli oldugunda acik
+  // olmali. Ikisini tek olcuye baglamak, hata ayiklama duraginda bir blok
+  // silen cocugun temizle dugmesini de kapatiyordu: geri donusu olmayan
+  // tek yol oydu.
   const silinebilir = !girdiEngelli && oynananBlokAdedi > blokSayisi(hazirProgram);
+  const temizlenebilir = !girdiEngelli && !programAyniMi(durum.program, hazirProgram);
 
   // Katlama onerisi yalnizca "oneri" ve "serbest" asamalarinda dogar:
   // "hazir" asamasinda kucak zaten ekranda durur, katlanacak bir tekrar
@@ -796,9 +825,7 @@ export default function BolumEkrani({
             className="kodlaYardimciDugme"
             aria-label="Son bloğu sil"
             disabled={!silinebilir}
-            onClick={() =>
-              setDurum((o) => ({ ...o, program: sonBlokuSil(o.program), sonEklenen: null }))
-            }
+            onClick={sonBlokSilindi}
           >
             <span aria-hidden="true">↩</span>
           </button>
@@ -806,7 +833,7 @@ export default function BolumEkrani({
             type="button"
             className="kodlaYardimciDugme"
             aria-label="Hepsini temizle"
-            disabled={!silinebilir}
+            disabled={!temizlenebilir}
             onClick={() =>
               setDurum((o) => ({
                 ...o,

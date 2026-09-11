@@ -2,7 +2,7 @@
 //
 // Butun fonksiyonlar yeni dizi dondurur, girdiyi degistirmez: React durumu
 // dogrudan bu dizilerle guncellenir.
-import type { Komut } from "./labirent/komutlar";
+import { komutAnahtari, type Komut } from "./labirent/komutlar";
 
 // Serit ekrana sigmali ve ekranda kaydirma olmamali. Ust sinirin gerekcesi
 // docs/tasarim/kodlama.md icinde.
@@ -139,6 +139,22 @@ export function blokTasi(program: Blok[], kaynak: BlokYolu, hedef: BlokYolu): Bl
 
 export function programiTemizle(): Blok[] {
   return [];
+}
+
+/** Iki program ayni mi: ayni bloklar, ayni sirada, ayni tekrar sayilariyla. */
+export function programAyniMi(a: Blok[], b: Blok[]): boolean {
+  if (a.length !== b.length) return false;
+  return a.every((blok, sira) => {
+    const digeri = b[sira];
+    if (blok.tur !== digeri.tur) return false;
+    if (blok.tur === "komut" && digeri.tur === "komut") {
+      return komutAnahtari(blok.komut) === komutAnahtari(digeri.komut);
+    }
+    if (blok.tur === "tekrar" && digeri.tur === "tekrar") {
+      return blok.kez === digeri.kez && programAyniMi(blok.govde, digeri.govde);
+    }
+    return false;
+  });
 }
 
 export function tekrarEkle(program: Blok[], enFazla = EN_FAZLA_BLOK): Blok[] {

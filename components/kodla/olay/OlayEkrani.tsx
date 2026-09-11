@@ -138,20 +138,40 @@ export default function OlayEkrani({
     return () => clearTimeout(zamanlayici);
   }, [durum.gecis]);
 
-  /** Istegin karsilandigi ANDA bulmaca biter: calistirmaya gerek yok. */
+  /**
+   * Istegin karsilandigi ANDA bulmaca biter: calistirmaya gerek yok.
+   *
+   * Ilerleme kaydi setDurum GUNCELLEYICISININ DISINDA yaziliyor.
+   * bulmacaCozuldu sayaci bir artirir ve localStorage'a yazar, yani
+   * idempotent DEGILDIR; React guncelleyicileri iki kez cagirabildigi icin
+   * (gelistirme kipindeki cift cagri) iceride yazmak tek bulmacayi iki
+   * cozulmus gibi kaydeder ve cocuk bir sonraki girisinde bir bulmacayi
+   * hic gormez.
+   */
   function kurallariDegistir(yeniKurallar: Kural[]) {
-    setDurum((onceki) => {
-      if (!istekTamamMi(yeniKurallar, istek)) {
-        return { ...onceki, kurallar: yeniKurallar };
-      }
-      const ilerleme = bulmacaCozuldu(kursId, bolum.id, true);
-      const sonrasi = bulmacaSonrasi(onceki.bulmacaSirasi, toplamBulmaca, ilerleme.hepsiIdeal);
-      if (sonrasi.tur === "bitti") {
-        bolumSonucuKaydet(kursId, bolum.id, sonrasi.yildiz);
-        return { ...onceki, kurallar: yeniKurallar, bitti: sonrasi.yildiz, secili: null };
-      }
-      return { ...onceki, kurallar: yeniKurallar, sonrakiHazirlaniyor: true, secili: null };
-    });
+    if (!istekTamamMi(yeniKurallar, istek)) {
+      setDurum((onceki) => ({ ...onceki, kurallar: yeniKurallar }));
+      return;
+    }
+
+    const ilerleme = bulmacaCozuldu(kursId, bolum.id, true);
+    const sonrasi = bulmacaSonrasi(durum.bulmacaSirasi, toplamBulmaca, ilerleme.hepsiIdeal);
+    if (sonrasi.tur === "bitti") {
+      bolumSonucuKaydet(kursId, bolum.id, sonrasi.yildiz);
+      setDurum((onceki) => ({
+        ...onceki,
+        kurallar: yeniKurallar,
+        bitti: sonrasi.yildiz,
+        secili: null,
+      }));
+      return;
+    }
+    setDurum((onceki) => ({
+      ...onceki,
+      kurallar: yeniKurallar,
+      sonrakiHazirlaniyor: true,
+      secili: null,
+    }));
   }
 
   /**

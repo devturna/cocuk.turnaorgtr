@@ -238,3 +238,28 @@ test("yakin duraklar birbirinin dokunmasini yutmaz", async ({ page }) => {
   await page.getByRole("link", { name: /3\. durak/ }).click();
   await expect(page.getByRole("heading", { name: "Kapadokya" })).toBeVisible();
 });
+
+test("paletten konan kucak geri alinsa da palet calismaya devam eder", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/beysehir-golu/`);
+  // Ikinci bulmaca serbest asamada; oraya katlayarak geciyoruz.
+  for (let i = 0; i < 3; i++) {
+    await page.getByRole("button", { name: "Sağa git", exact: true }).click();
+  }
+  await page.getByRole("button", { name: /tek kucağa topla/ }).click();
+  await page.getByRole("button", { name: "Kaç kez tekrarlansın: 3" }).click();
+  await page.getByRole("button", { name: "Kaç kez tekrarlansın: 4" }).click();
+  await page.getByRole("button", { name: "Çalıştır" }).click();
+  await expect(page.getByRole("button", { name: "Tekrar kucağı koy" })).toBeVisible({
+    timeout: 15000,
+  });
+
+  // Kucagi koy, sonra geri al: kucak gider. Acik kucak adresi bozuk
+  // kalirsa paletten eklenen her blok sessizce kaybolurdu.
+  await page.getByRole("button", { name: "Tekrar kucağı koy" }).click();
+  await expect(page.locator(".tekrarKutusu")).toHaveCount(1);
+  await page.getByRole("button", { name: "Son bloğu sil" }).click();
+  await expect(page.locator(".tekrarKutusu")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Aşağı git", exact: true }).click();
+  await expect(seritteki(page)).toHaveCount(1);
+});

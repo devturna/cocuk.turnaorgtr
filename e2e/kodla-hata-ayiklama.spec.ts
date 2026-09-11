@@ -85,3 +85,17 @@ test("hepsini temizle bozuk programa geri doner, seridi bosaltmaz", async ({ pag
   await expect(bloklar(page)).toHaveCount(4);
   await expect(page.getByRole("button", { name: "Hepsini temizle" })).toBeDisabled();
 });
+
+test("bozuk programdan blok silen cocuk temizleye ulasabilir", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/kuyucuk-golu/`);
+
+  // Geri al, baslangic programinin altina inmez (kucak mobilyadir) ama
+  // temizle BASKA bir soruya cevap verir: "bastan dene". Blok silindiginde
+  // de acik kalmali, yoksa cocuk hazir programa donemez.
+  await page.getByRole("button", { name: "Yukarı git bloğunu sil" }).first().click();
+  await expect(bloklar(page)).toHaveCount(3);
+  await expect(page.getByRole("button", { name: "Hepsini temizle" })).toBeEnabled();
+
+  await page.getByRole("button", { name: "Hepsini temizle" }).click();
+  await expect(bloklar(page)).toHaveCount(4);
+});

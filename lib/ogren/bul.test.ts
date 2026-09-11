@@ -48,3 +48,19 @@ describe("bulTuruUret", () => {
     expect(bulTuruUret(4)).toEqual(bulTuruUret(4));
   });
 });
+
+describe("secenek siralamasi", () => {
+  it("dogru secenek turlara dengeli dagilir", () => {
+    // Tutarsiz bir sort karsilastiricisi ("rastgele() - 0.5") kullanildiginda
+    // dogru cevap son bes turun HEPSINDE basa dusuyordu. Olcu bu: hicbir
+    // konum turlarin yarisindan fazlasini almamali.
+    const sayimlar = [0, 0, 0];
+    for (let sira = 0; sira < bulTurSayisi(); sira++) {
+      const tur = bulTuruUret(sira);
+      sayimlar[tur.secenekler.findIndex((secenek) => secenek.miktar === tur.hedef)]++;
+    }
+    for (const sayim of sayimlar) {
+      expect(sayim).toBeLessThanOrEqual(Math.ceil(bulTurSayisi() / 2));
+    }
+  });
+});
