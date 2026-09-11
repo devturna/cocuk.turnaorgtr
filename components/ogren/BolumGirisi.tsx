@@ -27,8 +27,12 @@ export default function BolumGirisi() {
   // Yaz oyunu hem harfleri hem rakamlari yazdirir; ilerleme ikisinin
   // toplamina gore olculur.
   const toplamYazilabilir = yazilabilirRakamlar().length + HARFLER.length;
-  // Say oyunu birden ona kadar sayar; yaz oyunu sifirdan dokuza yazar.
+  // Her oyunun kendi olcusu var: Say yalnizca rakamlari sayar (1-10),
+  // Eslestir hem harfleri hem rakamlari eslestirir, Bul harfle baslayan
+  // kelimeyi ve nesne grubunu bulur (Ğ ile baslayan Turkce kelime yok).
   const toplamMiktar = sayilabilirMiktarlar().length;
+  const toplamEslestirme = HARFLER.length + toplamMiktar;
+  const toplamBulunacak = HARFLER.filter((harf) => !harf.basindaGecmez).length + toplamMiktar;
 
   return (
     <div className="ogrenGirisi">
@@ -50,17 +54,17 @@ export default function BolumGirisi() {
         />
         <OyunKarti
           ad="Eşleştir"
-          aciklama="Aynı olanları bul"
+          aciklama="Büyük ↔ küçük, rakam ↔ nokta"
           adres="/ogren/eslestir/"
           ikon="🧩"
-          ilerleme={`${eslestirYildizi}/${toplamMiktar}`}
+          ilerleme={`${eslestirYildizi}/${toplamEslestirme}`}
         />
         <OyunKarti
           ad="Bul"
-          aciklama="Doğrusuna dokun"
+          aciklama="Harfle başlayanı, sayı kadar olanı bul"
           adres="/ogren/bul/"
           ikon="🔍"
-          ilerleme={`${bulYildizi}/${toplamMiktar}`}
+          ilerleme={`${bulYildizi}/${toplamBulunacak}`}
         />
       </div>
     </div>
