@@ -933,17 +933,18 @@
       },
       {
         "komutSeti": "donusler",
-        "idealAdim": 4,
+        "idealAdim": 5,
         "kucak": {
           "asama": "serbest"
         },
-        "enFazlaBlok": 4,
+        "enFazlaBlok": 5,
         "harita": {
           "bakis": "sag",
           "satirlar": [
-            "..H",
-            ".#.",
-            "T.."
+            "###H#",
+            "##..#",
+            "#..##",
+            "T.###"
           ]
         }
       },

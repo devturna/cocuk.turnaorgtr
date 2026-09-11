@@ -263,3 +263,29 @@ test("paletten konan kucak geri alinsa da palet calismaya devam eder", async ({ 
   await page.getByRole("button", { name: "Aşağı git", exact: true }).click();
   await expect(seritteki(page)).toHaveCount(1);
 });
+
+test("serit kalan yeri bos yuvalarla gosterir", async ({ page }) => {
+  // Blok siniri, dongu duraklarinda "duz yazarak cozemezsin"in sozsuz
+  // anlatimidir; yer gorunmezse cocuk palete dokunur ve hicbir sey olmaz.
+  await page.goto(`/kodla/${KURS}/ercek-golu/`);
+
+  // Ilk bulmacada sinir iki blok: kucak bir yer tutuyor, bir yuva bos.
+  await expect(page.locator(".programYuvasi")).toHaveCount(1);
+  await page.getByRole("button", { name: "Sağa git", exact: true }).click();
+  await expect(page.locator(".programYuvasi")).toHaveCount(0);
+});
+
+test("dolu kucak kendini bitirme dugmesi gosterir", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/ercek-golu/`);
+
+  // Bos kucakta bitirme dugmesi yok: bitirecek bir sey yok.
+  await expect(page.getByRole("button", { name: "Kucağı bitir" })).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Sağa git", exact: true }).click();
+  const bitir = page.getByRole("button", { name: "Kucağı bitir" });
+  await expect(bitir).toBeVisible();
+
+  // Dugme kucagi kapatir: sonraki blok artik disariya duser.
+  await bitir.click();
+  await expect(page.getByRole("button", { name: "Kucağı aç" })).toBeVisible();
+});

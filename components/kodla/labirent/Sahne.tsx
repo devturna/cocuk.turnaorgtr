@@ -161,6 +161,29 @@ export default function Sahne({
             );
           }
 
+          if (parca.tur === "donus") {
+            // Donus yer degistirmedigi icin cizgiyle anlatilamaz: karenin
+            // ortasina, DONUS YONUNDE acilan bir yay ciziliyor. Yayin ucu
+            // ok basi tasir, boylece "buradan su yana donuyor" okunur.
+            const orta = { x: parca.kare.x * KARE + 50, y: parca.kare.y * KARE + 50 };
+            const r = KARE * 0.26;
+            // Saga donus saat yonunde (soldan yukaridan saga), sola donus
+            // tersine. Yay ucundaki isaret ok basiyla veriliyor.
+            const yay =
+              parca.yon === "sag"
+                ? `M ${orta.x - r} ${orta.y} A ${r} ${r} 0 1 1 ${orta.x} ${orta.y + r}`
+                : `M ${orta.x + r} ${orta.y} A ${r} ${r} 0 1 0 ${orta.x} ${orta.y + r}`;
+            return (
+              <path
+                key={`donus-${sira}`}
+                className={`${sinif} donus`}
+                d={yay}
+                fill="none"
+                markerEnd={dolu ? "url(#kodlaOkUcuDolu)" : "url(#kodlaOkUcu)"}
+              />
+            );
+          }
+
           return (
             <line
               key={`adim-${sira}`}

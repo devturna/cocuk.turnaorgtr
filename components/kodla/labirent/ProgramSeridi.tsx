@@ -8,7 +8,7 @@
 // gelir. Kucagin acik olmasi "paletten gelen blok icine duser" demektir
 // (docs/tasarim/kodlama-arayuz.md §5).
 import { komutAnahtari } from "@/lib/kodla/labirent/komutlar";
-import type { Blok, BlokYolu, KomutBloku } from "@/lib/kodla/program";
+import { blokSayisi, type Blok, type BlokYolu, type KomutBloku } from "@/lib/kodla/program";
 import { KOMUT_ADLARI, KOMUT_IKONLARI } from "./komutGorunumu";
 
 function yolEsit(a: BlokYolu | null, b: BlokYolu): boolean {
@@ -70,6 +70,7 @@ export default function ProgramSeridi({
   vurgulanan,
   sonEklenen,
   acikKutu,
+  yuvaSayisi,
   kilitli,
   onKucakDokun,
   onNoktalarDokun,
@@ -83,6 +84,15 @@ export default function ProgramSeridi({
   sonEklenen: BlokYolu | null;
   /** Acik kucagin ust duzey sirasi; hicbiri acik degilse null. */
   acikKutu: number | null;
+  /**
+   * Seridin aldigi blok sayisi; bulmaca bir sinir tasimiyorsa null.
+   *
+   * Sinir GORUNUR olmali: dongu duraklarinda "duz yazarak cozulemez"
+   * kurali yerin bitmesiyle anlatilir (docs/tasarim/kodlama-arayuz.md §5).
+   * Yer bos yuvalarla gosterilmezse cocuk sinira carptigini anlamaz --
+   * palete dokunur, hicbir sey olmaz, sebebi hicbir yerde yazmaz.
+   */
+  yuvaSayisi: number | null;
   /** Kosu sirasinda dokunma kapalidir. */
   kilitli: boolean;
   onKucakDokun: (ust: number) => void;
@@ -142,6 +152,23 @@ export default function ProgramSeridi({
                 <span key={nokta} className="tekrarNoktasi" aria-hidden="true" />
               ))}
             </button>
+            {/* Kucagin BITISI. Kucak acikken paletten gelen her blok icine
+                duser; disari cikmanin yolu onu kapatmaktir ve bu, yalnizca
+                bastaki simgeye dokunarak yapilabiliyordu -- kimse
+                soylemeden kesfedilmesi gereken bir jest. Govde dolunca
+                sagda nabiz atan bir "bitti" dugmesi beliriyor: cocuk
+                kucagi burada kapatip devam edebilecegini goruyor. */}
+            {acik && blok.govde.length > 0 ? (
+              <button
+                type="button"
+                className="tekrarBitir nabiz"
+                aria-label="Kucağı bitir"
+                disabled={kilitli}
+                onClick={() => onKucakDokun(ust)}
+              >
+                <span aria-hidden="true">✓</span>
+              </button>
+            ) : null}
             {blok.govde.length === 0 ? (
               // Bos kucak, icinin doldurulacagini kendi gosterir: kesikli
               // bir bosluk olmasa cocuk kutunun ne istedigini goremez.
@@ -162,6 +189,13 @@ export default function ProgramSeridi({
           </span>
         );
       })}
+
+      {/* Kalan bos yuvalar: "daha kac blok sigar" sorusunun sozsuz cevabi. */}
+      {yuvaSayisi === null
+        ? null
+        : Array.from({ length: Math.max(0, yuvaSayisi - blokSayisi(program)) }, (_, sira) => (
+            <span key={`yuva-${sira}`} className="programYuvasi" aria-hidden="true" />
+          ))}
     </div>
   );
 }

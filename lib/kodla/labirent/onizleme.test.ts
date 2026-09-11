@@ -63,10 +63,29 @@ describe("onizlemeYolu", () => {
     });
   });
 
-  it("donme yol parcasi uretmez", () => {
+  it("donme kendi parcasini uretir", () => {
+    // Once uretmiyordu; donus komutlariyla oynanan duraklarda cocuk
+    // haritada yalnizca yurumeleri goruyor, iki ok arasinda ne oldugunu
+    // goremiyordu.
     const harita = haritayiCoz([".T..", "...H"], "sag");
     const yol = onizlemeYolu([komutBloku({ tur: "don", yon: "sag" })], harita);
-    expect(yol).toEqual([]);
+    expect(yol).toEqual([
+      { tur: "donus", kare: { x: 1, y: 0 }, yon: "sag", blokYolu: { ust: 0, ic: null }, adimSirasi: 0 },
+    ]);
+  });
+
+  it("donusun yonu dogru okunur", () => {
+    const harita = haritayiCoz([".T..", "...H"], "sag");
+    const sola = onizlemeYolu([komutBloku({ tur: "don", yon: "sol" })], harita);
+    expect(sola[0]).toMatchObject({ tur: "donus", yon: "sol" });
+
+    // Ust uste iki donus: ikisi de kendi yonunu tasir.
+    const ikisi = onizlemeYolu(
+      [komutBloku({ tur: "don", yon: "sag" }), komutBloku({ tur: "don", yon: "sag" })],
+      harita,
+    );
+    expect(ikisi.map((parca) => parca.tur)).toEqual(["donus", "donus"]);
+    expect(ikisi.every((parca) => parca.tur === "donus" && parca.yon === "sag")).toBe(true);
   });
 
   it("basak toplama ayri parca uretmez", () => {
