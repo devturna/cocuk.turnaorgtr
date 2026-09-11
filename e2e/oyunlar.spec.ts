@@ -111,3 +111,47 @@ test("golge gercekten karartilmis simgedir", async ({ page }) => {
     .evaluate((el) => getComputedStyle(el).filter);
   expect(filtre).toContain("brightness(0)");
 });
+
+// --- Sirala oyunu ---
+
+test("Sirala oyunu uc nesne gosterir", async ({ page }) => {
+  await page.goto("/oyunlar/");
+  await page.getByRole("link", { name: "Sırala" }).click();
+
+  await expect(page.getByRole("heading", { name: "Sırala" })).toBeVisible();
+  await expect(page.getByRole("note", { name: "Küçükten büyüğe sırala" })).toBeVisible();
+  await expect(page.locator(".siralaOgesi")).toHaveCount(3);
+});
+
+test("yanlis siradaki nesne sayilmaz, dogru sira kutlanir", async ({ page }) => {
+  await page.goto("/oyunlar/sirala/");
+
+  // Ortancadan baslamak sayilmaz: sira kucukten buyuge kurulur.
+  await page.getByRole("button", { name: "Ortanca" }).click();
+  await expect(page.locator(".siralaOgesi.secildi")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "En küçük" }).click();
+  await expect(page.locator(".siralaOgesi.secildi")).toHaveCount(1);
+  await page.getByRole("button", { name: /^Ortanca/ }).click();
+  await page.getByRole("button", { name: "En büyük" }).click();
+
+  await expect(page.getByText("Sıraladın!")).toBeVisible();
+});
+
+test("secilen nesne kacinci oldugunu gosterir", async ({ page }) => {
+  await page.goto("/oyunlar/sirala/");
+  await page.getByRole("button", { name: "En küçük" }).click();
+  await expect(page.getByRole("button", { name: "En küçük: 1." })).toBeVisible();
+});
+
+test("her nesnenin dokunma hedefi yeterince buyuktur", async ({ page }) => {
+  await page.goto("/oyunlar/sirala/");
+  // En kucuk nesnenin SIMGESI kucuk ama kutusu degil: boy farki dokunma
+  // hedefini kucultmemeli.
+  const ogeler = page.locator(".siralaOgesi");
+  for (let sira = 0; sira < (await ogeler.count()); sira++) {
+    const kutu = (await ogeler.nth(sira).boundingBox())!;
+    expect(kutu.width).toBeGreaterThanOrEqual(56);
+    expect(kutu.height).toBeGreaterThanOrEqual(56);
+  }
+});

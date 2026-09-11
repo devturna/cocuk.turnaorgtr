@@ -37,7 +37,7 @@ cihazın tarayıcı hafızasında durur.
 Tasarım kararları ve gerekçeleri:
 [harfler-ve-sayilar.md](tasarim/harfler-ve-sayilar.md)
 
-## Faz 3 — Oyunlar (geliştiriliyor)
+## Faz 3 — Oyunlar (tamamlandı)
 
 Küçük yaş grubuna uygun, tek oturumda bitebilen basit oyunlar. Diğer
 bölümlerden farkı: burada öğretilen bir konu yok. Bir çocuk her zaman
@@ -47,7 +47,7 @@ bölümlerden farkı: burada öğretilen bir konu yok. Bir çocuk her zaman
 |---|---|---|
 | Hafıza | Kart çiftlerini bulma, tur turdan büyür (4→12 kart) | Yayında |
 | Gölge | Nesnenin gölgesini dört gölge arasından bulma | Yayında |
-| Sırala | Üç nesneyi küçükten büyüğe dizme | Planlanıyor |
+| Sırala | Üç nesneyi küçükten büyüğe dizme | Yayında |
 
 Bölümün ölçütü: **hiçbir oyun iki dakikadan uzun sürmemeli ve hiçbiri
 kaybetmeyle bitmemeli.** Kayıt da yok — burada ilerleyecek bir şey olmadığı

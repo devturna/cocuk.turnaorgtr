@@ -52,11 +52,23 @@ Simgeler birbirinden **ayırt edilebilir** seçilir: gölge yalnızca dış hatt
 gösterdiği için birbirine benzeyen iki hayvan (kedi/köpek) gölge halinde
 ayırt edilemezdi.
 
-### Sonraki oyunlar (planlanan)
+### Sırala (yayında)
 
-- **Sırala**: üç nesneyi küçükten büyüğe dizme.
+Üç nesne, küçükten büyüğe dizilecek. Çocuk en küçüğe dokunur, sonra
+ortancaya, sonra en büyüğe; sırası gelmeyen nesneye dokunmak yalnızca
+salınım üretir.
 
-Aynı ilkelere tabidir: kaybetme yok, kayıt yok, iki dakika.
+**Üçünün de simgesi aynıdır**, yalnızca boyları farklıdır. Farklı nesneler
+olsaydı çocuk "gerçekte hangisi büyük" (fil mi kelebek mi) diye başka bir
+soruya düşerdi; burada sorulan tek şey ekrandaki büyüklük.
+
+Boy farkı **dokunma hedefini küçültmez**: en küçük nesnenin simgesi küçük
+ama kutusu diğerleriyle aynı en az ölçüde (88 piksel).
+
+### Sonraki oyunlar
+
+Bölüm bu üç oyunla kendi ölçütünü karşılıyor. Yeni oyun eklenirse aynı
+ilkelere tabidir: kaybetme yok, kayıt yok, iki dakika.
 
 ## 4. Mimari
 
