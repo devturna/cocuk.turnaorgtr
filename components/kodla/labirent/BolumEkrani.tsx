@@ -273,19 +273,17 @@ export default function BolumEkrani({
 
   useEffect(() => {
     if (ilkDurakDegil) return;
-    if (demoGosterildiMi()) return;
+    if (demoGosterildiMi(kursId)) return;
     // Haritada tek adimda hem yuruyup hem bitirmeyen bir komut yoksa
     // (demoKomut null) demo yaniltici olurdu; sessizce atlanir. Bayrak
-    // BUNDAN SONRA yazilir, once degil: bayrak tek bir global anahtar
-    // (kodla:demo), kursa gore ayrilmaz. Once yazip sonra cikarsak, ilk
-    // duragi gecerli bir demo komutu sunmayan bir kurs, bayragi kalici
-    // olarak "gosterildi" isaretler ve demo baska hicbir kursta bir daha
-    // hic oynamaz.
+    // BUNDAN SONRA yazilir, once degil: once yazip sonra cikarsak, ilk
+    // duragi gecerli bir demo komutu sunmayan bir kurs demoyu kalici
+    // olarak "gosterildi" isaretler ve o kursta bir daha hic oynamaz.
     if (demoKomut === null) return;
-    demoGosterildi();
+    demoGosterildi(kursId);
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setDemo("yon");
-  }, [ilkDurakDegil, demoKomut]);
+  }, [ilkDurakDegil, demoKomut, kursId]);
 
   // Ekranda kaydirma yok: cocuk komut secmek icin sayfayi kaydirmamali.
   useEffect(() => {

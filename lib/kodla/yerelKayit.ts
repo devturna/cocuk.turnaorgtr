@@ -212,22 +212,34 @@ export function ilerlemeyiSil(): void {
 }
 
 /**
- * Sessiz demo bir kez oynatilir. Bayrak burada duruyor cunku localStorage'a
- * yalnizca bu dosya dokunur.
+ * Sessiz demo KURS BASINA bir kez oynatilir. Bayrak burada duruyor cunku
+ * localStorage'a yalnizca bu dosya dokunur.
+ *
+ * Kurs basina, cunku her kursun mekanigi ayri: labirenti ogrenmis bir
+ * cocuk cizim kursuna ilk girdiginde izgarayi, kusu ve uc dugmeyi ne
+ * yapacagini soyleyen hicbir sey olmadan gorurdu. Bayrak once tek bir
+ * "evet" metniydi ve butun kurslari birden kapatiyordu.
  */
-export function demoGosterildiMi(): boolean {
-  try {
-    return localStorage.getItem(DEMO_ANAHTARI) === "evet";
-  } catch {
-    return false;
-  }
+export function demoGosterildiMi(kursId: string): boolean {
+  return eskiBayrak() === kursId || nesneOku(DEMO_ANAHTARI)[kursId] === true;
 }
 
-export function demoGosterildi(): void {
+export function demoGosterildi(kursId: string): void {
+  nesneYaz(DEMO_ANAHTARI, { ...nesneOku(DEMO_ANAHTARI), [kursId]: true });
+}
+
+/**
+ * Eski tek-metinli bayrak ("evet") hangi kursu kapatiyordu.
+ *
+ * O bayragin yazildigi donemde yayinda tek bir kurs vardi; bugun onu
+ * "Turna'nin Yolu gosterildi" diye okuyoruz. Boylece yolun yarisindaki bir
+ * cocuk demoyu yeniden gormuyor, ama yeni kurslarin demosunu goruyor.
+ */
+function eskiBayrak(): string | null {
   try {
-    localStorage.setItem(DEMO_ANAHTARI, "evet");
+    return localStorage.getItem(DEMO_ANAHTARI) === "evet" ? "turna-yolu" : null;
   } catch {
-    // Depolama kapali olabilir; demo her acilista oynar, oyun surer.
+    return null;
   }
 }
 

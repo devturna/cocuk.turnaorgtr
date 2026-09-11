@@ -116,18 +116,33 @@ describe("ilerlemeyiSil", () => {
 
 describe("demo bayragi", () => {
   it("ilk basta gosterilmemis sayilir", () => {
-    expect(demoGosterildiMi()).toBe(false);
+    expect(demoGosterildiMi(KURS)).toBe(false);
   });
 
   it("isaretlendikten sonra gosterilmis sayilir", () => {
-    demoGosterildi();
-    expect(demoGosterildiMi()).toBe(true);
+    demoGosterildi(KURS);
+    expect(demoGosterildiMi(KURS)).toBe(true);
+  });
+
+  it("bayrak KURSA ozeldir", () => {
+    // Labirenti ogrenmis cocuk cizim kursuna ilk girdiginde o mekanigi
+    // tanimiyor; demosunu gormeli.
+    demoGosterildi(KURS);
+    expect(demoGosterildiMi("kilimin-izi")).toBe(false);
+  });
+
+  it("eski tek-metinli bayrak Turna'nin Yolu icin gecerli sayilir", () => {
+    // O bayragin yazildigi donemde yayinda tek kurs vardi. Yolun
+    // yarisindaki cocuk demoyu yeniden gormemeli.
+    localStorage.setItem("kodla:demo", "evet");
+    expect(demoGosterildiMi("turna-yolu")).toBe(true);
+    expect(demoGosterildiMi("kilimin-izi")).toBe(false);
   });
 
   it("ilerleme silinince bayrak da silinir", () => {
-    demoGosterildi();
+    demoGosterildi(KURS);
     ilerlemeyiSil();
-    expect(demoGosterildiMi()).toBe(false);
+    expect(demoGosterildiMi(KURS)).toBe(false);
   });
 });
 
