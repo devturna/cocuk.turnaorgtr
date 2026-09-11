@@ -17,6 +17,10 @@ export default function OyunlarSayfasi() {
           <span className="bolumIkon" aria-hidden="true">🌗</span>
           <span className="bolumAd">Gölge</span>
         </Link>
+        <Link href="/oyunlar/sirala/" className="bolumKarti">
+          <span className="bolumIkon" aria-hidden="true">📏</span>
+          <span className="bolumAd">Sırala</span>
+        </Link>
       </div>
     </div>
   );
