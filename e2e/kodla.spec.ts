@@ -250,12 +250,16 @@ test("haritadaki yol, calistir sonucuyla ayni sayida parca cizer", async ({ page
             y2: orta.y + (ilkParca.yon === "asagi" ? uc : ilkParca.yon === "yukari" ? -uc : 0),
           };
         })()
-      : {
-          x1: ilkParca.baslangic.x * KARE + 50,
-          y1: ilkParca.baslangic.y * KARE + 50,
-          x2: ilkParca.bitis.x * KARE + 50,
-          y2: ilkParca.bitis.y * KARE + 50,
-        };
+      : ilkParca.tur === "donus"
+        ? (() => {
+            throw new Error("bu test yurume ve carpma parcasi bekler");
+          })()
+        : {
+            x1: ilkParca.baslangic.x * KARE + 50,
+            y1: ilkParca.baslangic.y * KARE + 50,
+            x2: ilkParca.bitis.x * KARE + 50,
+            y2: ilkParca.bitis.y * KARE + 50,
+          };
 
   const gercekKoordinat = await page.locator(".kodlaYolParcasi").first().evaluate((oge) => ({
     x1: Number(oge.getAttribute("x1")),
@@ -1352,4 +1356,17 @@ test("secilen kus bolum ekraninda gercekten cizilir", async ({ browser }) => {
   );
 
   await baglam.close();
+});
+
+test("donusler haritada kendi isaretini birakir", async ({ page }) => {
+  // Donus yer degistirmez; cizgiyle anlatilamaz ama yolun parcasidir.
+  // Isaretlenmeseydi cocuk iki yurume oku arasinda ne oldugunu goremezdi.
+  await page.goto(`/kodla/${KURS}/efes/`);
+  await expect(page.locator(".kodlaYolParcasi.donus")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Sağa dön", exact: true }).click();
+  await expect(page.locator(".kodlaYolParcasi.donus")).toHaveCount(1);
+
+  await page.getByRole("button", { name: "Sola dön", exact: true }).click();
+  await expect(page.locator(".kodlaYolParcasi.donus")).toHaveCount(2);
 });

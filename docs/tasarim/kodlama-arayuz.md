@@ -43,6 +43,8 @@ geliyoruz: sıralama var, **döngü yok**, ikinci mekanik yok.
 | Yön düğmeleri | Artı düzeni (D-pad) | Yön, ikondan değil konumdan okunur |
 | Döngü yazımı | Üç aşamalı: hazır kucak → katlama önerisi → serbest | Sürükleyip içine bırakma bu yaşta çalışmıyor |
 | Kucağı açma | Kucağın başındaki simgeye dokunmak açar kapatır | Mod gizli kalmasın; sayı ile açma ayrı hedefler olsun |
+| Kucaktan çıkma | Gövde dolunca kucağın sağında nabız atan bir "bitti" (✓) düğmesi | Kapatmanın tek yolu baştaki simgeyi keşfetmekti; kimse söylemeden bulunamıyordu |
+| Dönüşler | Haritada dönüş yönünde açılan bir yay | Dönüş yer değiştirmez ama yolun parçasıdır; çizilmeyince iki ok arasında ne olduğu görünmüyordu |
 | Tekrar sayısı | Nokta göstergesi, dokundukça artar, 5'ten sonra 2'ye döner | Bu yaşta rakam tanıma güvenilir değil |
 | Blok silme | Şeritteki bloğa dokunmak onu siler | Sürükleme bu yaşta çalışmıyor; sondan silme ortadaki bloğu kurtaramıyor |
 | Hata ayıklama | Bulmaca bozuk bir programla açılır, çocuk düzeltir | Kavramın kendisi bu: yazılmış bir programı okuyup onarmak |
@@ -159,8 +161,10 @@ Faz 4a'da blok sınırı reddedilmişti ("sınır koymak takılma üretir"). Dö
 bölümlerinde bu karar gevşetilir: çubuk belirli sayıda kutu alır (örneğin
 dört) ve hedef on iki adım uzaktadır. Düz yazarak çözülemez.
 
-Ceza yoktur, uyarı yoktur — yalnızca yer yoktur. Çocuk sıkışınca katlama
-önerisi devreye girer.
+Ceza yoktur, uyarı yoktur — yalnızca yer yoktur. Ama **yer görünür olmalı**:
+şerit, kalan boş yuvaları kesik çizgili kutucuklarla çizer. Görünmediği
+sürece sınır sessiz bir duvardı — çocuk palete dokunuyor, hiçbir şey
+olmuyor, sebebi hiçbir yerde yazmıyordu.
 
 ## 6. Hareket ve geri bildirim
 

@@ -796,6 +796,7 @@ export default function BolumEkrani({
         vurgulanan={durum.vurgulanan}
         sonEklenen={durum.sonEklenen}
         acikKutu={durum.acikKutu}
+        yuvaSayisi={bulmaca.enFazlaBlok ?? null}
         kilitli={girdiEngelli || demo !== null}
         onKucakDokun={kucagaDokunuldu}
         onNoktalarDokun={noktalaraDokunuldu}

@@ -4,7 +4,7 @@
 // calistir()'in adim listesine bakar. Boylece "onizlemede baska, calisinca
 // baska" durumu yapisal olarak imkansiz olur.
 import { calistir } from "./calistir";
-import type { Yon } from "./komutlar";
+import { saatYonunde, type Yon } from "./komutlar";
 import type { Blok, BlokYolu } from "../program";
 import type { Harita, Kare } from "./harita";
 
@@ -13,7 +13,23 @@ import type { Harita, Kare } from "./harita";
 // turlari ayni blokYolu'nu tasir, o yuzden blok yolu ilerlemeyi olcemez.
 export type YolParcasi =
   | { tur: "adim"; baslangic: Kare; bitis: Kare; blokYolu: BlokYolu; adimSirasi: number }
-  | { tur: "carpma"; kare: Kare; yon: Yon; blokYolu: BlokYolu; adimSirasi: number };
+  | { tur: "carpma"; kare: Kare; yon: Yon; blokYolu: BlokYolu; adimSirasi: number }
+  /**
+   * Donme: yer degistirmez ama YOLUN BIR PARCASIDIR.
+   *
+   * Once cizilmiyordu ("donme yer degistirmez" gerekcesiyle) ve donus
+   * komutlariyla oynanan duraklarda cocuk haritada yalnizca yurumeleri
+   * goruyordu: iki ok arasinda ne oldugu, kusun neden baska yone gittigi
+   * hicbir yerde gorunmuyordu.
+   */
+  | {
+      tur: "donus";
+      kare: Kare;
+      /** Donusun yonu: saga mi sola mi. */
+      yon: "sol" | "sag";
+      blokYolu: BlokYolu;
+      adimSirasi: number;
+    };
 
 export function onizlemeYolu(program: Blok[], harita: Harita): YolParcasi[] {
   const { adimlar } = calistir(program, harita);
@@ -21,6 +37,8 @@ export function onizlemeYolu(program: Blok[], harita: Harita): YolParcasi[] {
 
   // Karakterin bir onceki karesi; ilk adim baslangic karesinden cikar.
   let onceki: Kare = harita.baslangic;
+  // Donusun YONUNU (sag/sol) bulmak icin: adim yalnizca YENI bakisi tasir.
+  let oncekiBakis: Yon = harita.bakis;
 
   for (let adimSirasi = 0; adimSirasi < adimlar.length; adimSirasi++) {
     const adim = adimlar[adimSirasi];
@@ -35,6 +53,14 @@ export function onizlemeYolu(program: Blok[], harita: Harita): YolParcasi[] {
         adimSirasi,
       });
       onceki = kare;
+    } else if (adim.olay === "dondu") {
+      parcalar.push({
+        tur: "donus",
+        kare,
+        yon: saatYonunde(oncekiBakis) === adim.karakter.bakis ? "sag" : "sol",
+        blokYolu: adim.blokYolu,
+        adimSirasi,
+      });
     } else if (adim.olay === "carpti") {
       parcalar.push({
         tur: "carpma",
@@ -44,8 +70,9 @@ export function onizlemeYolu(program: Blok[], harita: Harita): YolParcasi[] {
         adimSirasi,
       });
     }
-    // "dondu", "topladi" ve "vardi" yolda ayri bir parca gostermez:
-    // donme yer degistirmez, toplama ve varis zaten yurume adimiyla gelir.
+    // "topladi" ve "vardi" yolda ayri bir parca gostermez: ikisi de zaten
+    // yurume adimiyla birlikte gelir.
+    oncekiBakis = adim.karakter.bakis;
   }
 
   return parcalar;
