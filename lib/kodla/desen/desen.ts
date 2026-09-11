@@ -29,12 +29,21 @@ export function kenarAnahtari(a: Kose, b: Kose): string {
   return `${once.x},${once.y} ${sonra.x},${sonra.y}`;
 }
 
-/** Anahtari iki koseye geri cevirir; bicim bozuksa null. */
+/**
+ * Anahtari iki koseye geri cevirir; bicim bozuksa null.
+ *
+ * Ayristirma KATI: bir kose tam olarak iki sayi tasimali. Gevsek bir
+ * ayristirma ",3" degerini (0,3) diye okur ve "1,2,9" degerinin fazlasini
+ * yok sayar; boyle bir yazim hatasi gecerli ama YANLIS bir hedef kenar
+ * uretir ve denetimden gecerdi.
+ */
 export function anahtarKenari(anahtar: string): [Kose, Kose] | null {
   const parcalar = anahtar.trim().split(/\s+/);
   if (parcalar.length !== 2) return null;
   const koseler = parcalar.map((parca) => {
-    const [x, y] = parca.split(",").map(Number);
+    const sayilar = parca.split(",");
+    if (sayilar.length !== 2) return null;
+    const [x, y] = sayilar.map((deger) => (deger.trim() === "" ? NaN : Number(deger)));
     return Number.isInteger(x) && Number.isInteger(y) ? { x, y } : null;
   });
   if (koseler[0] === null || koseler[1] === null) return null;

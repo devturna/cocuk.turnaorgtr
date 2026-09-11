@@ -98,3 +98,18 @@ test("her olay duraginin butun bulmacalari cozulebilir", async ({ page }) => {
 
   await expect(page.getByText("Senin oyunun!")).toBeVisible({ timeout: 15000 });
 });
+
+test("bir bulmacayi cozmek ilerlemeyi bir artirir", async ({ page }) => {
+  await page.goto(`/kodla/${KURS}/egirdir-golu/`);
+
+  await page.getByRole("button", { name: "Kurbağa", exact: true }).click();
+  await page.getByRole("button", { name: "Zıpla" }).click();
+  await expect(page.getByText("Sıradaki bulmaca")).toBeVisible({ timeout: 15000 });
+
+  // Kayit tek bulmaca ilerlemeli. Ilerleme yazisi bir React guncelleyicisi
+  // icinde yapilsaydi cift cagrilip iki bulmaca atlatirdi.
+  const ilerleme = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("kodla:bulmaca") ?? "{}"),
+  );
+  expect(ilerleme["gol-kiyisi"]["egirdir-golu"].cozulen).toBe(1);
+});

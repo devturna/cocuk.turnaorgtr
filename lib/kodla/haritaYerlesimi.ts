@@ -76,9 +76,9 @@ function uzaklik(a: Nokta, b: Nokta): number {
  * Cakisan isaretleri birbirinden iter ve her birinin gercek noktasini
  * yaninda tutar.
  *
- * `yerlesimeGirenler` yalnizca DOKUNULABILIR duraklar icin anlamlidir:
- * kilitli bir durak zaten dokunmayi yutmaz ve suslu bir isaretten
- * ibarettir, onu itmek haritayi bosuna dagitir.
+ * BUTUN duraklar hesaba girer, kilitli olanlar dahil: kilitli isaret
+ * dokunmayi yutmaz ama ekranda yer kaplar, ve acik duragin isaretini
+ * ortmesi de en az onun yutmasi kadar kotudur.
  */
 export function duraklariYay(
   noktalar: Nokta[],

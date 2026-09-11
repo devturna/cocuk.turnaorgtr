@@ -19,6 +19,7 @@ import {
   blokSayisi,
   blokSil,
   kezDegistir,
+  programAyniMi,
   sonBlokuSil,
   tekrarEkle,
   EN_FAZLA_BLOK,
@@ -45,7 +46,12 @@ import {
   seciliKarakter,
   type YildizTuru,
 } from "@/lib/kodla/yerelKayit";
-import { ADIM_SURESI, GECIS_SURESI, VARIS_BEKLEME_SURESI } from "../zamanlama";
+import {
+  ADIM_SURESI,
+  GECIS_SURESI,
+  POZ_SIFIRLAMA_GECIKMESI,
+  VARIS_BEKLEME_SURESI,
+} from "../zamanlama";
 import ProgramSeridi from "../labirent/ProgramSeridi";
 import KomutPaleti from "../labirent/KomutPaleti";
 import KatlamaCipi from "../labirent/KatlamaCipi";
@@ -205,6 +211,19 @@ export default function DesenEkrani({
     kursId,
   ]);
 
+  // Kosu bitince poz dinlenme haline doner. Son adim bir carpmaysa (program
+  // izgaranin disina yuruyerek biter, denerken sik olur) baska bir adim
+  // gelmedigi icin kus o pozda kalirdi. Labirent ekranindaki ayni etki;
+  // sonrakiHazirlaniyor penceresinde ATLANIR, cunku orada poz "kutlama"dir.
+  useEffect(() => {
+    if (calisiyor || durum.poz === "durus" || durum.sonrakiHazirlaniyor) return;
+    const zamanlayici = setTimeout(
+      () => setDurum((onceki) => ({ ...onceki, poz: "durus" })),
+      POZ_SIFIRLAMA_GECIKMESI,
+    );
+    return () => clearTimeout(zamanlayici);
+  }, [calisiyor, durum.poz, durum.sonrakiHazirlaniyor]);
+
   // Kutlama pozu bir "nefes" ekranda kalsin diye gecis perdesi hemen degil,
   // bu bayrak kapaninca acilir (labirent ekranindaki ayni kuplaj).
   useEffect(() => {
@@ -269,6 +288,27 @@ export default function DesenEkrani({
           ? onceki.acikKutu - 1
           : onceki.acikKutu;
       return { ...onceki, program, acikKutu, sonEklenen: null };
+    });
+  }
+
+  /**
+   * Geri al: seritte en sonda gorunen blogu siler.
+   *
+   * Acik kucagin adresi de yenileniyor: silinen blok kucagin KENDISIYSE ya
+   * da onunden bir blok gittiyse, eski adres ya bos bir yeri ya da baska
+   * bir blogu gosterirdi. O adres bozuk kalirsa paletten eklenen her blok
+   * sessizce kaybolur (blokEkle gecersiz hedef kutuyu reddeder).
+   */
+  function sonBlokSilindi() {
+    setDurum((onceki) => {
+      const program = sonBlokuSil(onceki.program);
+      const kutu = onceki.acikKutu === null ? undefined : program[onceki.acikKutu];
+      return {
+        ...onceki,
+        program,
+        acikKutu: kutu !== undefined && kutu.tur === "tekrar" ? onceki.acikKutu : null,
+        sonEklenen: null,
+      };
     });
   }
 
@@ -349,7 +389,14 @@ export default function DesenEkrani({
     }));
   }
 
+  // Geri al, baslangic programinin ALTINA inmez: hazir gelen kucak
+  // bulmacanin mobilyasidir. Temizle ise BASKA bir soruya cevap verir --
+  // "bastan dene" -- ve program baslangictan her farkli oldugunda acik
+  // olmali. Ikisini tek olcuye baglamak, hata ayiklama duraginda bir blok
+  // silen cocugun temizle dugmesini de kapatiyordu: geri donusu olmayan
+  // tek yol oydu.
   const silinebilir = !girdiEngelli && oynananBlokAdedi > blokSayisi(hazirProgram);
+  const temizlenebilir = !girdiEngelli && !programAyniMi(durum.program, hazirProgram);
   const katlama =
     bulmaca.kucak !== undefined && bulmaca.kucak.asama !== "hazir" && !girdiEngelli
       ? katlamaOnerisi(durum.program)
@@ -423,9 +470,7 @@ export default function DesenEkrani({
             className="kodlaYardimciDugme"
             aria-label="Son bloğu sil"
             disabled={!silinebilir}
-            onClick={() =>
-              setDurum((o) => ({ ...o, program: sonBlokuSil(o.program), sonEklenen: null }))
-            }
+            onClick={sonBlokSilindi}
           >
             <span aria-hidden="true">↩</span>
           </button>
@@ -433,7 +478,7 @@ export default function DesenEkrani({
             type="button"
             className="kodlaYardimciDugme"
             aria-label="Hepsini temizle"
-            disabled={!silinebilir}
+            disabled={!temizlenebilir}
             onClick={() =>
               setDurum((o) => ({
                 ...o,

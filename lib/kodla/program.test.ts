@@ -8,6 +8,7 @@ import {
   blokSil,
   blokTasi,
   komutBloku,
+  programAyniMi,
   programiTemizle,
   sonBlokuSil,
   tekrarEkle,
@@ -247,5 +248,39 @@ describe("blokEkle, acik kutuya", () => {
     const program = [kutu(3, sag)];
     expect(blokEkle(program, yukari, EN_FAZLA_BLOK, 9)).toEqual(program);
     expect(blokEkle(program, yukari, EN_FAZLA_BLOK, -1)).toEqual(program);
+  });
+});
+
+describe("programAyniMi", () => {
+  const sag: Komut = { tur: "git", yon: "sag" };
+  const yukari: Komut = { tur: "git", yon: "yukari" };
+
+  it("ayni programlar icin dogru", () => {
+    expect(programAyniMi([komutBloku(sag)], [komutBloku(sag)])).toBe(true);
+    expect(programAyniMi([], [])).toBe(true);
+  });
+
+  it("farkli komut, farkli uzunluk ve farkli tekrar sayisi ayirt edilir", () => {
+    expect(programAyniMi([komutBloku(sag)], [komutBloku(yukari)])).toBe(false);
+    expect(programAyniMi([komutBloku(sag)], [])).toBe(false);
+    expect(
+      programAyniMi(
+        [{ tur: "tekrar", kez: 2, govde: [komutBloku(sag)] }],
+        [{ tur: "tekrar", kez: 3, govde: [komutBloku(sag)] }],
+      ),
+    ).toBe(false);
+  });
+
+  it("kutu govdesindeki fark da yakalanir", () => {
+    expect(
+      programAyniMi(
+        [{ tur: "tekrar", kez: 2, govde: [komutBloku(sag)] }],
+        [{ tur: "tekrar", kez: 2, govde: [komutBloku(yukari)] }],
+      ),
+    ).toBe(false);
+  });
+
+  it("komut blogu ile kutu ayni sayilmaz", () => {
+    expect(programAyniMi([komutBloku(sag)], [{ tur: "tekrar", kez: 2, govde: [] }])).toBe(false);
   });
 });

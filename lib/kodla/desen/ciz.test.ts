@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { ciz } from "./ciz";
-import { deseniCoz, kenarAnahtari, type DesenVerisi } from "./desen";
+import { anahtarKenari, deseniCoz, kenarAnahtari, type DesenVerisi } from "./desen";
 import { komutBloku, type Blok } from "../program";
 import type { Komut } from "../labirent/komutlar";
 
@@ -105,5 +105,24 @@ describe("deseniCoz", () => {
 
   it("ayni kenari iki kez yazmak tek kenar sayilir", () => {
     expect(deseniCoz({ ...KARE, kenarlar: ["0,2 1,2", "1,2 0,2"] }).kenarlar.size).toBe(1);
+  });
+});
+
+describe("anahtarKenari katiligi", () => {
+  it("eksik veya fazla koordinat kabul edilmez", () => {
+    // Gevsek bir ayristirma ",3" degerini (0,3) diye okur; boyle bir yazim
+    // hatasi gecerli ama YANLIS bir hedef kenar uretir ve denetimden gecer.
+    expect(anahtarKenari(",3 1,3")).toBeNull();
+    expect(anahtarKenari("1,2,9 1,3")).toBeNull();
+    expect(anahtarKenari("1 1,3")).toBeNull();
+    expect(anahtarKenari("1,3")).toBeNull();
+  });
+
+  it("dogru yazilmis kenar YAZILDIGI sirayla cozulur", () => {
+    // Siralama kenarAnahtari'nin isi; anahtarKenari yalnizca okur.
+    expect(anahtarKenari("1,3 1,2")).toEqual([
+      { x: 1, y: 3 },
+      { x: 1, y: 2 },
+    ]);
   });
 });
