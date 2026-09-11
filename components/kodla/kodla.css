@@ -846,7 +846,8 @@
 
 /* Hayalet parmak: hangi dugmeye dokunulacagini soyler, tek kelime etmeden. */
 .komutDugmesi.hayaletli::after,
-.calistirDugmesi.hayaletli::after {
+.calistirDugmesi.hayaletli::after,
+.olayNesnesi.hayaletli::after {
   content: "👆";
   position: absolute;
   right: -10px;
@@ -857,7 +858,8 @@
 }
 
 .komutDugmesi,
-.calistirDugmesi {
+.calistirDugmesi,
+.olayNesnesi {
   position: relative;
 }
 
@@ -895,6 +897,7 @@
 @media (prefers-reduced-motion: reduce) {
   .komutDugmesi.hayaletli::after,
   .calistirDugmesi.hayaletli::after,
+  .olayNesnesi.hayaletli::after,
   .nabiz {
     animation: none;
   }

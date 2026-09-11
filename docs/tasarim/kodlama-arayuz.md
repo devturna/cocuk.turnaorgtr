@@ -47,7 +47,7 @@ geliyoruz: sıralama var, **döngü yok**, ikinci mekanik yok.
 | Blok silme | Şeritteki bloğa dokunmak onu siler | Sürükleme bu yaşta çalışmıyor; sondan silme ortadaki bloğu kurtaramıyor |
 | Hata ayıklama | Bulmaca bozuk bir programla açılır, çocuk düzeltir | Kavramın kendisi bu: yazılmış bir programı okuyup onarmak |
 | Hareket | SVG üzerinde CSS geçişi ve keyframe | En az kod, GPU'da, tek yerde tanımlı |
-| İlk temas | Sessiz demo, metin yok | Hedef kitle okumuyor |
+| İlk temas | Sessiz demo, metin yok; **kurs başına bir kez** | Hedef kitle okumuyor; her kursun mekaniği ayrı |
 | Görseller | Karma: karakter dışarıdan, gerisi kodla | Çocuğun bağlandığı tek şey karakter |
 | Kapsam hedefi | Pre-reader Express'in tamamı | Aşağıdaki fazlar |
 

@@ -12,13 +12,20 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ciz, type CizimAdimi } from "@/lib/kodla/desen/ciz";
-import type { Komut } from "@/lib/kodla/labirent/komutlar";
+import type { Desen } from "@/lib/kodla/desen/desen";
+import {
+  KOMUT_SETLERI,
+  komutAnahtari,
+  type Komut,
+  type KomutSeti,
+} from "@/lib/kodla/labirent/komutlar";
 import { katla, katlamaOnerisi } from "@/lib/kodla/katlama";
 import {
   blokEkle,
   blokSayisi,
   blokSil,
   kezDegistir,
+  komutBloku,
   programAyniMi,
   sonBlokuSil,
   tekrarEkle,
@@ -28,6 +35,7 @@ import {
 } from "@/lib/kodla/program";
 import {
   baslangicProgrami,
+  bolumSiralamasi,
   bulmacaBul,
   bulmacaDeseni,
   bulmacaSayisi,
@@ -40,6 +48,8 @@ import { varsayilanKarakter } from "@/lib/kodla/karakterler";
 import {
   bolumSonucuKaydet,
   bulmacaCozuldu,
+  demoGosterildi,
+  demoGosterildiMi,
   denemeArtir,
   durakIlerlemesi,
   durakIlerlemesiniSil,
@@ -48,6 +58,7 @@ import {
 } from "@/lib/kodla/yerelKayit";
 import {
   ADIM_SURESI,
+  BOSTA_SURESI,
   GECIS_SURESI,
   POZ_SIFIRLAMA_GECIKMESI,
   VARIS_BEKLEME_SURESI,
@@ -77,6 +88,22 @@ type Durum = {
   sonrakiHazirlaniyor: boolean;
 };
 
+/**
+ * Demo icin bir komut secer: kus GORULEBILIR bir cizgi cizmeli (cocuk bir
+ * seyin oldugunu gormeli) ama deseni BITIRMEMELI -- yoksa cocugun ilk
+ * deneyimi, kendisi hic dokunmadan "kazanilmis" bir bulmaca olur ve o
+ * bulmacanin yildizi da yazilir. Labirent ekranindaki demoKomutuSec'in
+ * karsiligi; boyle bir komut yoksa null doner ve demo hic oynamaz.
+ */
+function demoKomutuSec(seti: KomutSeti, desen: Desen): Komut | null {
+  for (const komut of KOMUT_SETLERI[seti]) {
+    const sonuc = ciz([komutBloku(komut)], desen);
+    const cizdi = sonuc.adimlar.some((adim) => adim.olay === "cizdi");
+    if (cizdi && !sonuc.basarili) return komut;
+  }
+  return null;
+}
+
 /** Bulmacanin baslangic konumu; bulmacaSirasi ile AYNI commit'te yazilir. */
 function bulmacaBaslangicKonumu(bolum: DesenBolumu, sira: number) {
   const bulmaca = bulmacaBul(bolum, sira) ?? bolum.bulmacalar[0];
@@ -99,12 +126,22 @@ export default function DesenEkrani({
   sonrakiBolumId: string | null;
 }) {
   const toplamBulmaca = bulmacaSayisi(bolum);
+  // Demo yalnizca kursun ilk duraginda anlamli; sonrakilerde cocuk zaten
+  // nasil oynandigini biliyor.
+  const ilkDurakDegil = bolumSiralamasi(kursId)[0] !== bolum.id;
   const [karakter, setKarakter] = useState(() => varsayilanKarakter(kursId));
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setKarakter(seciliKarakter(kursId));
   }, [kursId]);
+
+  // Ilk-temas demosu: cizim mekanigi labirenttekinden baska bir sey, o
+  // yuzden bu kursun kendi demosu var (bayrak kurs basina tutuluyor).
+  // "izliyor" asamasi kosunun bitmesini bekler ki kontrol cocuga temiz bir
+  // tahtayla gecsin.
+  const [demo, setDemo] = useState<"komut" | "calistir" | "izliyor" | null>(null);
+  const [demoKomut, setDemoKomut] = useState<Komut | null>(null);
 
   const [durum, setDurum] = useState<Durum>(() => ({
     program: baslangicProgrami(bolum.bulmacalar[0]),
@@ -122,13 +159,24 @@ export default function DesenEkrani({
   }));
 
   // Durak kaldigi yerden devam eder; bitmis durak bastan baslar.
+  //
+  // demoKomut BURADA, ayni "baslangic" degeriyle AYNI ANDA hesaplanir:
+  // ayri hesaplansaydi ilk render'da durum.bulmacaSirasi henuz duzeltilmemis
+  // olur ve demo, cocugun gormedigi bir desene gore secilmis bir komutu
+  // onun adina calistirirdi (labirent ekranindaki ayni gerekce).
   useEffect(() => {
     const ilerleme = durakIlerlemesi(kursId, bolum.id);
     const baslangic = baslangicBulmacasi(ilerleme.cozulen, toplamBulmaca);
     if (ilerleme.cozulen >= toplamBulmaca) durakIlerlemesiniSil(kursId, bolum.id);
-    if (baslangic === 0) return;
+    if (baslangic === 0) {
+      if (!ilkDurakDegil) {
+        const ilkBulmaca = bulmacaBul(bolum, 0) ?? bolum.bulmacalar[0];
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setDemoKomut(demoKomutuSec(ilkBulmaca.komutSeti, bulmacaDeseni(ilkBulmaca)));
+      }
+      return;
+    }
     const acilan = bulmacaBul(bolum, baslangic) ?? bolum.bulmacalar[0];
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setDurum((onceki) => ({
       ...onceki,
       bulmacaSirasi: baslangic,
@@ -136,7 +184,19 @@ export default function DesenEkrani({
       program: baslangicProgrami(acilan),
       acikKutu: bulmacaBaslangicKutusu(acilan),
     }));
-  }, [kursId, bolum, toplamBulmaca]);
+  }, [kursId, bolum, toplamBulmaca, ilkDurakDegil]);
+
+  // Demo yalnizca ilk durakta ve kurs basina bir kez oynar.
+  useEffect(() => {
+    if (ilkDurakDegil) return;
+    if (demoGosterildiMi(kursId)) return;
+    // Desende gorunur bir cizgi cizip bitirmeyen komut yoksa demo
+    // yaniltici olurdu; sessizce atlanir. Bayrak BUNDAN SONRA yazilir.
+    if (demoKomut === null) return;
+    demoGosterildi(kursId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDemo("komut");
+  }, [ilkDurakDegil, demoKomut, kursId]);
 
   useEffect(() => {
     document.body.classList.add("tamEkran");
@@ -147,7 +207,8 @@ export default function DesenEkrani({
   const desen = bulmacaDeseni(bulmaca);
   const hazirProgram = baslangicProgrami(bulmaca);
   const calisiyor = durum.oynatma !== null;
-  const girdiEngelli = calisiyor || durum.bitti !== null || durum.gecis || durum.sonrakiHazirlaniyor;
+  const girdiEngelli =
+    calisiyor || durum.bitti !== null || durum.gecis || durum.sonrakiHazirlaniyor;
   const oynananBlokAdedi = blokSayisi(durum.program);
 
   // Adimlari sirayla oynatir; son adimda sonucu kaydeder.
@@ -395,6 +456,86 @@ export default function DesenEkrani({
   // olmali. Ikisini tek olcuye baglamak, hata ayiklama duraginda bir blok
   // silen cocugun temizle dugmesini de kapatiyordu: geri donusu olmayan
   // tek yol oydu.
+  // Demo adimlarini yurutur: paletteki komuta "dokunur", calistirir, sonra
+  // kosunun bitmesini bekleyip tahtayi sifirlar. calistirmayiBaslat'tan
+  // sonra tanimli olmasi gerektigi icin etki buraya alindi.
+  useEffect(() => {
+    if (demo === null) return;
+
+    if (demo === "komut") {
+      // demoKomut burada asla null olamaz: demo yalnizca demoKomut !== null
+      // iken baslatiliyor. Blok kucagin ICINE DEGIL ust duzeye ekleniyor
+      // (hedefKutu verilmiyor): hazir kucagin icine dusseydi tekrarlanir ve
+      // desen cocuk hic dokunmadan tamamlanirdi.
+      const secilenKomut = demoKomut!;
+      const zamanlayici = setTimeout(() => {
+        setDurum((onceki) => {
+          const program = blokEkle(onceki.program, secilenKomut);
+          return { ...onceki, program, sonEklenen: { ust: program.length - 1, ic: null } };
+        });
+        setDemo("calistir");
+      }, 1400);
+      return () => clearTimeout(zamanlayici);
+    }
+
+    if (demo === "calistir") {
+      const zamanlayici = setTimeout(() => {
+        calistirmayiBaslat();
+        setDemo("izliyor");
+      }, 1400);
+      return () => clearTimeout(zamanlayici);
+    }
+
+    // demo === "izliyor": kosu suruyorsa bekle. Kosu bitince tahta, cocuk
+    // hicbir seye dokunmamis gibi tertemiz baslar.
+    //
+    // Sifirlama HEMEN degil, bir nefes sonra: cizilen cizgi kosunun son
+    // adiminda dogar ve ayni anda silinirse cocuk demonun GOSTERDIGI seyi
+    // -- kusun arkasinda bir cizgi biraktigini -- hic gormez. Labirentte
+    // boyle bir bekleme gerekmiyordu, orada kalan iz kusun kendi konumuydu.
+    if (calisiyor) return;
+    const zamanlayici = setTimeout(() => {
+      setDurum((onceki) => ({
+        ...onceki,
+        program: hazirProgram,
+        acikKutu: bulmacaBaslangicKutusu(bulmaca),
+        sonEklenen: null,
+        cizilenler: [],
+        karakterKonumu: { ...desen.baslangic },
+        poz: "durus",
+        vurgulanan: null,
+        oynatma: null,
+        bitti: null,
+      }));
+      setDemo(null);
+    }, VARIS_BEKLEME_SURESI);
+    return () => clearTimeout(zamanlayici);
+    // calistirmayiBaslat her render'da yeniden kuruluyor; bagimliliga
+    // eklemek zamanlayiciyi her render'da sifirlar ve demo hic bitmez.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [demo, demoKomut, calisiyor]);
+
+  // Cocuk uzun sure hicbir sey yapmazsa demo hatirlatma olarak tekrarlanir.
+  // Yalnizca ilk durakta, o durak 0. bulmacadayken ve serit bosken:
+  // demoKomut o desene gore secilmisti, baska bir bulmacada yaniltir.
+  useEffect(() => {
+    if (ilkDurakDegil || demoKomut === null) return;
+    if (durum.bulmacaSirasi !== 0) return;
+    if (calisiyor || durum.bitti || demo !== null) return;
+    if (blokSayisi(durum.program) > blokSayisi(hazirProgram)) return;
+    const zamanlayici = setTimeout(() => setDemo("komut"), BOSTA_SURESI);
+    return () => clearTimeout(zamanlayici);
+  }, [
+    ilkDurakDegil,
+    demoKomut,
+    durum.bulmacaSirasi,
+    durum.bitti,
+    durum.program,
+    hazirProgram,
+    calisiyor,
+    demo,
+  ]);
+
   const silinebilir = !girdiEngelli && oynananBlokAdedi > blokSayisi(hazirProgram);
   const temizlenebilir = !girdiEngelli && !programAyniMi(durum.program, hazirProgram);
   const katlama =
@@ -443,7 +584,7 @@ export default function DesenEkrani({
         vurgulanan={durum.vurgulanan}
         sonEklenen={durum.sonEklenen}
         acikKutu={durum.acikKutu}
-        kilitli={girdiEngelli}
+        kilitli={girdiEngelli || demo !== null}
         onKucakDokun={kucagaDokunuldu}
         onNoktalarDokun={noktalaraDokunuldu}
         onBlokDokun={blogaDokunuldu}
@@ -456,10 +597,10 @@ export default function DesenEkrani({
       <div className="bolumAltBar">
         <KomutPaleti
           seti={bulmaca.komutSeti}
-          kilitli={girdiEngelli}
+          kilitli={girdiEngelli || demo !== null}
           onEkle={blokEklendi}
-          hayalet={null}
-          nabiz={!girdiEngelli && durum.program.length === 0}
+          hayalet={demo === "komut" && demoKomut !== null ? komutAnahtari(demoKomut) : null}
+          nabiz={!girdiEngelli && demo === null && durum.program.length === 0}
           kutuEklenebilir={bulmaca.kucak?.asama === "serbest"}
           onKutuEkle={kutuEklendi}
         />
@@ -501,11 +642,12 @@ export default function DesenEkrani({
           </button>
           <button
             type="button"
-            className={`calistirDugmesi${
-              !girdiEngelli && durum.program.length > 0 ? " nabiz" : ""
-            }`}
+            className={
+              `calistirDugmesi${demo === "calistir" ? " hayaletli" : ""}` +
+              `${!girdiEngelli && demo === null && durum.program.length > 0 ? " nabiz" : ""}`
+            }
             aria-label="Çalıştır"
-            disabled={girdiEngelli || durum.program.length === 0}
+            disabled={girdiEngelli || durum.program.length === 0 || demo !== null}
             onClick={calistirmayiBaslat}
           >
             <span aria-hidden="true">▶</span>

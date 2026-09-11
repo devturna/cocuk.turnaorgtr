@@ -16,16 +16,18 @@ import {
   type Eylem,
   type Kural,
 } from "@/lib/kodla/olay/kurallar";
-import { bulmacaBul, bulmacaSayisi, type OlayBolumu } from "@/lib/kodla/bolumler";
+import { bolumSiralamasi, bulmacaBul, bulmacaSayisi, type OlayBolumu } from "@/lib/kodla/bolumler";
 import { baslangicBulmacasi, bulmacaSonrasi } from "@/lib/kodla/durak";
 import {
   bolumSonucuKaydet,
   bulmacaCozuldu,
+  demoGosterildi,
+  demoGosterildiMi,
   durakIlerlemesi,
   durakIlerlemesiniSil,
   type YildizTuru,
 } from "@/lib/kodla/yerelKayit";
-import { VARIS_BEKLEME_SURESI, GECIS_SURESI } from "../zamanlama";
+import { BOSTA_SURESI, VARIS_BEKLEME_SURESI, GECIS_SURESI } from "../zamanlama";
 import BulmacaNoktalari from "../labirent/BulmacaNoktalari";
 import Konfeti from "../labirent/Konfeti";
 import "../kodla.css";
@@ -63,6 +65,9 @@ type Durum = {
   sonrakiHazirlaniyor: boolean;
 };
 
+/** Demo adimlari arasindaki bekleme; labirent demosuyla ayni ritim. */
+const DEMO_ARALIGI = 1400;
+
 export default function OlayEkrani({
   kursId,
   bolum,
@@ -73,6 +78,9 @@ export default function OlayEkrani({
   sonrakiBolumId: string | null;
 }) {
   const toplamBulmaca = bulmacaSayisi(bolum);
+  // Demo yalnizca kursun ilk duraginda ve kurs basina bir kez oynar.
+  const ilkDurakDegil = bolumSiralamasi(kursId)[0] !== bolum.id;
+  const [demo, setDemo] = useState<"nesne" | "eylem" | "izliyor" | null>(null);
 
   const [durum, setDurum] = useState<Durum>({
     kurallar: [],
@@ -100,7 +108,65 @@ export default function OlayEkrani({
 
   const bulmaca = bulmacaBul(bolum, durum.bulmacaSirasi) ?? bolum.bulmacalar[0];
   const istek = bulmaca.istek;
-  const girdiEngelli = durum.bitti !== null || durum.gecis || durum.sonrakiHazirlaniyor;
+  const girdiEngelli =
+    durum.bitti !== null || durum.gecis || durum.sonrakiHazirlaniyor || demo !== null;
+
+  /**
+   * Demonun yazacagi kural, bulmacanin ISTEDIGI kural DEGILDIR: aksi halde
+   * cocugun ilk deneyimi, kendisi hic dokunmadan "kazanilmis" bir bulmaca
+   * olurdu. Baska bir nesne ve baska bir eylem seciliyor.
+   */
+  const demoNesne =
+    bulmaca.sahne.find((nesne) => nesne.id !== istek?.nesne) ?? bulmaca.sahne[0];
+  const demoEylem: Eylem = EYLEMLER.find((eylem) => eylem !== istek?.eylem) ?? "zipla";
+
+  useEffect(() => {
+    if (ilkDurakDegil || demoGosterildiMi(kursId)) return;
+    demoGosterildi(kursId);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setDemo("nesne");
+  }, [ilkDurakDegil, kursId]);
+
+  // Demo adimlari: nesneye "dokunur", bir eylem secer, eylemin oynamasini
+  // bekler ve tahtayi tertemiz birakir.
+  useEffect(() => {
+    if (demo === null) return;
+
+    if (demo === "nesne") {
+      const zamanlayici = setTimeout(() => {
+        setDurum((onceki) => ({ ...onceki, secili: demoNesne.id }));
+        setDemo("eylem");
+      }, DEMO_ARALIGI);
+      return () => clearTimeout(zamanlayici);
+    }
+
+    if (demo === "eylem") {
+      const zamanlayici = setTimeout(() => {
+        setDurum((onceki) => ({
+          ...onceki,
+          kurallar: kuralYaz(onceki.kurallar, demoNesne.id, demoEylem),
+          oynayan: demoNesne.id,
+        }));
+        setDemo("izliyor");
+      }, DEMO_ARALIGI);
+      return () => clearTimeout(zamanlayici);
+    }
+
+    // Eylem oynadi; bir nefes sonra tahta cocuga temiz gecer.
+    const zamanlayici = setTimeout(() => {
+      setDurum((onceki) => ({ ...onceki, kurallar: [], secili: null, oynayan: null }));
+      setDemo(null);
+    }, EYLEM_SURESI + VARIS_BEKLEME_SURESI);
+    return () => clearTimeout(zamanlayici);
+  }, [demo, demoNesne, demoEylem]);
+
+  // Cocuk uzun sure hicbir sey yapmazsa demo hatirlatma olarak tekrarlanir.
+  useEffect(() => {
+    if (ilkDurakDegil || demo !== null) return;
+    if (durum.bulmacaSirasi !== 0 || durum.kurallar.length > 0 || durum.bitti) return;
+    const zamanlayici = setTimeout(() => setDemo("nesne"), BOSTA_SURESI);
+    return () => clearTimeout(zamanlayici);
+  }, [ilkDurakDegil, demo, durum.bulmacaSirasi, durum.kurallar.length, durum.bitti]);
 
   // Eylem animasyonu kendi kendine sonlanir: sahne hicbir zaman bozulmaz,
   // o yuzden temizlenecek bir "geri alma" da yok.
@@ -253,7 +319,8 @@ export default function OlayEkrani({
                 type="button"
                 className={
                   `olayNesnesi${durum.secili === nesne.id ? " secili" : ""}` +
-                  `${oynuyor ? ` oynuyor-${kural.eylem}` : ""}`
+                  `${oynuyor ? ` oynuyor-${kural.eylem}` : ""}` +
+                  `${demo === "nesne" && nesne.id === demoNesne.id ? " hayaletli" : ""}`
                 }
                 style={{ left: `${nesne.x}%`, top: `${nesne.y}%` }}
                 aria-label={
@@ -303,7 +370,9 @@ export default function OlayEkrani({
             <button
               key={eylem}
               type="button"
-              className="komutDugmesi"
+              className={`komutDugmesi${
+                demo === "eylem" && eylem === demoEylem ? " hayaletli" : ""
+              }`}
               aria-label={EYLEM_ADLARI[eylem]}
               disabled={girdiEngelli || durum.secili === null}
               onClick={() => eylemSecildi(eylem)}

@@ -51,3 +51,74 @@ test("demo bolumu cocuk adina kazanmaz, kosu bitince tahta tertemiz sifirlanir",
   ).toBeEnabled();
   await expect(page.getByRole("button", { name: "Çalıştır" })).toBeDisabled();
 });
+
+// Cizim kursunun kendi demosu. Labirenti ogrenmis bir cocuk bile bu
+// mekanigi tanimaz: kus burada kare degil KOSE degistirir ve arkasinda
+// cizgi birakir. Demo bayragi bu yuzden kurs basina tutuluyor.
+test("cizim kursunun demosu oynar, deseni cocuk adina tamamlamaz", async ({ page }) => {
+  await page.goto("/kodla/kilimin-izi/iznik/");
+
+  // Hayalet parmak paletteki komutu programa ekler.
+  await expect(page.locator(".programSeridi .programBloku")).toHaveCount(1, { timeout: 3000 });
+
+  // Demo boyunca cocuk mudahale edemez.
+  const ileri = page.getByRole("button", { name: "İleri git", exact: true });
+  await expect(ileri).toBeDisabled();
+  await ileri.click({ force: true });
+  await expect(page.locator(".programSeridi .programBloku")).toHaveCount(1);
+
+  // Kus gercekten cizer: en az bir kenar kirmizilanir.
+  await expect(page.locator(".desenCizgi")).toHaveCount(1, { timeout: 6000 });
+
+  // Kosu bitince tahta sifirlanir ve kontrol cocuga gecer.
+  await expect(page.locator(".programSeridi .programBloku")).toHaveCount(0, { timeout: 8000 });
+  await expect(page.locator(".desenCizgi")).toHaveCount(0);
+  await expect(ileri).toBeEnabled();
+
+  // Demo deseni TAMAMLAMAZ: kutlama yok, bulmaca kaydi yok.
+  await expect(page.getByText("Sıradaki bulmaca")).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("kodla:bulmaca"))).toBeNull();
+});
+
+test("demo bayragi kursa ozeldir", async ({ page }) => {
+  // Turna'nin Yolu'nun demosunu gormus cocuk cizim kursuna girdiginde onun
+  // demosunu de gormeli: ogrendigi mekanik baska bir mekanikti.
+  await page.addInitScript(() => {
+    localStorage.setItem("kodla:demo", JSON.stringify({ "turna-yolu": true }));
+  });
+  await page.goto("/kodla/kilimin-izi/iznik/");
+  await expect(page.locator(".programSeridi .programBloku")).toHaveCount(1, { timeout: 3000 });
+});
+
+test("eski tek-metinli bayrak Turna'nin Yolu demosunu kapali tutar", async ({ page }) => {
+  await page.addInitScript(() => localStorage.setItem("kodla:demo", "evet"));
+  await page.goto("/kodla/turna-yolu/goksu-deltasi/");
+  await page.waitForTimeout(2500);
+  await expect(page.locator(".programBloku")).toHaveCount(0);
+});
+
+// Olay kursunun demosu. Burada ogretilen sey komut dizmek degil kural
+// yazmak: nesneye dokun, bir eylem sec, dokundugunda o eylem oynasin.
+test("olay kursunun demosu kural yazar, bulmacayi cocuk adina cozmez", async ({ page }) => {
+  await page.goto("/kodla/gol-kiyisi/egirdir-golu/");
+
+  // Once bir nesne secilir (hayalet parmak orada).
+  await expect(page.locator(".olayNesnesi.hayaletli")).toHaveCount(1, { timeout: 3000 });
+  await expect(page.locator(".olayNesnesi.secili")).toHaveCount(1, { timeout: 3000 });
+
+  // Sonra bir eylem; kural seritte belirir ve nesne onu oynar.
+  await expect(page.getByRole("listitem")).toHaveCount(1, { timeout: 4000 });
+
+  // Demo boyunca cocuk mudahale edemez.
+  const kurbaga = page.getByRole("button", { name: "Kurbağa", exact: true });
+  await expect(kurbaga).toBeDisabled();
+
+  // Tahta cocuga tertemiz gecer.
+  await expect(page.getByRole("listitem")).toHaveCount(0, { timeout: 6000 });
+  await expect(page.locator(".olayNesnesi.secili")).toHaveCount(0);
+  await expect(kurbaga).toBeEnabled();
+
+  // Demo ISTENEN kurali yazmaz: kutlama yok, ilerleme kaydi yok.
+  await expect(page.getByText("Sıradaki bulmaca")).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("kodla:bulmaca"))).toBeNull();
+});

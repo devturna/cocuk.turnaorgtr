@@ -232,9 +232,13 @@ Yukarıdaki program: sağa git ve yukarı git, üç kez; sonra sola git.
 - **Kutuya blok eklemek** için paletteki komuta dokunmak yeterlidir: kutu
   açıkken eklenen blok kutunun içine düşer. Kutu "açık" olma durumunu
   kenarındaki vurgu ile gösterir.
-- **Kutunun kendisi de sürüklenir**, içindekilerle birlikte. Kutu içine
-  sürüklemek de mümkündür ama tek yol değildir — 4a'daki "dokunma tek başına
-  yeterli olmalı" kuralı burada da geçerlidir.
+- **Sürükleme yok.** Bu satır önce "kutunun kendisi de sürüklenir" diyordu;
+  uygulanmadı ve uygulanmaması doğru çıktı. 4a'daki kural "dokunma tek başına
+  yeterli olmalı" idi, ve düzeltmenin iki yolu zaten var: şeritteki bloğa
+  dokunmak onu siler, palet sona ekler. Sürükleme bu yaşta ikinci bir jest
+  öğretmek demekti. `lib/kodla/program.ts` içindeki `blokTasi()` o günden
+  kalma, testli ama çağrılmayan bir fonksiyondur; sürükleme bir gün gelirse
+  hazır durur.
 - **İç içe döngü yoktur.** Pre-reader Express de öğretmez. Kutu içine kutu
   bırakılamaz; denendiğinde blok kutunun dışına düşer.
 
@@ -312,11 +316,12 @@ duvara çarptığını veya hedefi ıskaladığını görür, ve düzeltir.
 Fazla blok üçüncü bir tür olurdu; silme jesti zaten var ve eksik blok ile
 aynı beceriyi çalıştırıyor. Almıyoruz.
 
-İçerik tarafında bu, bulmacaya tek bir alan ekler: `hazirProgram`. Alan
-varsa şerit boş değil, o programla açılır. Denetim script'i `hazirProgram`
-taşıyan bir bulmacanın **olduğu gibi çalıştırıldığında başarısız olmasını**
-şart koşar — yoksa "bozuk" program aslında bozuk değildir ve çocuk yalnızca
-çalıştır düğmesine basar.
+İçerik tarafında bu, bulmacaya tek bir alan ekler: **`baslangicProgrami`**
+(bu belge önce `hazirProgram` diyordu; alan yazılırken hazır kucakla aynı
+mekanizmaya bağlandığı için adı değişti). Alan varsa şerit boş değil, o
+programla açılır. Denetim script'i böyle bir bulmacanın **olduğu gibi
+çalıştırıldığında başarısız olmasını** şart koşar — yoksa "bozuk" program
+aslında bozuk değildir ve çocuk yalnızca çalıştır düğmesine basar.
 
 ## 8. Faz 4e — çizim (kısa)
 
