@@ -202,7 +202,15 @@ Bir harf veya rakam, bir oyunda tamamlandığında o oyun için yıldız kazanı
 Oyun kartlarında ilerleme görünür (örneğin "12/29 harf").
 
 `/ogren/ilerleme/` adresinde ebeveyn için özet tablo bulunur: hangi harf
-hangi oyunlarda tamamlandı. Aynı sayfada bir sıfırlama düğmesi vardır.
+hangi oyunlarda tamamlandı. **Yayında.** Aynı sayfada bir sıfırlama düğmesi
+vardır ve iki adımlıdır (önce sorar, sonra siler) — tarayıcının kendi onay
+penceresi yerine, çünkü sayfa bir oyun ekranından da açılabiliyor ve o
+pencere bu yaştaki çocuğu da şaşırtır.
+
+Tablo, oynanmayan hücreyi **boş değil çizgi** ile gösterir: boş hücre
+"yapılmadı" demektir, çizgi "burada böyle bir şey yok". Harf sayılmaz (Say),
+Ğ ile başlayan Türkçe kelime yoktur (Bul), on rakamının çizim yolu yoktur
+(Yaz).
 
 Bu kayıt yalnızca cihazın tarayıcı hafızasındadır ve hiçbir yere gönderilmez.
 

@@ -505,3 +505,57 @@ test("butun ciftler eslesince kutlama cikar", async ({ page }) => {
 
   await expect(page.getByText("Hepsi eşleşti!")).toBeVisible();
 });
+
+// --- Ebeveyn ilerleme ozeti ---
+
+test("bolum girisinden ilerleme ozeti acilir", async ({ page }) => {
+  await page.goto("/ogren/");
+  await page.getByRole("link", { name: /ilerleme özeti/ }).click();
+  await expect(page.getByRole("heading", { name: "İlerleme" })).toBeVisible();
+  // 29 harf + 11 sayi satiri.
+  await expect(page.locator(".ilerlemeTablosu tbody tr")).toHaveCount(40);
+});
+
+test("kazanilan yildizlar tabloda yildiz olarak gorunur", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem(
+      "ogren:yildizlar",
+      JSON.stringify({ "harf:A": ["yaz", "bul"], "sayi:3": ["say"] }),
+    );
+  });
+  await page.goto("/ogren/ilerleme/");
+
+  await expect(page.getByText("3/", { exact: false }).first()).toBeVisible();
+  await expect(page.locator(".ilerlemeTablosu td", { hasText: "★" })).toHaveCount(3);
+});
+
+test("oynanmayan hucreler cizgi gosterir", async ({ page }) => {
+  await page.goto("/ogren/ilerleme/");
+  // Harf sayilmaz (Say), G ile baslayan kelime yok (Bul), on rakami
+  // yazilmaz (Yaz): bos hucre "yapilmadi" demektir, cizgi "boyle bir sey yok".
+  await expect(page.locator(".ilerlemeTablosu td.yok").first()).toBeVisible();
+  const cizgiler = await page.locator(".ilerlemeTablosu td.yok").count();
+  // 29 harf x Say + G x Bul + On x Yaz + Sifir x (Say, Eslestir, Bul)
+  expect(cizgiler).toBe(29 + 1 + 1 + 3);
+});
+
+test("sifirlama iki adimlidir ve kaydi siler", async ({ page }) => {
+  await page.addInitScript(() => {
+    localStorage.setItem("ogren:yildizlar", JSON.stringify({ "harf:A": ["yaz"] }));
+  });
+  await page.goto("/ogren/ilerleme/");
+  await expect(page.locator(".ilerlemeTablosu td", { hasText: "★" })).toHaveCount(1);
+
+  // Ilk dokunus yalnizca sorar.
+  await page.getByRole("button", { name: "İlerlemeyi sıfırla" }).click();
+  await expect(page.locator(".ilerlemeTablosu td", { hasText: "★" })).toHaveCount(1);
+
+  // Vazgecmek kaydi birakir.
+  await page.getByRole("button", { name: "Vazgeç" }).click();
+  await expect(page.locator(".ilerlemeTablosu td", { hasText: "★" })).toHaveCount(1);
+
+  await page.getByRole("button", { name: "İlerlemeyi sıfırla" }).click();
+  await page.getByRole("button", { name: "Evet, sıfırla" }).click();
+  await expect(page.locator(".ilerlemeTablosu td", { hasText: "★" })).toHaveCount(0);
+  expect(await page.evaluate(() => localStorage.getItem("ogren:yildizlar"))).toBeNull();
+});
