@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { RAKAM_YOLLARI, vurusYolu, kontrolNoktalari, TUVAL_BOYU } from "./rakamYollari";
+import { RAKAM_YOLLARI, vurusYolu, kontrolNoktalari, TUVAL_BOYU, type Vurus } from "./rakamYollari";
 
 describe("RAKAM_YOLLARI", () => {
   it("sifirdan dokuza kadar butun rakamlari icerir", () => {
@@ -105,5 +105,44 @@ describe("rakam sekilleri", () => {
     // Iki halka da yogun noktalarla cizilir; buyuk bir atlama, halkalari
     // birlestiren istenmeyen bir cizgi demektir.
     expect(enBuyukAtlama).toBeLessThan(40);
+  });
+});
+
+describe("kontrolNoktalari, son nokta", () => {
+  it("son nokta da araliga tabidir", () => {
+    // Once kosulsuz ekleniyordu: kapali halkada son nokta ILKIYLE ayni
+    // koordinatta oluyor ve cocuk tepeye dokundugu anda ikisi birden
+    // isaretleniyordu -- halka kapatilmadan harf bitiyordu.
+    const halka: Vurus = {
+      noktalar: [
+        { x: 100, y: 0 },
+        { x: 200, y: 100 },
+        { x: 100, y: 200 },
+        { x: 0, y: 100 },
+        { x: 100, y: 0 },
+      ],
+    };
+    const noktalar = kontrolNoktalari(halka, 42);
+    const ilk = noktalar[0];
+    const son = noktalar[noktalar.length - 1];
+    expect(Math.hypot(son.x - ilk.x, son.y - ilk.y)).toBeGreaterThanOrEqual(42);
+  });
+
+  it("kisa vurus yine de iki nokta verir", () => {
+    const kisa: Vurus = {
+      noktalar: [
+        { x: 0, y: 0 },
+        { x: 10, y: 0 },
+      ],
+    };
+    expect(kontrolNoktalari(kisa, 42)).toHaveLength(2);
+  });
+
+  it("butun rakamlarin butun vuruslari en az iki kontrol noktasi tasir", () => {
+    for (const [rakam, vuruslar] of Object.entries(RAKAM_YOLLARI)) {
+      for (const [sira, vurus] of vuruslar.entries()) {
+        expect(kontrolNoktalari(vurus, 42).length, `${rakam} vurus ${sira}`).toBeGreaterThanOrEqual(2);
+      }
+    }
   });
 });

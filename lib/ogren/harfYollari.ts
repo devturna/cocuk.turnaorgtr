@@ -8,7 +8,7 @@
 // Noktalar 400x400'luk tuvale gore verilmistir. Vurus sirasi okul
 // oncesinde ogretilen sirayla ayni: once dikey/ana cizgi, sonra yataylar,
 // en son aksan (Ç'nin kuyrugu, Ğ'nin sapkasi, I/İ'nin noktasi).
-import { yay, type Vurus } from "./rakamYollari";
+import { yay, type Nokta, type Vurus } from "./rakamYollari";
 
 // Harf govdesinin oturdugu kutu: rakamlarla ayni yukseklikte dursun diye.
 const UST = 75;
@@ -18,9 +18,37 @@ const SAG = 280;
 const ORTA_Y = (UST + ALT) / 2;
 const ORTA_X = (SOL + SAG) / 2;
 
-/** Duz cizgi vurusu. */
-function cizgi(...noktalar: [number, number][]): Vurus {
-  return { noktalar: noktalar.map(([x, y]) => ({ x, y })) };
+// Duz kenarlar bu araliklarla ara noktalara bolunur.
+//
+// Bolunmeseydi vurus yalnizca KOSE noktalarindan ibaret olurdu ve
+// kontrolNoktalari ara nokta uretemezdi: E'nin 260 birimlik dikey cizgisi
+// iki kontrol noktasi verir, cocuk parmagini hic gezdirmeden iki ucuna
+// dokunarak vurusu bitirirdi. Aralik, kontrol noktasi seyreltmesindeki
+// EN_AZ_ARALIK'tan (42) kucuk olmali ki seyreltme sonrasi ara noktalar
+// kalsin.
+const ARA_ADIM = 30;
+
+/**
+ * Duz cizgi vurusu. Verilen kose noktalari arasi ARA_ADIM araliklarla
+ * doldurulur.
+ */
+function cizgi(...koseler: [number, number][]): Vurus {
+  const noktalar: Nokta[] = [{ x: koseler[0][0], y: koseler[0][1] }];
+
+  for (let i = 1; i < koseler.length; i++) {
+    const [x0, y0] = koseler[i - 1];
+    const [x1, y1] = koseler[i];
+    const uzunluk = Math.hypot(x1 - x0, y1 - y0);
+    const adet = Math.max(1, Math.round(uzunluk / ARA_ADIM));
+    for (let adim = 1; adim <= adet; adim++) {
+      noktalar.push({
+        x: Math.round(x0 + ((x1 - x0) * adim) / adet),
+        y: Math.round(y0 + ((y1 - y0) * adim) / adet),
+      });
+    }
+  }
+
+  return { noktalar };
 }
 
 // C'nin govdesi: sag ustten baslayip AZALAN aciyla ust-sol-alt uzerinden

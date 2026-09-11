@@ -91,3 +91,19 @@ describe("eslestirHarfTuruUret", () => {
     expect(eslestirHarfTuruUret(2)).toEqual(eslestirHarfTuruUret(2));
   });
 });
+
+describe("karistirma", () => {
+  it("hicbir turda sag sutun sol sutunla ayni sirada degildir", () => {
+    // Ayni sirada dizilirse cocuk harflere bakmadan satir satir
+    // eslestirip turu bitirir; oyun o turda hicbir sey ogretmez.
+    for (let sira = 0; sira < eslestirHarfTurSayisi(); sira++) {
+      const tur = eslestirHarfTuruUret(sira);
+      const kucukler = tur.sol.map((buyuk) => kucugu(buyuk)!);
+      expect(tur.sag.join(), `harf turu ${sira}`).not.toBe(kucukler.join());
+    }
+    for (let sira = 0; sira < eslestirTurSayisi(); sira++) {
+      const tur = eslestirTuruUret(sira);
+      expect(tur.sag.join(), `sayi turu ${sira}`).not.toBe(tur.sol.join());
+    }
+  });
+});
