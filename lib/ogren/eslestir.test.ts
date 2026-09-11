@@ -1,5 +1,12 @@
 import { describe, it, expect } from "vitest";
-import { eslestirTurSayisi, eslestirTuruUret, TURDAKI_CIFT } from "./eslestir";
+import {
+  eslestirHarfTurSayisi,
+  eslestirHarfTuruUret,
+  eslestirTurSayisi,
+  eslestirTuruUret,
+  kucugu,
+  TURDAKI_CIFT,
+} from "./eslestir";
 
 describe("eslestirTuruUret", () => {
   it("her turda dort cift vardir", () => {
@@ -47,5 +54,40 @@ describe("eslestirTuruUret", () => {
 
   it("ayni tur her cagrida ayni gelir", () => {
     expect(eslestirTuruUret(1)).toEqual(eslestirTuruUret(1));
+  });
+});
+
+describe("eslestirHarfTuruUret", () => {
+  it("her turda dort cift vardir", () => {
+    for (let sira = 0; sira < eslestirHarfTurSayisi(); sira++) {
+      const tur = eslestirHarfTuruUret(sira);
+      expect(tur.sol).toHaveLength(TURDAKI_CIFT);
+      expect(tur.sag).toHaveLength(TURDAKI_CIFT);
+    }
+  });
+
+  it("sag taraf soldakilerin kucuk halleridir", () => {
+    for (let sira = 0; sira < eslestirHarfTurSayisi(); sira++) {
+      const tur = eslestirHarfTuruUret(sira);
+      expect([...tur.sag].sort()).toEqual(tur.sol.map((buyuk) => kucugu(buyuk)!).sort());
+    }
+  });
+
+  it("Turkceye ozgu ciftler dogru eslesir", () => {
+    // "I".toLowerCase() JavaScript'te "i" verir; dogru karsilik "ı"dir.
+    expect(kucugu("I")).toBe("ı");
+    expect(kucugu("İ")).toBe("i");
+  });
+
+  it("turlar yirmi dokuz harfin tamamini kapsar", () => {
+    const gorulen = new Set<string>();
+    for (let sira = 0; sira < eslestirHarfTurSayisi(); sira++) {
+      for (const harf of eslestirHarfTuruUret(sira).sol) gorulen.add(harf);
+    }
+    expect(gorulen.size).toBe(29);
+  });
+
+  it("ayni tur her cagrida ayni gelir", () => {
+    expect(eslestirHarfTuruUret(2)).toEqual(eslestirHarfTuruUret(2));
   });
 });

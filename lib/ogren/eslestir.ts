@@ -6,6 +6,7 @@
 //
 // Rastgelelik yok: tur numarasindan turetilir (sunucu/tarayici ayni
 // ciziyor, test gercek turu olcuyor).
+import { HARFLER } from "./harfler";
 import { sayilabilirMiktarlar } from "./sayilar";
 
 /** Bir turdaki cift sayisi. Dortten fazlasi kucuk ekranda sigmiyor. */
@@ -17,6 +18,39 @@ export type EslestirTuru = {
   /** Sagdaki nokta gruplari; ayni sayilar, karisik sirada. */
   sag: number[];
 };
+
+/**
+ * Harf turu: solda buyuk harfler, sagda kucukleri karisik sirada.
+ *
+ * Sayi turuyle ayni fikir, ayni tur uzunlugu; degisen yalnizca eslesen
+ * seyler. Turkce'de "I".toLowerCase() yanlis sonuc verdigi icin kucuk
+ * harfler HARFLER listesinden okunur, cevrilerek uretilmez.
+ */
+export type EslestirHarfTuru = {
+  sol: string[];
+  sag: string[];
+};
+
+export function eslestirHarfTuruUret(sira: number): EslestirHarfTuru {
+  const turSayisi = eslestirHarfTurSayisi();
+  const guvenliSira = ((sira % turSayisi) + turSayisi) % turSayisi;
+  const baslangic = Math.min(guvenliSira * TURDAKI_CIFT, HARFLER.length - TURDAKI_CIFT);
+  const sol = HARFLER.slice(baslangic, baslangic + TURDAKI_CIFT);
+  const sag = karistir(sol, tohumluSayi(guvenliSira + 51));
+  return {
+    sol: sol.map((harf) => harf.buyuk),
+    sag: sag.map((harf) => harf.kucuk),
+  };
+}
+
+export function eslestirHarfTurSayisi(): number {
+  return Math.ceil(HARFLER.length / TURDAKI_CIFT);
+}
+
+/** Buyuk harfin kucugu; liste disi harf icin null. */
+export function kucugu(buyuk: string): string | null {
+  return HARFLER.find((harf) => harf.buyuk === buyuk)?.kucuk ?? null;
+}
 
 function tohumluSayi(tohum: number): () => number {
   let durum = tohum * 1597334677 + 11;

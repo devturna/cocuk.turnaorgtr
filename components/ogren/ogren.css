@@ -272,6 +272,8 @@
   line-height: 1;
 }
 
+.bulSecenegi.tek { font-size: 48px; }
+
 .bulSecenegi:active { scale: 0.97; }
 .bulSecenegi.yanlis { animation: ogrenSalla 500ms ease-in-out; }
 

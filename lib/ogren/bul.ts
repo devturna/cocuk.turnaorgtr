@@ -6,6 +6,7 @@
 //
 // Say oyunundaki gibi rastgelelik TASIMAZ: her tur, tur numarasindan
 // turetilir (sunucu/tarayici ayni ciziyor, test gercek turu olcuyor).
+import { HARFLER, type Harf } from "./harfler";
 import { sayilabilirMiktarlar } from "./sayilar";
 
 export type BulSecenegi = { miktar: number; simge: string };
@@ -71,4 +72,46 @@ export function bulTuruUret(sira: number): BulTuru {
 
 export function bulTurSayisi(): number {
   return sayilabilirMiktarlar().length;
+}
+
+export type BulHarfSecenegi = { harf: string; simge: string; kelime: string };
+
+export type BulHarfTuru = {
+  /** Ustte gosterilen buyuk harf. */
+  hedef: string;
+  secenekler: BulHarfSecenegi[];
+};
+
+/**
+ * Harf turu: "hangi kelime bu harfle basliyor?"
+ *
+ * Sayi turunden BASKA bir sey soruyor. Buyuk-kucuk eslestirmesini zaten
+ * Eslestir oyunu yapiyor; burada harf bir SESE baglaniyor, bu yasta okuma
+ * oncesi asamanin asil isi budur.
+ *
+ * Ğ hedef olamaz: hicbir Turkce kelime onunla baslamaz.
+ */
+export function bulHarfTuruUret(sira: number): BulHarfTuru {
+  const uygunlar = HARFLER.filter((harf) => !harf.basindaGecmez);
+  const guvenliSira = ((sira % uygunlar.length) + uygunlar.length) % uygunlar.length;
+  const hedef = uygunlar[guvenliSira];
+  const rastgele = tohumluSayi(guvenliSira + 501);
+
+  const digerleri = karistir(
+    uygunlar.filter((harf) => harf.buyuk !== hedef.buyuk),
+    rastgele,
+  ).slice(0, 2);
+
+  return {
+    hedef: hedef.buyuk,
+    secenekler: karistir([hedef, ...digerleri], rastgele).map(secenekYap),
+  };
+}
+
+function secenekYap(harf: Harf): BulHarfSecenegi {
+  return { harf: harf.buyuk, simge: harf.simge, kelime: harf.ornekKelime };
+}
+
+export function bulHarfTurSayisi(): number {
+  return HARFLER.filter((harf) => !harf.basindaGecmez).length;
 }

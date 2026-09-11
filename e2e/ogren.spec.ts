@@ -353,12 +353,31 @@ test("bolum girisinden Bul oyunu acilir", async ({ page }) => {
   await page.goto("/ogren/");
   await page.getByRole("link", { name: /Bul/ }).click();
   await expect(page.getByRole("heading", { name: "Bul" })).toBeVisible();
-  await expect(page.getByRole("note", { name: "Bir tane bul" })).toBeVisible();
+  // Oyun harflerle acilir: "A ile baslayan kelimeyi bul".
+  await expect(page.getByRole("note", { name: /A ile başlayan/ })).toBeVisible();
   await expect(page.locator(".bulSecenegi")).toHaveCount(3);
+});
+
+test("Bul harf turunde harfle baslayan kelime secilir", async ({ page }) => {
+  await page.goto("/ogren/bul/");
+
+  // Yanlis kelime turu bitirmez.
+  const yanlis = page.getByRole("button", { name: /^(?!Armut).*$/ }).nth(0);
+  await expect(page.getByRole("button", { name: "Armut" })).toBeVisible();
+  await yanlis.click();
+
+  await page.getByRole("button", { name: "Armut" }).click();
+  await expect(page.getByText("Armut!")).toBeVisible();
+
+  const yildizlar = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("ogren:yildizlar") ?? "{}"),
+  );
+  expect(yildizlar["harf:A"]).toContain("bul");
 });
 
 test("dogru grup yildiz kazandirir, yanlis grup cezalandirmaz", async ({ page }) => {
   await page.goto("/ogren/bul/");
+  await page.getByRole("button", { name: "123" }).click();
   await page.getByRole("button", { name: "Sonraki" }).click();
 
   // Ikinci tur: hedef iki, secenekler bir-iki-dort. Yanlis secim ekrani
@@ -377,6 +396,7 @@ test("dogru grup yildiz kazandirir, yanlis grup cezalandirmaz", async ({ page })
 
 test("secenekteki nesne sayisi gercekten o kadardir", async ({ page }) => {
   await page.goto("/ogren/bul/");
+  await page.getByRole("button", { name: "123" }).click();
   for (let tur = 0; tur < 4; tur++) {
     const secenekler = page.locator(".bulSecenegi");
     const adet = await secenekler.count();
@@ -402,8 +422,45 @@ test("bolum girisinden Eslestir oyunu acilir", async ({ page }) => {
   await expect(page.locator(".eslestirGrubu")).toHaveCount(4);
 });
 
+test("Eslestir harflerle acilir ve buyuk-kucuk ciftleri eslesir", async ({ page }) => {
+  await page.goto("/ogren/eslestir/");
+  await expect(page.getByRole("group", { name: "Büyük harfler" })).toBeVisible();
+
+  await page.getByRole("button", { name: "A", exact: true }).click();
+  await page.getByRole("button", { name: "küçük b", exact: true }).click();
+  await expect(page.locator(".eslesti")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "küçük a", exact: true }).click();
+  await expect(page.locator(".eslesti")).toHaveCount(2);
+
+  const yildizlar = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("ogren:yildizlar") ?? "{}"),
+  );
+  expect(yildizlar["harf:A"]).toContain("eslestir");
+});
+
+test("Turkceye ozgu I ve I ciftleri dogru eslesir", async ({ page }) => {
+  await page.goto("/ogren/eslestir/");
+  // I ve I ucuncu turda yan yana gelir; JavaScript'in toLowerCase'i burada
+  // yanlis cevap verirdi ("I" -> "i"), liste elle yazildigi icin dogru.
+  await page.getByRole("button", { name: "Sonraki" }).click();
+  await page.getByRole("button", { name: "Sonraki" }).click();
+  await expect(page.getByRole("button", { name: "I", exact: true })).toBeVisible();
+
+  // exact SART: Playwright'in gevsek ad eslesmesi buyuk/kucuk harf
+  // duyarsizdir ve "kucuk i" ile "kucuk i"yi ayni sayar -- Turkce'nin
+  // noktali/noktasiz i sorunu burada da cikiyor.
+  await page.getByRole("button", { name: "I", exact: true }).click();
+  await page.getByRole("button", { name: "küçük i", exact: true }).click();
+  await expect(page.locator(".eslesti")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "küçük ı", exact: true }).click();
+  await expect(page.locator(".eslesti")).toHaveCount(2);
+});
+
 test("nokta gruplari gercekten o kadar nokta tasir", async ({ page }) => {
   await page.goto("/ogren/eslestir/");
+  await page.getByRole("button", { name: "123" }).click();
   const gruplar = page.locator(".eslestirGrubu");
   for (let sira = 0; sira < (await gruplar.count()); sira++) {
     const etiket = (await gruplar.nth(sira).getAttribute("aria-label")) ?? "";
@@ -415,12 +472,14 @@ test("nokta gruplari gercekten o kadar nokta tasir", async ({ page }) => {
 
 test("rakam secilmeden grup secmek bir sey yapmaz", async ({ page }) => {
   await page.goto("/ogren/eslestir/");
+  await page.getByRole("button", { name: "123" }).click();
   await page.getByRole("button", { name: "Üç nokta" }).click();
   await expect(page.locator(".eslesti")).toHaveCount(0);
 });
 
 test("dogru cift sabitlenir, yanlis cift sallanip kalir", async ({ page }) => {
   await page.goto("/ogren/eslestir/");
+  await page.getByRole("button", { name: "123" }).click();
 
   await page.getByRole("button", { name: "Üç", exact: true }).click();
   await page.getByRole("button", { name: "Dört nokta" }).click();
@@ -437,6 +496,7 @@ test("dogru cift sabitlenir, yanlis cift sallanip kalir", async ({ page }) => {
 
 test("butun ciftler eslesince kutlama cikar", async ({ page }) => {
   await page.goto("/ogren/eslestir/");
+  await page.getByRole("button", { name: "123" }).click();
 
   for (const ad of ["Bir", "İki", "Üç", "Dört"]) {
     await page.getByRole("button", { name: ad, exact: true }).click();

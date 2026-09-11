@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { bulTurSayisi, bulTuruUret } from "./bul";
+import { bulHarfTurSayisi, bulHarfTuruUret, bulTurSayisi, bulTuruUret } from "./bul";
 
 describe("bulTuruUret", () => {
   it("hedefler birden ona dogru ilerler", () => {
@@ -62,5 +62,50 @@ describe("secenek siralamasi", () => {
     for (const sayim of sayimlar) {
       expect(sayim).toBeLessThanOrEqual(Math.ceil(bulTurSayisi() / 2));
     }
+  });
+});
+
+describe("bulHarfTuruUret", () => {
+  it("uc secenek sunar ve dogru kelime icindedir", () => {
+    for (let sira = 0; sira < bulHarfTurSayisi(); sira++) {
+      const tur = bulHarfTuruUret(sira);
+      expect(tur.secenekler).toHaveLength(3);
+      expect(tur.secenekler.map((secenek) => secenek.harf)).toContain(tur.hedef);
+    }
+  });
+
+  it("secenekler benzersizdir", () => {
+    for (let sira = 0; sira < bulHarfTurSayisi(); sira++) {
+      const harfler = bulHarfTuruUret(sira).secenekler.map((secenek) => secenek.harf);
+      expect(new Set(harfler).size).toBe(3);
+    }
+  });
+
+  it("Ğ hedef olmaz", () => {
+    // Hicbir Turkce kelime Ğ ile baslamaz.
+    for (let sira = 0; sira < bulHarfTurSayisi(); sira++) {
+      expect(bulHarfTuruUret(sira).hedef).not.toBe("Ğ");
+    }
+    expect(bulHarfTurSayisi()).toBe(28);
+  });
+
+  it("her harf bir kez hedef olur", () => {
+    const hedefler = Array.from({ length: bulHarfTurSayisi() }, (_, sira) =>
+      bulHarfTuruUret(sira).hedef,
+    );
+    expect(new Set(hedefler).size).toBe(bulHarfTurSayisi());
+  });
+
+  it("dogru secenek her zaman ayni yerde durmaz", () => {
+    const yerler = new Set<number>();
+    for (let sira = 0; sira < bulHarfTurSayisi(); sira++) {
+      const tur = bulHarfTuruUret(sira);
+      yerler.add(tur.secenekler.findIndex((secenek) => secenek.harf === tur.hedef));
+    }
+    expect(yerler.size).toBeGreaterThan(1);
+  });
+
+  it("ayni tur her cagrida ayni gelir", () => {
+    expect(bulHarfTuruUret(6)).toEqual(bulHarfTuruUret(6));
   });
 });

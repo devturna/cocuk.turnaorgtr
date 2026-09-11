@@ -148,7 +148,10 @@ resmi hatırlar.
 
 ### Eşleştir
 
-**Sayı sürümü yayında.** Solda büyük harfler, sağda karışık sırayla küçük
+**Yayında (harf ve sayı).** Harf sürümünde solda büyük, sağda küçük harfler
+durur. Küçük harfler listeden okunur, `toLowerCase()` ile üretilmez:
+JavaScript'te `"I".toLowerCase()` "i" verir, oysa Türkçe karşılık "ı"dır.
+ Solda büyük harfler, sağda karışık sırayla küçük
 harfler durur. Çocuk bir çift seçer; doğruysa ikisi de sabitlenir, yanlışsa
 hafifçe sallanıp geri döner. Bir turda dört çift olur.
 
@@ -167,6 +170,11 @@ bu yaşta kayıp değil kazançtır.
 **Yayında (rakamlar).** Üstte hedef gösterilir, altta üç seçenek bulunur.
 Doğru seçenek kutlanır ve sonraki soruya geçilir. En kısa turlu, en basit
 oyundur.
+
+Harf sürümü başka bir şey sorar: **hangi kelime bu harfle başlıyor?** Büyük
+↔ küçük eşleştirmesini zaten Eşleştir yapıyor; burada harf bir **sese**
+bağlanıyor ve okuma öncesi asıl iş budur. Ğ hedef olamaz, çünkü hiçbir
+Türkçe kelime onunla başlamaz.
 
 Sayı sürümü Say oyununun **tersi yönde** çalışır: orada çocuk sayar ve
 rakamı söyler, burada rakamı görür ve o kadar nesnenin olduğu grubu bulur.
