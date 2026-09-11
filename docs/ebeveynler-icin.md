@@ -17,6 +17,10 @@ cihazdan çıkmaz, o yüzden paylaşma da yoktur — çocuk yapar ve oynar.
 Site ücretsizdir ve ücretli hale gelmeyecektir. Reklam yoktur ve
 eklenmeyecektir.
 
+**Çocuğunuzun ilerlemesini** `/ogren/ilerleme/` adresinde görebilirsiniz:
+hangi harf hangi oyunda tamamlandı. Aynı sayfada sıfırlama düğmesi var. Bu
+kayıt yalnızca bu cihazın tarayıcı hafızasındadır.
+
 ## Hangi bilgileri topluyoruz?
 
 Hiçbirini.

@@ -2,6 +2,7 @@
 
 // Dort oyunun kartlari. Yildiz sayilari yalnizca tarayicidan okunur.
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { oyunYildizSayisi } from "@/lib/ogren/yildiz";
 import { sayilabilirMiktarlar, yazilabilirRakamlar } from "@/lib/ogren/sayilar";
 import { HARFLER } from "@/lib/ogren/harfler";
@@ -67,6 +68,12 @@ export default function BolumGirisi() {
           ilerleme={`${bulYildizi}/${toplamBulunacak}`}
         />
       </div>
+
+      {/* Ebeveyn baglantisi: kucuk ve altta. Cocugun oraya dalmasi icin bir
+          sebep yok, ebeveynin ise nerede oldugunu bilmesi yeter. */}
+      <Link href="/ogren/ilerleme/" className="ilerlemeBaglantisi">
+        Ebeveyn için: ilerleme özeti
+      </Link>
     </div>
   );
 }

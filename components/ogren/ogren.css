@@ -386,3 +386,53 @@
 
 /* Harfin ornek kelimesinin simgesi. */
 .yazOrnek { font-size: 28px; }
+
+/* --- Ebeveyn ilerleme ozeti ---
+   Bu sayfa cocuk icin degil: tablo okumak gerekir. Bolum girisinde kucuk
+   bir baglantiyla duruyor. */
+.ilerlemeBaglantisi {
+  display: inline-block;
+  margin-top: 24px;
+  color: #6c6862;
+  font-size: 14px;
+}
+
+.ilerlemeSayfasi {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px 16px 24px;
+}
+
+.ilerlemeOzet {
+  margin: 0;
+  color: #6c6862;
+  font-size: 14px;
+}
+
+.ilerlemeTablosu {
+  overflow-x: auto;
+}
+
+.ilerlemeTablosu table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+
+.ilerlemeTablosu th,
+.ilerlemeTablosu td {
+  padding: 6px 8px;
+  border: 1px solid #ded6c4;
+  text-align: center;
+}
+
+.ilerlemeTablosu thead th {
+  background: #f1e9d6;
+}
+
+.ilerlemeTablosu tbody th {
+  font-size: 18px;
+}
+
+.ilerlemeTablosu td.yok { color: #c3bbaa; }
