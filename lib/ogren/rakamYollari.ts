@@ -25,8 +25,12 @@ export const TUVAL_BOYU = 400;
  *
  * Bol nokta kullanmak cizimi yumusatir; kontrol noktalari zaten
  * kontrolNoktalari() ile seyreltildigi icin oyunun zorlugu degismez.
+ *
+ * Disa aciktir: harf yollari (harfYollari.ts) da ayni yay hesabini
+ * kullanir; iki dosyada iki ayri kopyasi olsaydi biri duzeltilirken
+ * digeri sessizce egri kalirdi.
  */
-function yay(
+export function yay(
   mx: number,
   my: number,
   yariCapX: number,

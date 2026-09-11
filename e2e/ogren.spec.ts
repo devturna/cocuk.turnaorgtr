@@ -1,18 +1,20 @@
 import { test, expect } from "@playwright/test";
-import { RAKAM_YOLLARI, kontrolNoktalari } from "../lib/ogren/rakamYollari";
+import { RAKAM_YOLLARI, kontrolNoktalari, type Vurus } from "../lib/ogren/rakamYollari";
+import { HARF_YOLLARI } from "../lib/ogren/harfYollari";
+import { HARFLER } from "../lib/ogren/harfler";
 
 // YazOyunu.tsx icindeki EN_AZ_ARALIK ile ayni olmali.
 const EN_AZ_ARALIK = 42;
 
-/** Rakamin butun kontrol noktalarindan sirayla gecerek rakami yazar. */
-async function rakamiYaz(page: import("@playwright/test").Page, rakam: number) {
+/** Butun kontrol noktalarindan sirayla gecerek ogeyi yazar. */
+async function ogeyiYaz(page: import("@playwright/test").Page, vuruslar: Vurus[]) {
   const kutu = (await page.locator(".yaziTuvali").boundingBox())!;
   const ekranNoktasi = (n: { x: number; y: number }) => ({
     x: kutu.x + (n.x / 400) * kutu.width,
     y: kutu.y + (n.y / 400) * kutu.height,
   });
 
-  for (const vurus of RAKAM_YOLLARI[rakam]) {
+  for (const vurus of vuruslar) {
     const noktalar = kontrolNoktalari(vurus, EN_AZ_ARALIK);
     const ilk = ekranNoktasi(noktalar[0]);
     await page.mouse.move(ilk.x, ilk.y);
@@ -25,13 +27,52 @@ async function rakamiYaz(page: import("@playwright/test").Page, rakam: number) {
   }
 }
 
+/** Rakami yazar. Yaz oyunu harflerle acildigi icin once takim degistirir. */
+async function rakamiYaz(page: import("@playwright/test").Page, rakam: number) {
+  await page.getByRole("button", { name: "123" }).click();
+  for (let sira = 0; sira < rakam; sira++) {
+    await page.getByRole("button", { name: "Sonraki" }).first().click();
+  }
+  await ogeyiYaz(page, RAKAM_YOLLARI[rakam]);
+}
+
 test("bolum girisinden Yaz oyunu acilir", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("link", { name: "Harfler ve Sayılar" }).click();
   await expect(page.getByRole("heading", { name: "Ne öğrenmek istersin?" })).toBeVisible();
 
   await page.getByRole("link", { name: /Yaz/ }).click();
+  // Oyun HARFLERLE acilir: bolumun adi da once harfleri soyluyor.
+  await expect(page.getByRole("heading", { name: "A", exact: true })).toBeVisible();
+});
+
+test("takim dugmesi harfler ile rakamlar arasinda gecer", async ({ page }) => {
+  await page.goto("/ogren/yaz/");
+  await expect(page.getByRole("button", { name: "ABÇ" })).toHaveAttribute("aria-pressed", "true");
+
+  await page.getByRole("button", { name: "123" }).click();
   await expect(page.getByRole("heading", { name: "Sıfır" })).toBeVisible();
+
+  await page.getByRole("button", { name: "ABÇ" }).click();
+  await expect(page.getByRole("heading", { name: "A", exact: true })).toBeVisible();
+});
+
+test("harf yazilinca harf yildizi kaydedilir", async ({ page }) => {
+  await page.goto("/ogren/yaz/");
+  await ogeyiYaz(page, HARF_YOLLARI.A);
+
+  await expect(page.getByText("Aferin!")).toBeVisible();
+  const yildizlar = await page.evaluate(() =>
+    JSON.parse(localStorage.getItem("ogren:yildizlar") ?? "{}"),
+  );
+  expect(yildizlar["harf:A"]).toContain("yaz");
+});
+
+test("harfin ornek kelimesi baslikta gorunur", async ({ page }) => {
+  await page.goto("/ogren/yaz/");
+  await expect(page.getByLabel("Armut")).toBeVisible();
+  await page.getByRole("button", { name: "Sonraki" }).first().click();
+  await expect(page.getByLabel("Balık")).toBeVisible();
 });
 
 test("rakam yazilinca kutlama cikar ve yildiz kaydedilir", async ({ page }) => {
@@ -60,13 +101,28 @@ test("kutlama kapatilabilir ve arkasindaki dugmeler yeniden kullanilabilir", asy
   await expect(page.getByRole("heading", { name: "Ne öğrenmek istersin?" })).toBeVisible();
 });
 
+// Her harfin yolu gercekten yazilabiliyor mu? Bir harfin yolu bozulursa
+// hangisi oldugu dogrudan gorunsun diye her harf ayri bir testtir.
+for (const harf of HARFLER) {
+  test(`${harf.buyuk} harfinin yolu yazilabilir`, async ({ page }) => {
+    await page.goto("/ogren/yaz/");
+    const sira = HARFLER.indexOf(harf);
+    for (let adim = 0; adim < sira; adim++) {
+      await page.getByRole("button", { name: "Sonraki" }).first().click();
+    }
+    await ogeyiYaz(page, HARF_YOLLARI[harf.buyuk]);
+    await expect(page.getByText("Aferin!")).toBeVisible();
+  });
+}
+
 test("kazanilan yildiz bolum girisinde gorunur", async ({ page }) => {
   await page.goto("/ogren/yaz/");
   await rakamiYaz(page, 0);
   await expect(page.getByText("Aferin!")).toBeVisible();
 
   await page.goto("/ogren/");
-  await expect(page.getByText("1/10")).toBeVisible();
+  // Yaz oyunu hem harfleri hem rakamlari sayar: 29 harf + 10 rakam.
+  await expect(page.getByText("1/39")).toBeVisible();
 });
 
 // Her rakamin kontrol noktalari gercekten sirayla gecilebiliyor mu?
@@ -150,6 +206,8 @@ test("aspect-ratio ve container query olmadan da tuval gorunur", async ({ page }
 test("kutlama, parmak kalkmadan cikmaz", async ({ page }) => {
   await page.goto("/ogren/yaz/");
   await expect(page.locator("body")).toHaveClass(/tamEkran/);
+  // Bu test sifir rakaminin tek vurusunu kullanir; oyun harflerle aciliyor.
+  await page.getByRole("button", { name: "123" }).click();
 
   const kutu = (await page.locator(".yaziTuvali").boundingBox())!;
   const ekranNoktasi = (n: { x: number; y: number }) => ({
@@ -177,6 +235,7 @@ test("kutlama, parmak kalkmadan cikmaz", async ({ page }) => {
 test("sonraki rakama gecince onceki rakamin izi ekranda kalmaz", async ({ page }) => {
   await page.goto("/ogren/yaz/");
   await expect(page.locator("body")).toHaveClass(/tamEkran/);
+  await page.getByRole("button", { name: "123" }).click();
 
   const kutu = (await page.locator(".yaziTuvali").boundingBox())!;
   const ekranNoktasi = (n: { x: number; y: number }) => ({
