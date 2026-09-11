@@ -61,13 +61,31 @@ function tohumluSayi(tohum: number): () => number {
 }
 
 /** Fisher-Yates; tohumlu oldugu icin sonuc her zaman ayni. */
-function karistir<T>(dizi: T[], rastgele: () => number): T[] {
+function karistirTek<T>(dizi: T[], rastgele: () => number): T[] {
   const kopya = [...dizi];
   for (let i = kopya.length - 1; i > 0; i--) {
     const j = Math.floor(rastgele() * (i + 1));
     [kopya[i], kopya[j]] = [kopya[j], kopya[i]];
   }
   return kopya;
+}
+
+/**
+ * Karistirir ve sonucun GIRDIYLE AYNI olmamasini garanti eder.
+ *
+ * Tohumlu karistirma bazen birim permutasyon uretiyor (harf turlarinin
+ * sonuncusunda oluyordu): sag sutun sol sutunla ayni sirada dizilince
+ * cocuk harflere hic bakmadan satir satir eslestirip turu bitiriyor, oyun
+ * o turda hicbir sey ogretmiyordu. Ayni durumda son iki oge yer degistirir.
+ */
+function karistir<T>(dizi: T[], rastgele: () => number): T[] {
+  const karisik = karistirTek(dizi, rastgele);
+  if (dizi.length < 2) return karisik;
+  const ayniMi = karisik.every((oge, sira) => oge === dizi[sira]);
+  if (!ayniMi) return karisik;
+  const son = karisik.length - 1;
+  [karisik[son - 1], karisik[son]] = [karisik[son], karisik[son - 1]];
+  return karisik;
 }
 
 /**

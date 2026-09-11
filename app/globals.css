@@ -98,7 +98,15 @@ body.tamEkran .altBilgi {
    Harfler ve Sayilar ile Oyunlar bolumlerinin ortak iskeleti: ust baslik,
    alt dugme cubugu ve kutlama katmani. Iki bolum ayni sekli kullaniyor;
    ayri dosyalarda tutmak ikisinin zamanla birbirinden kaymasi demekti. */
-.oyunBaslik { display: flex; align-items: center; gap: 16px; }
+/* Baslik SARAR: oyunlara takim dugmeleri (ABC / 123) eklendikten sonra
+   dar bir ekranda (320px) satir tasiyor, tamEkran kipinde sayfa da
+   kaydirilamadigi icin tasan dugme erisilemez hale geliyordu. */
+.oyunBaslik {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+}
 .oyunBaslik h1 { font-size: 24px; margin: 0; }
 
 .oyunAltBar { display: flex; gap: 12px; justify-content: center; }

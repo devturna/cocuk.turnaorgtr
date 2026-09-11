@@ -148,12 +148,16 @@ resmi hatırlar.
 
 ### Eşleştir
 
-**Yayında (harf ve sayı).** Harf sürümünde solda büyük, sağda küçük harfler
-durur. Küçük harfler listeden okunur, `toLowerCase()` ile üretilmez:
-JavaScript'te `"I".toLowerCase()` "i" verir, oysa Türkçe karşılık "ı"dır.
- Solda büyük harfler, sağda karışık sırayla küçük
-harfler durur. Çocuk bir çift seçer; doğruysa ikisi de sabitlenir, yanlışsa
-hafifçe sallanıp geri döner. Bir turda dört çift olur.
+**Yayında (harf ve sayı).** Solda büyük harfler, sağda karışık sırayla
+küçük harfler durur. Çocuk bir çift seçer; doğruysa ikisi de sabitlenir,
+yanlışsa hafifçe sallanıp geri döner. Bir turda dört çift olur.
+
+Küçük harfler listeden okunur, `toLowerCase()` ile üretilmez: JavaScript'te
+`"I".toLowerCase()` "i" verir, oysa Türkçe karşılık "ı"dır.
+
+Karıştırma sonucu girdiyle **aynı olamaz**: sağ sütun sol sütunla aynı
+sırada dizilirse çocuk harflere hiç bakmadan satır satır eşleştirip turu
+bitirir ve oyun o turda hiçbir şey öğretmez.
 
 Sayı sürümünde rakam ile nokta grubu eşleştirilir (3 ile üç nokta). Say ve
 Bul tek bir sayıyı yoklar; Eşleştir **dört sayıyı yan yana** koyar ve çocuk

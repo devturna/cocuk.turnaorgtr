@@ -141,18 +141,40 @@ export function vurusYolu(vurus: Vurus): string {
 /**
  * Cocugun ustunden gecmesi gereken noktalar.
  * Birbirine cok yakin noktalar elenir; yoksa cocuk ayni yerde takilir.
- * Ilk ve son nokta her zaman korunur.
+ *
+ * SON NOKTA da bu elemeye tabidir. Once kosulsuz ekleniyordu ve iki yerde
+ * sorun cikariyordu: Ğ'nin sapkasinda son iki nokta alti birim araliktaydi
+ * (tek dokunus ikisini birden isaretliyor, sapkanin ucuna hic gidilmiyordu),
+ * kapali halkalarda (O, Ö, sifir, sekiz) ise son nokta ILKIYLE AYNI
+ * koordinattaydi -- cocuk tepeye dokundugu anda ikisi birden isaretleniyor
+ * ve halka kapatilmadan harf bitiyordu. Vurus her durumda en az iki nokta
+ * tasir: tek noktaya inen bir vurus cizilemez.
  */
 export function kontrolNoktalari(vurus: Vurus, enAzAralik: number): Nokta[] {
   const noktalar = vurus.noktalar;
   if (noktalar.length === 0) return [];
 
   const secilenler: Nokta[] = [noktalar[0]];
-  for (let i = 1; i < noktalar.length - 1; i++) {
+  for (let i = 1; i < noktalar.length; i++) {
     const sonuncu = secilenler[secilenler.length - 1];
     const uzaklik = Math.hypot(noktalar[i].x - sonuncu.x, noktalar[i].y - sonuncu.y);
     if (uzaklik >= enAzAralik) secilenler.push(noktalar[i]);
   }
-  if (noktalar.length > 1) secilenler.push(noktalar[noktalar.length - 1]);
+
+  // Kapali halkanin son noktasi ILKIYLE ayni yerdedir (O, Ö, sifir,
+  // sekiz): parmakGecti tolerans icindeki butun isaretsiz noktalari
+  // birden isaretledigi icin cocuk tepeye dokundugu anda ikisi de
+  // yesillenir ve halka kapatilmadan vurus biterdi.
+  if (secilenler.length > 2) {
+    const ilk = secilenler[0];
+    const son = secilenler[secilenler.length - 1];
+    if (Math.hypot(son.x - ilk.x, son.y - ilk.y) < enAzAralik) secilenler.pop();
+  }
+
+  // Vurusun sonu elendiyse (son parca kisa kaldiysa) yine de bir bitis
+  // noktasi gerekiyor: en az iki nokta olmadan vurus "gecilemez".
+  if (secilenler.length === 1 && noktalar.length > 1) {
+    secilenler.push(noktalar[noktalar.length - 1]);
+  }
   return secilenler;
 }

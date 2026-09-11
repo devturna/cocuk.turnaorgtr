@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { HARFLER, harfBul } from "./harfler";
 import { HARF_YOLLARI } from "./harfYollari";
-import { TUVAL_BOYU } from "./rakamYollari";
+import { kontrolNoktalari, TUVAL_BOYU } from "./rakamYollari";
 
 describe("HARFLER", () => {
   it("Turk alfabesindeki yirmi dokuz harfi tasir", () => {
@@ -73,6 +73,61 @@ describe("HARF_YOLLARI", () => {
     for (const [harf, vuruslar] of Object.entries(HARF_YOLLARI)) {
       for (const [sira, vurus] of vuruslar.entries()) {
         expect(vurus.noktalar.length, `${harf} vurus ${sira}`).toBeGreaterThanOrEqual(2);
+      }
+    }
+  });
+});
+
+describe("simgeler", () => {
+  it("iki harf ayni simgeyi paylasmaz", () => {
+    // Bul oyununda secenekler YALNIZCA simgedir: ayni simge iki harfte
+    // gecerse cocugun onu ayirt etmesinin yolu kalmaz.
+    const simgeler = HARFLER.map((harf) => harf.simge);
+    expect(new Set(simgeler).size).toBe(simgeler.length);
+  });
+
+  it("simgeler birbirine karisacak kadar yakin degildir", () => {
+    // Gemi ve vapur ayni resmin iki adidir; ikisi bir arada sorulunca
+    // cocuk hangisinin hangisi oldugunu bilemez.
+    const cakisanlar = [
+      ["🚢", "⛴️"],
+      ["🍈", "🍉"],
+      ["🐈", "🐕"],
+    ];
+    const simgeler = new Set(HARFLER.map((harf) => harf.simge));
+    for (const [biri, digeri] of cakisanlar) {
+      expect(simgeler.has(biri) && simgeler.has(digeri), `${biri} ve ${digeri}`).toBe(false);
+    }
+  });
+});
+
+describe("kontrol noktalari", () => {
+  it("uzun vuruslar ara kontrol noktasi tasir", () => {
+    // Yalnizca uc noktalari olan bir vurus, parmak gezdirmeden iki
+    // dokunusla bitirilebilir: cizgiyi hic cizmeden harf tamamlanir.
+    for (const [harf, vuruslar] of Object.entries(HARF_YOLLARI)) {
+      for (const [sira, vurus] of vuruslar.entries()) {
+        const uzunluk = vurus.noktalar.reduce(
+          (toplam, nokta, i) =>
+            i === 0
+              ? 0
+              : toplam +
+                Math.hypot(nokta.x - vurus.noktalar[i - 1].x, nokta.y - vurus.noktalar[i - 1].y),
+          0,
+        );
+        if (uzunluk < 120) continue;
+        expect(
+          kontrolNoktalari(vurus, 42).length,
+          `${harf} vurus ${sira} (${Math.round(uzunluk)} birim)`,
+        ).toBeGreaterThanOrEqual(3);
+      }
+    }
+  });
+
+  it("her vurus en az iki kontrol noktasi tasir", () => {
+    for (const [harf, vuruslar] of Object.entries(HARF_YOLLARI)) {
+      for (const [sira, vurus] of vuruslar.entries()) {
+        expect(kontrolNoktalari(vurus, 42).length, `${harf} vurus ${sira}`).toBeGreaterThanOrEqual(2);
       }
     }
   });

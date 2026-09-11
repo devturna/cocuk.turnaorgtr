@@ -361,10 +361,16 @@ test("bolum girisinden Bul oyunu acilir", async ({ page }) => {
 test("Bul harf turunde harfle baslayan kelime secilir", async ({ page }) => {
   await page.goto("/ogren/bul/");
 
-  // Yanlis kelime turu bitirmez.
-  const yanlis = page.getByRole("button", { name: /^(?!Armut).*$/ }).nth(0);
+  // Yanlis kelime turu bitirmez. Secenek KONUMDAN seciliyor: ad
+  // duzenlemesiyle secmek ("Armut olmayan ilk dugme") takim dugmelerini de
+  // yakaliyordu ve test aslinda hicbir seceneye dokunmuyordu.
   await expect(page.getByRole("button", { name: "Armut" })).toBeVisible();
-  await yanlis.click();
+  const secenekler = page.locator(".bulSecenegi");
+  const dogruSira = (await secenekler.evaluateAll((dugmeler) =>
+    dugmeler.findIndex((dugme) => dugme.getAttribute("aria-label") === "Armut"),
+  )) as number;
+  await secenekler.nth((dogruSira + 1) % (await secenekler.count())).click();
+  await expect(page.getByText("Armut!")).toHaveCount(0);
 
   await page.getByRole("button", { name: "Armut" }).click();
   await expect(page.getByText("Armut!")).toBeVisible();
