@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { oyunYildizSayisi } from "@/lib/ogren/yildiz";
 import { sayilabilirMiktarlar, yazilabilirRakamlar } from "@/lib/ogren/sayilar";
+import { HARFLER } from "@/lib/ogren/harfler";
 import OyunKarti from "./OyunKarti";
 import "./ogren.css";
 
@@ -23,7 +24,9 @@ export default function BolumGirisi() {
     setEslestirYildizi(oyunYildizSayisi("eslestir"));
   }, []);
 
-  const toplamRakam = yazilabilirRakamlar().length;
+  // Yaz oyunu hem harfleri hem rakamlari yazdirir; ilerleme ikisinin
+  // toplamina gore olculur.
+  const toplamYazilabilir = yazilabilirRakamlar().length + HARFLER.length;
   // Say oyunu birden ona kadar sayar; yaz oyunu sifirdan dokuza yazar.
   const toplamMiktar = sayilabilirMiktarlar().length;
 
@@ -33,10 +36,10 @@ export default function BolumGirisi() {
       <div className="oyunKartlari">
         <OyunKarti
           ad="Yaz"
-          aciklama="Parmağınla rakamları yaz"
+          aciklama="Parmağınla harfleri ve rakamları yaz"
           adres="/ogren/yaz/"
           ikon="✏️"
-          ilerleme={`${yazYildizi}/${toplamRakam}`}
+          ilerleme={`${yazYildizi}/${toplamYazilabilir}`}
         />
         <OyunKarti
           ad="Say"
